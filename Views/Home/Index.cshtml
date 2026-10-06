@@ -1,0 +1,33 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Trang chủ, lối vào các chức năng Dashboard, thống kê và kết quả đặt phòng. *@
+@{
+    ViewData["Title"] = "Trang chủ";
+    var hoTen = Context.Session.GetString("HoTen");
+    var vaiTro = Context.Session.GetString("VaiTro");
+}
+
+<div class="py-4 text-center">
+    <h1 class="display-5">Hệ thống quản lý đặt phòng khách sạn</h1>
+    @if (hoTen == null)
+    {
+        <p class="lead text-muted">Vui lòng đăng nhập để sử dụng hệ thống.</p>
+        <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn-primary btn-lg">Đăng nhập</a>
+    }
+    else
+    {
+        <p class="lead text-muted">Xin chào, <strong>@hoTen</strong>.</p>
+        <div class="d-flex justify-content-center gap-2 flex-wrap">
+            @if (vaiTro == "Admin" || vaiTro == "NhanVien")
+            {
+                <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-primary btn-lg">Dashboard</a>
+                <a asp-controller="ChiTietDatPhong" asp-action="Index" class="btn btn-outline-primary btn-lg">Chi tiết đặt phòng</a>
+                <a asp-controller="ThongKe" asp-action="Index" class="btn btn-outline-secondary btn-lg">Thống kê</a>
+            }
+            else
+            {
+                <a asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi" class="btn btn-primary btn-lg">Kết quả đặt phòng của tôi</a>
+            }
+        </div>
+    }
+</div>

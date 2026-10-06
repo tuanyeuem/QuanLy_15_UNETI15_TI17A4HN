@@ -1,0 +1,95 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Tính tiền phòng và chốt kết quả cuối cùng của lần đặt phòng. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@using QuanLy_15_UNETI15_TI17A4HN.ViewModels
+@model ChotKetQuaViewModel
+@{
+    ViewData["Title"] = "Tính tiền & chốt kết quả";
+    var homNay = DateTime.Today.ToString("yyyy-MM-dd");
+}
+
+<h2 class="mb-3">Tính tiền & chốt kết quả - đặt phòng #@Model.DatPhong.MaDatPhong</h2>
+<partial name="_ThongBao" />
+
+<div class="alert alert-light border">
+    Khách hàng: <strong>@Model.DatPhong.KhachHang.HoTen</strong> &middot;
+    Nhận: @Model.DatPhong.NgayNhan.ToString("dd/MM/yyyy") &middot;
+    Trả dự kiến: @Model.DatPhong.NgayTraDuKien.ToString("dd/MM/yyyy") &middot;
+    Trạng thái: <span class="badge @TrangThaiUi.Badge(Model.DatPhong.TrangThai)">@Model.DatPhong.TrangThai</span>
+</div>
+
+@if (!Model.DuDieuKien)
+{
+    <div class="alert alert-danger">@Model.LyDoKhongDuDieuKien</div>
+}
+
+<form method="get" asp-action="ChotKetQua" class="row g-2 align-items-end mb-3">
+    <input type="hidden" name="maDatPhong" value="@Model.DatPhong.MaDatPhong" />
+    <div class="col-md-4">
+        <label class="form-label" for="ngayTra">Ngày trả thực tế</label>
+        <input id="ngayTra" type="date" name="ngayTra" class="form-control"
+               value="@Model.NgayTra.ToString("yyyy-MM-dd")" max="@homNay" />
+    </div>
+    <div class="col-md-3">
+        <button type="submit" class="btn btn-outline-primary">Tính thử</button>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Phòng</th>
+                <th>Ngày nhận</th>
+                <th>Ngày trả</th>
+                <th class="text-end">Đơn giá</th>
+                <th class="text-end">Số ngày</th>
+                <th class="text-end">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.Dong)
+            {
+                <tr>
+                    <td>@d.ChiTiet.Phong.SoPhong <small class="text-muted">(@d.ChiTiet.Phong.LoaiPhong.TenLoai)</small></td>
+                    <td>@d.ChiTiet.NgayNhan.ToString("dd/MM/yyyy")</td>
+                    <td>@d.NgayTra.ToString("dd/MM/yyyy")</td>
+                    <td class="text-end">@TrangThaiUi.Tien(d.ChiTiet.DonGia)</td>
+                    <td class="text-end">@d.SoNgay</td>
+                    <td class="text-end">@TrangThaiUi.Tien(d.ThanhTien)</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="5" class="text-end">Tổng tiền phòng</th>
+                <th class="text-end">@TrangThaiUi.Tien(Model.TongTien)</th>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-end">Đã đặt cọc</td>
+                <td class="text-end">- @TrangThaiUi.Tien(Model.TienCoc)</td>
+            </tr>
+            <tr>
+                <th colspan="5" class="text-end">@(Model.ConPhaiThu >= 0 ? "Còn phải thu" : "Hoàn lại khách")</th>
+                <th class="text-end">@TrangThaiUi.Tien(Math.Abs(Model.ConPhaiThu))</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="d-flex gap-2">
+    @if (Model.DuDieuKien)
+    {
+        <form asp-action="ChotKetQua" method="post"
+              onsubmit="return confirm('Chốt kết quả và hoàn thành đặt phòng này? Sau khi chốt sẽ không thể sửa.');">
+            <input type="hidden" name="maDatPhong" value="@Model.DatPhong.MaDatPhong" />
+            <input type="hidden" name="ngayTra" value="@Model.NgayTra.ToString("yyyy-MM-dd")" />
+            <button type="submit" name="xacNhan" value="1" class="btn btn-success">Xác nhận chốt kết quả</button>
+        </form>
+    }
+    <a asp-action="KetQua" asp-route-maDatPhong="@Model.DatPhong.MaDatPhong" class="btn btn-outline-secondary">Quay lại</a>
+</div>
+<p class="text-muted small mt-2">
+    Thời điểm cập nhật kết quả do hệ thống ghi nhận. Số ngày tính theo đêm, tối thiểu 1 ngày.
+</p>

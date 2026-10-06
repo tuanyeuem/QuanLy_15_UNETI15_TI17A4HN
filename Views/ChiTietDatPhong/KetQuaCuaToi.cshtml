@@ -1,0 +1,58 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Khách hàng xem kết quả các lần đặt phòng của chính mình. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@using QuanLy_15_UNETI15_TI17A4HN.ViewModels
+@model DanhSachPhanTrang<KetQuaCuaToiItem>
+@{
+    ViewData["Title"] = "Kết quả đặt phòng của tôi";
+}
+
+<h2 class="mb-3">Kết quả đặt phòng của tôi</h2>
+<partial name="_ThongBao" />
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Mã</th>
+                <th>Ngày đặt</th>
+                <th>Nhận phòng</th>
+                <th>Trả dự kiến</th>
+                <th class="text-end">Số phòng</th>
+                <th class="text-end">Tổng tiền</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var i in Model.Items)
+            {
+                <tr>
+                    <td>#@i.DatPhong.MaDatPhong</td>
+                    <td>@i.DatPhong.NgayDat.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@i.DatPhong.NgayNhan.ToString("dd/MM/yyyy")</td>
+                    <td>@i.DatPhong.NgayTraDuKien.ToString("dd/MM/yyyy")</td>
+                    <td class="text-end">@i.SoPhong</td>
+                    <td class="text-end">
+                        @TrangThaiUi.Tien(i.TongTien)
+                        @if (i.DatPhong.TrangThai != TrangThaiDatPhong.HoanThanh && i.DatPhong.TrangThai != TrangThaiDatPhong.DaHuy)
+                        {
+                            <small class="text-muted">(tạm tính)</small>
+                        }
+                    </td>
+                    <td><span class="badge @TrangThaiUi.Badge(i.DatPhong.TrangThai)">@i.DatPhong.TrangThai</span></td>
+                    <td>
+                        <a asp-action="KetQua" asp-route-maDatPhong="@i.DatPhong.MaDatPhong" class="btn btn-sm btn-outline-primary">Xem kết quả</a>
+                    </td>
+                </tr>
+            }
+            @if (!Model.Items.Any())
+            {
+                <tr><td colspan="8" class="text-center text-muted py-4">Bạn chưa có lần đặt phòng nào.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<partial name="_PhanTrang" model="Model" />
