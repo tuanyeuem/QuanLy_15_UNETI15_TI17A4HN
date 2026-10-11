@@ -7,7 +7,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Models;
 public class LoaiPhong
 {
     [Key]
-    public int MaLoaiPhong { get; set; }
+    public string MaLoaiPhong { get; set; }
 
     [Required(ErrorMessage = "Tên loại phòng là bắt buộc")]
     [StringLength(100)]
@@ -29,4 +29,5 @@ public class LoaiPhong
 
     [Display(Name = "Hoạt động")]
     public bool TrangThai { get; set; } = true;
+    public ICollection<Phong> phongs { get; set; }
 }

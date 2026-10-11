@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj": {}
+    "D:\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj": {
+    "D:\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
+        "projectUniqueName": "D:\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
         "projectName": "QuanLy_15_UNETI15_TI17A4HN",
-        "projectPath": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
-        "packagesPath": "C:\\Users\\tun\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\obj\\",
+        "projectPath": "D:\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
+        "packagesPath": "C:\\Users\\OS\\.nuget\\packages\\",
+        "outputPath": "D:\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\tun\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\OS\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -61,6 +61,12 @@
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
               "version": "[10.*, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.12, )"
             }
           },
           "imports": [
@@ -82,7 +88,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.AspNetCore": "(,10.0.32767]",
             "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
