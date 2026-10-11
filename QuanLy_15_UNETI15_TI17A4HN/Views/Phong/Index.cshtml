@@ -133,6 +133,84 @@
     <a asp-action="Create" class="btn btn-primary">
         + Thêm phòng
     </a>
+    <a asp-controller="Phong"
+       asp-action="TimKiem"
+       class="btn btn-success">
+        <i class="bi bi-search"></i> Tìm kiếm và lọc phòng
+    </a>
+</div>
+
+@{
+    int trangHienTai = (int)ViewBag.TrangHienTai;
+    int tongSoTrang = (int)ViewBag.TongSoTrang;
+    int tongSoPhong = (int)ViewBag.TongSoPhong;
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+    <span>
+        Trang @trangHienTai / @tongSoTrang
+        — Tổng @tongSoPhong phòng
+    </span>
+
+    <nav aria-label="Phân trang">
+        <ul class="pagination mb-0">
+
+            <li class="page-item @(trangHienTai == 1 ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="TimKiem"
+                   asp-route-tuKhoa="@ViewBag.TuKhoa"
+                   asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
+                   asp-route-tang="@ViewBag.Tang"
+                   asp-route-trangThai="@ViewBag.TrangThai"
+                   asp-route-giaTu="@ViewBag.GiaTu"
+                   asp-route-giaDen="@ViewBag.GiaDen"
+                   asp-route-ngayNhan="@ViewBag.NgayNhan"
+                   asp-route-ngayTra="@ViewBag.NgayTra"
+                   asp-route-sapXep="@ViewBag.SapXep"
+                   asp-route-trang="@(trangHienTai - 1)">
+                    Trước
+                </a>
+            </li>
+
+            @for (int i = 1; i <= tongSoTrang; i++)
+            {
+                <li class="page-item @(i == trangHienTai ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="TimKiem"
+                       asp-route-tuKhoa="@ViewBag.TuKhoa"
+                       asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
+                       asp-route-tang="@ViewBag.Tang"
+                       asp-route-trangThai="@ViewBag.TrangThai"
+                       asp-route-giaTu="@ViewBag.GiaTu"
+                       asp-route-giaDen="@ViewBag.GiaDen"
+                       asp-route-ngayNhan="@ViewBag.NgayNhan"
+                       asp-route-ngayTra="@ViewBag.NgayTra"
+                       asp-route-sapXep="@ViewBag.SapXep"
+                       asp-route-trang="@i">
+                        @i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(trangHienTai == tongSoTrang ? "disabled" : "")">
+                <a class="page-link"
+                   asp-action="TimKiem"
+                   asp-route-tuKhoa="@ViewBag.TuKhoa"
+                   asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
+                   asp-route-tang="@ViewBag.Tang"
+                   asp-route-trangThai="@ViewBag.TrangThai"
+                   asp-route-giaTu="@ViewBag.GiaTu"
+                   asp-route-giaDen="@ViewBag.GiaDen"
+                   asp-route-ngayNhan="@ViewBag.NgayNhan"
+                   asp-route-ngayTra="@ViewBag.NgayTra"
+                   asp-route-sapXep="@ViewBag.SapXep"
+                   asp-route-trang="@(trangHienTai + 1)">
+                    Sau
+                </a>
+            </li>
+
+        </ul>
+    </nav>
 </div>
 
 <div class="table-container">

@@ -19,13 +19,39 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+
+        public async Task<IActionResult> Index(int trang = 1)
         {
+            const int soDongMoiTrang = 5;
+
+            // Đếm tổng số phòng
+            int tongSoPhong = await _context.Phongs.CountAsync();
+
+            // Tính tổng số trang
+            int tongSoTrang = Math.Max(
+                1,
+                (int)Math.Ceiling(tongSoPhong / (double)soDongMoiTrang));
+
+            // Đảm bảo trang hợp lệ
+            trang = Math.Clamp(trang, 1, tongSoTrang);
+
+            // Lưu thông tin phân trang
+            ViewBag.TrangHienTai = trang;
+            ViewBag.TongSoTrang = tongSoTrang;
+            ViewBag.TongSoPhong = tongSoPhong;
+
+            // Chỉ lấy phòng thuộc trang hiện tại
             var dsPhong = await _context.Phongs
+                .AsNoTracking()
+                .OrderBy(p => p.Tang)
+                .ThenBy(p => p.SoPhong)
+                .Skip((trang - 1) * soDongMoiTrang)
+                .Take(soDongMoiTrang)
                 .ToListAsync();
 
             return View(dsPhong);
         }
+
         public async Task<IActionResult> Details(string id)
         {
             if (id == null)
@@ -480,6 +506,165 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
                 "TenLoai",
                 selectedValue
             );
+        }
+
+
+        public async Task<IActionResult> TimKiem(
+            string? tuKhoa,
+            string? maLoaiPhong,
+            int? tang,
+            string? trangThai,
+            decimal? giaTu,
+            decimal? giaDen,
+            DateTime? ngayNhan,
+            DateTime? ngayTra,
+            string? sapXep,
+            int trang = 1)
+        {
+            IQueryable<Phong> query = _context.Phongs
+                .AsNoTracking()
+                .Include(p => p.LoaiPhong);
+
+            if (!string.IsNullOrWhiteSpace(tuKhoa))
+            {
+                tuKhoa = tuKhoa.Trim();
+
+                query = query.Where(p =>
+                    p.MaPhong.Contains(tuKhoa) ||
+                    p.SoPhong.Contains(tuKhoa) ||
+                    (p.LoaiPhong != null &&
+                     p.LoaiPhong.TenLoai.Contains(tuKhoa)));
+            }
+
+            if (!string.IsNullOrWhiteSpace(maLoaiPhong) &&
+                maLoaiPhong != "all")
+            {
+                query = query.Where(p => p.MaLoaiPhong == maLoaiPhong);
+            }
+
+            if (tang.HasValue)
+            {
+                query = query.Where(p => p.Tang == tang.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(trangThai) &&
+                trangThai != "all")
+            {
+                query = query.Where(p => p.TrangThai == trangThai);
+            }
+
+            if (giaTu.HasValue)
+            {
+                query = query.Where(p => p.DonGia >= giaTu.Value);
+            }
+
+            if (giaDen.HasValue)
+            {
+                query = query.Where(p => p.DonGia <= giaDen.Value);
+            }
+
+            if (ngayNhan.HasValue && ngayTra.HasValue &&
+                ngayNhan.Value.Date >= ngayTra.Value.Date)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Ngày trả phòng phải sau ngày nhận phòng.");
+            }
+
+            ViewBag.LoaiPhongs = new SelectList(
+                await _context.LoaiPhongs
+                    .AsNoTracking()
+                    .OrderBy(l => l.TenLoai)
+                    .ToListAsync(),
+                "MaLoaiPhong",
+                "TenLoai",
+                maLoaiPhong);
+
+            IOrderedQueryable<Phong> danhSachSapXep;
+
+            switch (sapXep)
+            {
+                case "soPhongTang":
+                    danhSachSapXep = query
+                        .OrderBy(p => p.SoPhong);
+                    break;
+
+                case "soPhongGiam":
+                    danhSachSapXep = query
+                        .OrderByDescending(p => p.SoPhong);
+                    break;
+
+                case "donGiaTang":
+                    danhSachSapXep = query
+                        .OrderBy(p => p.DonGia);
+                    break;
+
+                case "donGiaGiam":
+                    danhSachSapXep = query
+                        .OrderByDescending(p => p.DonGia);
+                    break;
+
+                case "tangTang":
+                    danhSachSapXep = query
+                        .OrderBy(p => p.Tang)
+                        .ThenBy(p => p.SoPhong);
+                    break;
+
+                case "tangGiam":
+                    danhSachSapXep = query
+                        .OrderByDescending(p => p.Tang)
+                        .ThenBy(p => p.SoPhong);
+                    break;
+
+                case "tenLoaiTang":
+                    danhSachSapXep = query
+                        .OrderBy(
+                            p => p.LoaiPhong != null
+                                ? p.LoaiPhong.TenLoai
+                                : "");
+                    break;
+
+                default:
+                    danhSachSapXep = query
+                        .OrderBy(p => p.Tang)
+                        .ThenBy(p => p.SoPhong);
+                    break;
+            }
+
+
+            ViewBag.TuKhoa = tuKhoa;
+            ViewBag.MaLoaiPhong = maLoaiPhong ?? "all";
+            ViewBag.Tang = tang;
+            ViewBag.TrangThai = trangThai ?? "all";
+            ViewBag.GiaTu = giaTu;
+            ViewBag.GiaDen = giaDen;
+            ViewBag.NgayNhan = ngayNhan?.ToString("yyyy-MM-dd");
+            ViewBag.NgayTra = ngayTra?.ToString("yyyy-MM-dd");
+            ViewBag.SapXep = sapXep ?? "soPhongTang";
+
+            const int soDongMoiTrang = 5;
+
+            int tongSoPhong = await query.CountAsync();
+
+            int tongSoTrang = Math.Max(
+                1,
+                (int)Math.Ceiling(
+                    tongSoPhong / (double)soDongMoiTrang));
+
+            trang = Math.Clamp(trang, 1, tongSoTrang);
+
+            ViewBag.TrangHienTai = trang;
+            ViewBag.TongSoTrang = tongSoTrang;
+            ViewBag.TongSoPhong = tongSoPhong;
+            ViewBag.SoDongMoiTrang = soDongMoiTrang;
+
+            var danhSachPhong = await danhSachSapXep
+                .Skip((trang - 1) * soDongMoiTrang)
+                .Take(soDongMoiTrang)
+                .ToListAsync();
+
+            return View("TimKiem", danhSachPhong);
+
         }
     }
 }
