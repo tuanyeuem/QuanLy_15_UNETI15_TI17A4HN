@@ -1,0 +1,281 @@
+@model IEnumerable<QuanLy_15_UNETI15_TI17A4HN.Models.Phong>
+
+@{
+    ViewData["Title"] = "Danh sách phòng";
+}
+
+<style>
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        background-color: white;
+    }
+
+    .phong-table {
+        width: 100%;
+        min-width: 1200px;
+        margin-bottom: 0;
+        border-collapse: collapse;
+    }
+
+    .phong-table th {
+        background-color: #f8f9fa;
+        color: #212529;
+        font-weight: 600;
+        text-align: center;
+        vertical-align: middle;
+        white-space: nowrap;
+        border: 1px solid #dee2e6;
+        padding: 10px;
+    }
+
+    .phong-table td {
+        border: 1px solid #dee2e6;
+        padding: 10px;
+        vertical-align: middle;
+    }
+
+    .phong-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .cot-so-phong {
+        text-align: center;
+        white-space: nowrap;
+        font-weight: 600;
+    }
+
+    .cot-tang {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .cot-gia {
+        text-align: right;
+        white-space: nowrap;
+        font-weight: 500;
+    }
+
+    .cot-trang-thai {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .cot-ngay {
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .cot-dai {
+        min-width: 180px;
+        max-width: 300px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .cot-loai-phong {
+        min-width: 140px;
+        white-space: nowrap;
+    }
+
+    .trang-thai {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .trang-thai-trong {
+        background-color: #d1e7dd;
+        color: #0f5132;
+    }
+
+    .trang-thai-su-dung {
+        background-color: #cfe2ff;
+        color: #084298;
+    }
+
+    .trang-thai-bao-tri {
+        background-color: #fff3cd;
+        color: #664d03;
+    }
+
+    .nut-thao-tac {
+        display: flex;
+        gap: 5px;
+        justify-content: center;
+        white-space: nowrap;
+    }
+
+    .nut-thao-tac a {
+        text-decoration: none;
+    }
+
+    .tieu-de {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .tieu-de h1 {
+        margin: 0;
+    }
+</style>
+
+<div class="tieu-de">
+    <h1>Danh sách phòng</h1>
+
+    <a asp-action="Create" class="btn btn-primary">
+        + Thêm phòng
+    </a>
+</div>
+
+<div class="table-container">
+    <table class="table phong-table">
+        <thead>
+            <tr>
+                <th>Số phòng</th>
+                <th>Loại phòng</th>
+                <th>Tầng</th>
+                <th>Hướng phòng</th>
+                <th>Tiện nghi</th>
+                <th>Đơn giá</th>
+                <th>Trạng thái</th>
+                <th>Ghi chú</th>
+                <th>Ngày bảo trì</th>
+                <th>Ghi chú bảo trì</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <!-- Số phòng -->
+                    <td class="cot-so-phong">
+                        @item.SoPhong
+                    </td>
+
+                    <!-- Loại phòng -->
+                    <td class="cot-loai-phong">
+                        @if (item.LoaiPhong != null)
+                        {
+                            @item.LoaiPhong.TenLoai
+                        }
+                        else
+                        {
+                            @item.MaLoaiPhong
+                        }
+                    </td>
+
+                    <!-- Tầng -->
+                    <td class="cot-tang">
+                        @item.Tang
+                    </td>
+
+                    <!-- Hướng -->
+                    <td>
+                        @item.HuongPhong
+                    </td>
+
+                    <!-- Tiện nghi -->
+                    <td class="cot-dai">
+                        @item.TienNghi
+                    </td>
+
+                    <!-- Đơn giá -->
+                    <td class="cot-gia">
+                        @item.DonGia.ToString("N0") đ
+                    </td>
+
+                    <!-- Trạng thái -->
+                    <td class="cot-trang-thai">
+                        @if (item.TrangThai == "Trống")
+                        {
+                            <span class="trang-thai trang-thai-trong">
+                                Trống
+                            </span>
+                        }
+                        else if (item.TrangThai == "Đang sử dụng")
+                        {
+                            <span class="trang-thai trang-thai-su-dung">
+                                Đang sử dụng
+                            </span>
+                        }
+                        else if (item.TrangThai == "Bảo trì")
+                        {
+                            <span class="trang-thai trang-thai-bao-tri">
+                                Bảo trì
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="trang-thai">
+                                @item.TrangThai
+                            </span>
+                        }
+                    </td>
+
+                    <!-- Ghi chú -->
+                    <td class="cot-dai">
+                        @(string.IsNullOrWhiteSpace(item.GhiChu)
+                            ? "-"
+                            : item.GhiChu)
+                    </td>
+
+                    <!-- Ngày bảo trì -->
+                    <td class="cot-ngay">
+                        @(item.NgayBaoTri.HasValue
+                            ? item.NgayBaoTri.Value.ToString("dd/MM/yyyy")
+                            : "-")
+                    </td>
+
+                    <!-- Ghi chú bảo trì -->
+                    <td class="cot-dai">
+                        @(string.IsNullOrWhiteSpace(item.GhiChuBaoTri)
+                            ? "-"
+                            : item.GhiChuBaoTri)
+                    </td>
+
+                    <!-- Thao tác -->
+                    <td>
+                        <div class="nut-thao-tac">
+                            <a asp-action="Edit"
+                               asp-route-id="@item.MaPhong"
+                               class="btn btn-sm btn-warning">
+                                Sửa
+                            </a>
+
+                            <a asp-action="Details"
+                               asp-route-id="@item.MaPhong"
+                               class="btn btn-sm btn-info">
+                                Chi tiết
+                            </a>
+
+                            
+                            <form asp-action="Delete"
+                                  asp-route-id="@item.MaPhong"
+                                  method="post"
+                                  class="d-inline"
+                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa phòng @item.SoPhong không?');">
+
+                                @Html.AntiForgeryToken()
+
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    Xóa
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

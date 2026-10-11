@@ -1,0 +1,385 @@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.Phong
+
+@{
+    ViewData["Title"] = "Thêm phòng";
+}
+
+<style>
+    .page-container {
+        max-width: 1000px;
+        margin: 30px auto;
+    }
+
+    .page-header {
+        margin-bottom: 25px;
+    }
+
+        .page-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #212529;
+        }
+
+        .page-header p {
+            color: #6c757d;
+            margin: 0;
+        }
+
+    .form-card {
+        background: white;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 25px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .form-group {
+        margin-bottom: 18px;
+    }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 7px;
+            color: #343a40;
+        }
+
+    .form-control {
+        border-radius: 6px;
+        min-height: 40px;
+    }
+
+    textarea.form-control {
+        min-height: 90px;
+        resize: vertical;
+    }
+
+    .form-control:focus {
+        border-color: #86b7fe;
+        box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.15);
+    }
+
+    .required {
+        color: #dc3545;
+    }
+
+    .button-area {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn {
+        min-width: 110px;
+    }
+
+    .btn-back {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+    }
+
+        .btn-back:hover {
+            background-color: #5c636a;
+            color: white;
+        }
+
+    .validation-summary {
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="page-container">
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Thành công!</strong>
+            @TempData["Success"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>Thất bại!</strong>
+            @TempData["Error"]
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+    }
+
+    <div class="page-header">
+        <h1>Thêm phòng</h1>
+        <p>Nhập thông tin để thêm phòng mới vào hệ thống.</p>
+    </div>
+
+    <div class="form-card">
+
+        <div class="form-title">
+            Thông tin phòng
+        </div>
+
+        <form asp-action="Create" method="post">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="alert alert-danger validation-summary">
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="MaPhong" class="control-label">
+                            Mã phòng <span class="required">*</span>
+                        </label>
+
+                        <input asp-for="MaPhong"
+                               class="form-control"
+                               placeholder="Ví dụ: P101" />
+
+                        <span asp-validation-for="MaPhong"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+                <!-- Số phòng -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="SoPhong">
+                            Số phòng <span class="required">*</span>
+                        </label>
+
+                        <input asp-for="SoPhong"
+                               class="form-control"
+                               placeholder="Ví dụ: 101" />
+
+                        <span asp-validation-for="SoPhong"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Loại phòng -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="MaLoaiPhong" class="control-label">
+                            Loại phòng <span class="required">*</span>
+                        </label>
+
+                        <select asp-for="MaLoaiPhong"
+                                class="form-control"
+                                asp-items="ViewBag.MaLoaiPhong">
+
+                            <option value="">-- Chọn loại phòng --</option>
+
+                        </select>
+
+                        <span asp-validation-for="MaLoaiPhong"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Tầng -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Tang">
+                            Tầng <span class="required">*</span>
+                        </label>
+
+                        <input asp-for="Tang"
+                               type="number"
+                               class="form-control"
+                               min="1"
+                               max="100"
+                               placeholder="Ví dụ: 1" />
+
+                        <span asp-validation-for="Tang"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Hướng phòng -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="HuongPhong">
+                            Hướng phòng <span class="required">*</span>
+                        </label>
+
+                        <input asp-for="HuongPhong"
+                               class="form-control"
+                               placeholder="Ví dụ: Hướng Đông" />
+
+                        <span asp-validation-for="HuongPhong"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Tiện nghi -->
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="TienNghi">
+                            Tiện nghi <span class="required">*</span>
+                        </label>
+
+                        <textarea asp-for="TienNghi"
+                                  class="form-control"
+                                  placeholder="Ví dụ: Điều hòa, TV, Wifi, Tủ lạnh..."></textarea>
+
+                        <span asp-validation-for="TienNghi"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Đơn giá -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="DonGia">
+                            Đơn giá <span class="required">*</span>
+                        </label>
+
+                        <input asp-for="DonGia"
+                               type="number"
+                               class="form-control"
+                               min="0.01"
+                               step="0.01"
+                               placeholder="Ví dụ: 400000" />
+
+                        <span asp-validation-for="DonGia"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Trạng thái -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="TrangThai">
+                            Trạng thái <span class="required">*</span>
+                        </label>
+
+                        <select asp-for="TrangThai"
+                                class="form-control">
+
+                            <option value="">
+                                -- Chọn trạng thái --
+                            </option>
+
+                            <option value="Trống">
+                                Trống
+                            </option>
+
+                            <option value="Đang sử dụng">
+                                Đang sử dụng
+                            </option>
+
+                            <option value="Bảo trì">
+                                Bảo trì
+                            </option>
+
+                        </select>
+
+                        <span asp-validation-for="TrangThai"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Ghi chú -->
+                <div class="col-md-12">
+                    <div class="form-group">
+                        <label asp-for="GhiChu">
+                            Ghi chú
+                        </label>
+
+                        <textarea asp-for="GhiChu"
+                                  class="form-control"
+                                  placeholder="Nhập ghi chú nếu có..."></textarea>
+
+                        <span asp-validation-for="GhiChu"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Ngày bảo trì -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="NgayBaoTri">
+                            Ngày bảo trì
+                        </label>
+
+                        <input asp-for="NgayBaoTri"
+                               type="date"
+                               class="form-control" />
+
+                        <span asp-validation-for="NgayBaoTri"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Ghi chú bảo trì -->
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="GhiChuBaoTri">
+                            Ghi chú bảo trì
+                        </label>
+
+                        <input asp-for="GhiChuBaoTri"
+                               class="form-control"
+                               placeholder="Nhập ghi chú bảo trì nếu có..." />
+
+                        <span asp-validation-for="GhiChuBaoTri"
+                              class="text-danger">
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Nút -->
+            <div class="button-area">
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Thêm phòng
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-back">
+                    Quay lại
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

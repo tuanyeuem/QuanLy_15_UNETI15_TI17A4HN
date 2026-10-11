@@ -580,6 +580,18 @@
           }
         }
       },
+      "Microsoft.EntityFrameworkCore.Tools/10.0.12": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore.Design": "10.0.12"
+        },
+        "compile": {
+          "lib/net10.0/_._": {}
+        },
+        "runtime": {
+          "lib/net10.0/_._": {}
+        }
+      },
       "Microsoft.Extensions.DependencyModel/10.0.12": {
         "type": "package",
         "compile": {
@@ -2410,6 +2422,34 @@
         "microsoft.entityframeworkcore.sqlserver.nuspec"
       ]
     },
+    "Microsoft.EntityFrameworkCore.Tools/10.0.12": {
+      "sha512": "WuU3838sw/6wAADnwhYRPpPlXaDriq7QmrP+x4L+3plXoWI+QMFWHGhYviDjGkwEZ0b2ybOxMUy86vrb0AL9QQ==",
+      "type": "package",
+      "path": "microsoft.entityframeworkcore.tools/10.0.12",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "docs/PACKAGE.md",
+        "lib/net10.0/_._",
+        "lib/net8.0/_._",
+        "lib/net9.0/_._",
+        "microsoft.entityframeworkcore.tools.10.0.12.nupkg.sha512",
+        "microsoft.entityframeworkcore.tools.nuspec",
+        "tools/EntityFrameworkCore.PS2.psd1",
+        "tools/EntityFrameworkCore.PS2.psm1",
+        "tools/EntityFrameworkCore.psd1",
+        "tools/EntityFrameworkCore.psm1",
+        "tools/about_EntityFrameworkCore.help.txt",
+        "tools/init.ps1",
+        "tools/net472/any/ef.exe",
+        "tools/net472/win-arm64/ef.exe",
+        "tools/net472/win-x86/ef.exe",
+        "tools/net8.0/any/ef.dll",
+        "tools/net8.0/any/ef.runtimeconfig.json"
+      ]
+    },
     "Microsoft.Extensions.DependencyModel/10.0.12": {
       "sha512": "rDPQVTxh/zMTDF7wHlRqL/jjZbwjAP6315ydBxj51pZW7qkAwGwjoSiMutxYI91xmOE3ZXjAGHbYRqzyJV7Urw==",
       "type": "package",
@@ -3100,27 +3140,28 @@
   "projectFileDependencyGroups": {
     "net10.0": [
       "Microsoft.EntityFrameworkCore.Design >= 10.*",
-      "Microsoft.EntityFrameworkCore.SqlServer >= 10.*"
+      "Microsoft.EntityFrameworkCore.SqlServer >= 10.*",
+      "Microsoft.EntityFrameworkCore.Tools >= 10.0.12"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\tun\\.nuget\\packages\\": {},
+    "C:\\Users\\OS\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
+      "projectUniqueName": "D:\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
       "projectName": "QuanLy_15_UNETI15_TI17A4HN",
-      "projectPath": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
-      "packagesPath": "C:\\Users\\tun\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\obj\\",
+      "projectPath": "D:\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
+      "packagesPath": "C:\\Users\\OS\\.nuget\\packages\\",
+      "outputPath": "D:\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\tun\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\OS\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3164,6 +3205,12 @@
           "Microsoft.EntityFrameworkCore.SqlServer": {
             "target": "Package",
             "version": "[10.*, )"
+          },
+          "Microsoft.EntityFrameworkCore.Tools": {
+            "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[10.0.12, )"
           }
         },
         "imports": [
@@ -3185,7 +3232,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
