@@ -1,6 +1,6 @@
-// Họ và tên: Nguyễn Đình Tuấn
-// Mã sinh viên: 23103100235
-// Nội dung thực hiện: Dữ liệu mẫu tài khoản (Admin, Nhân viên, Khách hàng) và loại phòng.
+// Họ và tên: Vũ Xuân Tuấn
+// Mã sinh viên: 23103100035
+// Nội dung thực hiện: Thêm Phòng , Khách hàng, Đặt phòng mẫu vào cơ sở dữ liệu khi khởi tạo ứng dụng (DbSeeder.cs)
 using QuanLy_15_UNETI15_TI17A4HN.Helpers;
 using QuanLy_15_UNETI15_TI17A4HN.Models;
 
@@ -38,6 +38,116 @@ public static class DbSeeder
         }
 
         db.SaveChanges();
+        // ── Phòng (15 phòng, nhiều trạng thái) ──
+        if (!db.Phongs.Any())
+        {
+            var lp = db.LoaiPhongs.ToList();
+            int std1 = lp.First(l => l.TenLoai == "Standard Đơn").MaLoaiPhong;
+            int std2 = lp.First(l => l.TenLoai == "Standard Đôi").MaLoaiPhong;
+            int dlx  = lp.First(l => l.TenLoai == "Deluxe").MaLoaiPhong;
+            int fam  = lp.First(l => l.TenLoai == "Family").MaLoaiPhong;
+            int suit = lp.First(l => l.TenLoai == "Suite").MaLoaiPhong;
+            db.Phongs.AddRange(
+                new Phong { SoPhong = "101", MaLoaiPhong = std1, Tang = 1, HuongPhong = "Đông", DonGia = 400_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "102", MaLoaiPhong = std1, Tang = 1, HuongPhong = "Tây",  DonGia = 400_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "103", MaLoaiPhong = std2, Tang = 1, HuongPhong = "Nam",  DonGia = 600_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "201", MaLoaiPhong = std2, Tang = 2, HuongPhong = "Đông", DonGia = 600_000, TrangThai = "DangSuDung" },
+                new Phong { SoPhong = "202", MaLoaiPhong = dlx,  Tang = 2, HuongPhong = "Nam",  DonGia = 900_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "203", MaLoaiPhong = dlx,  Tang = 2, HuongPhong = "Tây",  DonGia = 900_000, TrangThai = "BaoTri", NgayBaoTri = DateTime.Today },
+                new Phong { SoPhong = "301", MaLoaiPhong = dlx,  Tang = 3, HuongPhong = "Đông", DonGia = 900_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "302", MaLoaiPhong = fam,  Tang = 3, HuongPhong = "Nam",  DonGia = 1_400_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "303", MaLoaiPhong = fam,  Tang = 3, HuongPhong = "Tây",  DonGia = 1_400_000, TrangThai = "DangSuDung" },
+                new Phong { SoPhong = "401", MaLoaiPhong = fam,  Tang = 4, HuongPhong = "Đông", DonGia = 1_400_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "402", MaLoaiPhong = suit, Tang = 4, HuongPhong = "Toàn cảnh", DonGia = 2_000_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "403", MaLoaiPhong = suit, Tang = 4, HuongPhong = "Toàn cảnh", DonGia = 2_000_000, TrangThai = "DangSuDung" },
+                new Phong { SoPhong = "501", MaLoaiPhong = suit, Tang = 5, HuongPhong = "Toàn cảnh", DonGia = 2_000_000, TrangThai = "TrongRanh" },
+                new Phong { SoPhong = "104", MaLoaiPhong = std1, Tang = 1, HuongPhong = "Bắc",  DonGia = 400_000, TrangThai = "KhongKinhDoanh" },
+                new Phong { SoPhong = "204", MaLoaiPhong = std2, Tang = 2, HuongPhong = "Bắc",  DonGia = 600_000, TrangThai = "TrongRanh" }
+            );
+            db.SaveChanges();
+        }
+        // ── Khách hàng (30 khách) ──
+        if (!db.KhachHangs.Any())
+        {
+            db.KhachHangs.AddRange(
+                new KhachHang { HoTen = "Nguyễn Văn An",     GioiTinh = "Nam",  SoDienThoai = "0901111001", Email = "an@gmail.com",     CCCD = "001001000001", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Trần Thị Bình",     GioiTinh = "Nữ",   SoDienThoai = "0901111002", Email = "binh@gmail.com",   CCCD = "001001000002", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Lê Văn Cường",      GioiTinh = "Nam",  SoDienThoai = "0901111003", Email = "cuong@gmail.com",  CCCD = "001001000003", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Phạm Thị Dung",     GioiTinh = "Nữ",   SoDienThoai = "0901111004", Email = "dung@gmail.com",   CCCD = "001001000004", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Hoàng Văn Em",      GioiTinh = "Nam",  SoDienThoai = "0901111005", Email = "em@gmail.com",     CCCD = "001001000005", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Vũ Thị Phương",     GioiTinh = "Nữ",   SoDienThoai = "0901111006", Email = "phuong@gmail.com", CCCD = "001001000006", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Đặng Văn Giang",    GioiTinh = "Nam",  SoDienThoai = "0901111007", Email = "giang@gmail.com",  CCCD = "001001000007", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Bùi Thị Hà",        GioiTinh = "Nữ",   SoDienThoai = "0901111008", Email = "ha@gmail.com",     CCCD = "001001000008", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Ngô Văn Ích",       GioiTinh = "Nam",  SoDienThoai = "0901111009", Email = "ich@gmail.com",    CCCD = "001001000009", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Đinh Thị Kim",      GioiTinh = "Nữ",   SoDienThoai = "0901111010", Email = "kim@gmail.com",    CCCD = "001001000010", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Lý Văn Long",       GioiTinh = "Nam",  SoDienThoai = "0901111011", Email = "long@gmail.com",   CCCD = "001001000011", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Phan Thị Mai",      GioiTinh = "Nữ",   SoDienThoai = "0901111012", Email = "mai@gmail.com",    CCCD = "001001000012", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Trương Văn Nam",    GioiTinh = "Nam",  SoDienThoai = "0901111013", Email = "nam@gmail.com",    CCCD = "001001000013", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Dương Thị Oanh",    GioiTinh = "Nữ",   SoDienThoai = "0901111014", Email = "oanh@gmail.com",   CCCD = "001001000014", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Hồ Văn Phúc",      GioiTinh = "Nam",  SoDienThoai = "0901111015", Email = "phuc@gmail.com",   CCCD = "001001000015", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Tô Thị Quỳnh",     GioiTinh = "Nữ",   SoDienThoai = "0901111016", Email = "quynh@gmail.com",  CCCD = "001001000016", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Cao Văn Rồng",     GioiTinh = "Nam",  SoDienThoai = "0901111017", Email = "rong@gmail.com",   CCCD = "001001000017", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Mai Thị Sen",       GioiTinh = "Nữ",   SoDienThoai = "0901111018", Email = "sen@gmail.com",    CCCD = "001001000018", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Kiều Văn Thắng",   GioiTinh = "Nam",  SoDienThoai = "0901111019", Email = "thang@gmail.com",  CCCD = "001001000019", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Lưu Thị Uyên",     GioiTinh = "Nữ",   SoDienThoai = "0901111020", Email = "uyen@gmail.com",   CCCD = "001001000020", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "John Smith",        GioiTinh = "Nam",  SoDienThoai = "0901111021", Email = "john@mail.com",    CCCD = "PASS001",      QuocTich = "Mỹ",       TrangThai = true },
+                new KhachHang { HoTen = "Emma Johnson",      GioiTinh = "Nữ",   SoDienThoai = "0901111022", Email = "emma@mail.com",    CCCD = "PASS002",      QuocTich = "Anh",      TrangThai = true },
+                new KhachHang { HoTen = "Zhang Wei",         GioiTinh = "Nam",  SoDienThoai = "0901111023", Email = "zhang@mail.com",   CCCD = "PASS003",      QuocTich = "Trung Quốc", TrangThai = true },
+                new KhachHang { HoTen = "Yuki Tanaka",       GioiTinh = "Nữ",   SoDienThoai = "0901111024", Email = "yuki@mail.com",    CCCD = "PASS004",      QuocTich = "Nhật Bản", TrangThai = true },
+                new KhachHang { HoTen = "Park Jiyeon",       GioiTinh = "Nữ",   SoDienThoai = "0901111025", Email = "park@mail.com",    CCCD = "PASS005",      QuocTich = "Hàn Quốc", TrangThai = true },
+                new KhachHang { HoTen = "Nguyễn Thị Vân",   GioiTinh = "Nữ",   SoDienThoai = "0901111026", Email = "van@gmail.com",    CCCD = "001001000026", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Trần Văn Xinh",    GioiTinh = "Nam",  SoDienThoai = "0901111027", Email = "xinh@gmail.com",   CCCD = "001001000027", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Lê Thị Yến",       GioiTinh = "Nữ",   SoDienThoai = "0901111028", Email = "yen@gmail.com",    CCCD = "001001000028", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Phạm Văn Zũng",    GioiTinh = "Nam",  SoDienThoai = "0901111029", Email = "zung@gmail.com",   CCCD = "001001000029", QuocTich = "Việt Nam", TrangThai = true },
+                new KhachHang { HoTen = "Hoàng Thị Ánh",    GioiTinh = "Nữ",   SoDienThoai = "0901111030", Email = "anh@gmail.com",    CCCD = "001001000030", QuocTich = "Việt Nam", TrangThai = false }
+            );
+            db.SaveChanges();
+        }
+        // ── Đặt phòng mẫu (50 bản ghi, nhiều trạng thái) ──
+        if (!db.DatPhongs.Any())
+        {
+            var phongs = db.Phongs.ToList();
+            var khs    = db.KhachHangs.ToList();
+            var base_  = new DateTime(2026, 9, 1);
+            // Hàm tạo nhanh
+            DatPhong Tao(int kh, string soPhong, int tuNgayOffset, int soNgay, string tt,
+                         DateTime? nhanTT = null, DateTime? traTT = null, string? lyDo = null) =>
+                new()
+                {
+                    MaKhachHang    = khs.First(k => k.HoTen.Contains(kh == 1 ? "An" : kh == 2 ? "Bình" : kh == 3 ? "Cường" : "Dung")).MaKhachHang,
+                    MaPhong        = phongs.First(p => p.SoPhong == soPhong).MaPhong,
+                    NgayDat        = base_.AddDays(tuNgayOffset - 2),
+                    NgayNhan       = base_.AddDays(tuNgayOffset),
+                    NgayTraDuKien  = base_.AddDays(tuNgayOffset + soNgay),
+                    SoNguoi        = 1,
+                    TienCoc        = 200_000,
+                    TrangThai      = tt,
+                    NgayNhanThucTe = nhanTT,
+                    NgayTraThucTe  = traTT,
+                    LyDoHuy        = lyDo
+                };
+            var khList = khs.ToList();
+            int KhId(int idx) => khList[idx % khList.Count].MaKhachHang;
+            int PhId(string so) => phongs.First(p => p.SoPhong == so).MaPhong;
+            var list = new List<DatPhong>();
+            // 10 ChoDuyet
+            for (int i = 0; i < 10; i++)
+                list.Add(new DatPhong { MaKhachHang = KhId(i),    MaPhong = PhId("101"), NgayDat = DateTime.Now.AddDays(-i),      NgayNhan = DateTime.Now.AddDays(i+1),  NgayTraDuKien = DateTime.Now.AddDays(i+3),  SoNguoi=1, TienCoc=200_000, TrangThai = TrangThaiDatPhong.ChoDuyet });
+            // 10 DaDuyet
+            for (int i = 0; i < 10; i++)
+                list.Add(new DatPhong { MaKhachHang = KhId(i+10), MaPhong = PhId("102"), NgayDat = DateTime.Now.AddDays(-i-5),   NgayNhan = DateTime.Now.AddDays(i+1),  NgayTraDuKien = DateTime.Now.AddDays(i+4),  SoNguoi=1, TienCoc=200_000, TrangThai = TrangThaiDatPhong.DaDuyet });
+            // 10 DaNhanPhong
+            for (int i = 0; i < 10; i++)
+                list.Add(new DatPhong { MaKhachHang = KhId(i+5),  MaPhong = PhId("103"), NgayDat = DateTime.Now.AddDays(-i-10),  NgayNhan = DateTime.Now.AddDays(-i),   NgayTraDuKien = DateTime.Now.AddDays(i+2),  SoNguoi=1, TienCoc=200_000, TrangThai = TrangThaiDatPhong.DaNhanPhong, NgayNhanThucTe = DateTime.Now.AddDays(-i) });
+            // 10 DaTraPhong
+            for (int i = 0; i < 10; i++)
+                list.Add(new DatPhong { MaKhachHang = KhId(i+15), MaPhong = PhId("201"), NgayDat = DateTime.Now.AddDays(-i-20), NgayNhan = DateTime.Now.AddDays(-i-10), NgayTraDuKien = DateTime.Now.AddDays(-i-5), SoNguoi=1, TienCoc=200_000, TrangThai = TrangThaiDatPhong.DaTraPhong, NgayNhanThucTe = DateTime.Now.AddDays(-i-10), NgayTraThucTe = DateTime.Now.AddDays(-i-5) });
+            // 10 Huy
+            for (int i = 0; i < 10; i++)
+                list.Add(new DatPhong { MaKhachHang = KhId(i+20), MaPhong = PhId("204"), NgayDat = DateTime.Now.AddDays(-i-3),  NgayNhan = DateTime.Now.AddDays(i+2),  NgayTraDuKien = DateTime.Now.AddDays(i+5),  SoNguoi=1, TienCoc=200_000, TrangThai = TrangThaiDatPhong.Huy, LyDoHuy = "Khách hủy vì lý do cá nhân" });
+            db.DatPhongs.AddRange(list);
+            db.SaveChanges();
+        }
     }
 
     private static TaiKhoan TaoTaiKhoan(string tenDangNhap, string matKhau, string hoTen,
