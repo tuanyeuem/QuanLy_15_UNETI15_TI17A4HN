@@ -3104,23 +3104,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\tun\\.nuget\\packages\\": {},
+    "C:\\Users\\ADMIN\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
+      "projectUniqueName": "C:\\THLT.Net\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
       "projectName": "QuanLy_15_UNETI15_TI17A4HN",
-      "projectPath": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
-      "packagesPath": "C:\\Users\\tun\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\tun\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\obj\\",
+      "projectPath": "C:\\THLT.Net\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN.csproj",
+      "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
+      "outputPath": "C:\\THLT.Net\\QuanLy_15_UNETI15_TI17A4HN\\QuanLy_15_UNETI15_TI17A4HN\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\tun\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -3185,7 +3185,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.400/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.AspNetCore": "(,10.0.32767]",
           "Microsoft.AspNetCore.Antiforgery": "(,10.0.32767]",
