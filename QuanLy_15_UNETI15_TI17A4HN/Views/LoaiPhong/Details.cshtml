@@ -1,0 +1,16 @@
+@* Họ và tên: Nguyễn Đình Tuấn
+   Mã sinh viên: 23103100235
+   Nội dung thực hiện: Xem chi tiết loại phòng. *@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.LoaiPhong
+@{ ViewData["Title"] = "Chi tiết loại phòng"; }
+
+<h1>Chi tiết loại phòng</h1>
+<dl class="row">
+    <dt class="col-sm-3">Tên loại phòng</dt><dd class="col-sm-9">@Model.TenLoai</dd>
+    <dt class="col-sm-3">Số người tối đa</dt><dd class="col-sm-9">@Model.SoNguoiToiDa người</dd>
+    <dt class="col-sm-3">Đơn giá/ngày</dt><dd class="col-sm-9">@Model.DonGiaNgay.ToString("N0") đ</dd>
+    <dt class="col-sm-3">Mô tả</dt><dd class="col-sm-9">@(Model.MoTa ?? "—")</dd>
+    <dt class="col-sm-3">Trạng thái</dt><dd class="col-sm-9">@(Model.TrangThai ? "Đang kinh doanh" : "Ngừng kinh doanh")</dd>
+</dl>
+<a asp-action="Edit" asp-route-id="@Model.MaLoaiPhong" class="btn btn-primary">Sửa</a>
+<a asp-action="Index" class="btn btn-secondary">Quay lại</a>
