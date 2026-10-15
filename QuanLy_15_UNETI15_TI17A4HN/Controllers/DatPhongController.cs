@@ -29,7 +29,10 @@ public class DatPhongController : Controller
             .Include(d => d.Phong).ThenInclude(p => p.LoaiPhong)
             .AsQueryable();
 
-        // Tìm kiếm
+        // Lấy danh sách Loại phòng (dữ liệu nền) cho dropdown bộ lọc
+        vm.DanhSachLoaiPhong = await _db.LoaiPhongs.Where(l => l.TrangThai).ToListAsync();
+
+        // Tìm kiếm theo khách hàng hoặc phòng
         if (!string.IsNullOrWhiteSpace(vm.TimKiem))
         {
             var kw = vm.TimKiem.Trim().ToLower();
@@ -37,22 +40,27 @@ public class DatPhongController : Controller
                            || d.Phong.SoPhong.ToLower().Contains(kw));
         }
 
-        // Lọc trạng thái
+        // Lọc theo dữ liệu nền (Loại phòng)
+        if (vm.MaLoaiPhong.HasValue && vm.MaLoaiPhong.Value > 0)
+            q = q.Where(d => d.Phong.MaLoaiPhong == vm.MaLoaiPhong.Value);
+
+        // Lọc theo trạng thái
         if (!string.IsNullOrWhiteSpace(vm.LocTrangThai))
             q = q.Where(d => d.TrangThai == vm.LocTrangThai);
 
-        // Lọc khoảng ngày nhận
+        // Lọc theo khoảng ngày nhận
         if (vm.TuNgay.HasValue) q = q.Where(d => d.NgayNhan >= vm.TuNgay.Value);
         if (vm.DenNgay.HasValue) q = q.Where(d => d.NgayNhan <= vm.DenNgay.Value);
 
-        // Sắp xếp
+        // Sắp xếp tăng/giảm theo ngày hoặc theo tên
         q = vm.SapXep switch
         {
-            "ngaydat_cu"   => q.OrderBy(d => d.NgayDat),
-            "ngaynhan_moi" => q.OrderByDescending(d => d.NgayNhan),
-            "ngaynhan_cu"  => q.OrderBy(d => d.NgayNhan),
-            "tenkhach"     => q.OrderBy(d => d.KhachHang.HoTen),
-            _              => q.OrderByDescending(d => d.NgayDat),   // mặc định: mới nhất
+            "ngaydat_cu"      => q.OrderBy(d => d.NgayDat),
+            "ngaynhan_moi"    => q.OrderByDescending(d => d.NgayNhan),
+            "ngaynhan_cu"     => q.OrderBy(d => d.NgayNhan),
+            "tenkhach_asc"    => q.OrderBy(d => d.KhachHang.HoTen),
+            "tenkhach_desc"   => q.OrderByDescending(d => d.KhachHang.HoTen),
+            _                 => q.OrderByDescending(d => d.NgayDat),   // mặc định: ngày đặt mới nhất
         };
 
         // Phân trang
@@ -180,7 +188,7 @@ public class DatPhongController : Controller
         return View(dp);
     }
 
-    // Đã đổi tên hàm C# thành TraPhongPost và dùng ActionName("TraPhong") để không vướng lỗi CS0111
+    
     [HttpPost, ValidateAntiForgeryToken]
     [ActionName("TraPhong")]
     public async Task<IActionResult> TraPhongPost(int id)

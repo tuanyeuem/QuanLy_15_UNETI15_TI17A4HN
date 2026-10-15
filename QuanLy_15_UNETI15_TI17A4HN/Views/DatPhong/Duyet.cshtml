@@ -1,0 +1,15 @@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong
+@{ ViewData["Title"] = "Duyệt đặt phòng"; }
+<h3>Duyệt đặt phòng #@Model.MaDatPhong</h3>
+<p><strong>Khách:</strong> @Model.KhachHang.HoTen &nbsp;|&nbsp;
+   <strong>Phòng:</strong> @Model.Phong.SoPhong (@Model.Phong.LoaiPhong.TenLoai) &nbsp;|&nbsp;
+   <strong>@Model.NgayNhan.ToString("dd/MM/yyyy")</strong> → <strong>@Model.NgayTraDuKien.ToString("dd/MM/yyyy")</strong></p>
+<form asp-action="Duyet" method="post">
+    <input type="hidden" name="id" value="@Model.MaDatPhong" />
+    <div class="mb-3">
+        <label class="form-label">Ghi chú (tùy chọn)</label>
+        <textarea name="ghiChu" class="form-control" rows="3">@Model.GhiChu</textarea>
+    </div>
+    <button type="submit" class="btn btn-info">✔ Xác nhận duyệt</button>
+    <a asp-action="ChiTiet" asp-route-id="@Model.MaDatPhong" class="btn btn-secondary ms-2">Hủy bỏ</a>
+</form>

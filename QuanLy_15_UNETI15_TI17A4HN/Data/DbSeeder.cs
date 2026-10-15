@@ -108,24 +108,7 @@ public static class DbSeeder
         {
             var phongs = db.Phongs.ToList();
             var khs    = db.KhachHangs.ToList();
-            var base_  = new DateTime(2026, 9, 1);
-            // Hàm tạo nhanh
-            DatPhong Tao(int kh, string soPhong, int tuNgayOffset, int soNgay, string tt,
-                         DateTime? nhanTT = null, DateTime? traTT = null, string? lyDo = null) =>
-                new()
-                {
-                    MaKhachHang    = khs.First(k => k.HoTen.Contains(kh == 1 ? "An" : kh == 2 ? "Bình" : kh == 3 ? "Cường" : "Dung")).MaKhachHang,
-                    MaPhong        = phongs.First(p => p.SoPhong == soPhong).MaPhong,
-                    NgayDat        = base_.AddDays(tuNgayOffset - 2),
-                    NgayNhan       = base_.AddDays(tuNgayOffset),
-                    NgayTraDuKien  = base_.AddDays(tuNgayOffset + soNgay),
-                    SoNguoi        = 1,
-                    TienCoc        = 200_000,
-                    TrangThai      = tt,
-                    NgayNhanThucTe = nhanTT,
-                    NgayTraThucTe  = traTT,
-                    LyDoHuy        = lyDo
-                };
+
             var khList = khs.ToList();
             int KhId(int idx) => khList[idx % khList.Count].MaKhachHang;
             int PhId(string so) => phongs.First(p => p.SoPhong == so).MaPhong;

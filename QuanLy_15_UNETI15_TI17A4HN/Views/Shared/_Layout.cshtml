@@ -1,4 +1,4 @@
-﻿@* Họ và tên: Nguyễn Đình Tuấn *@
+@* Họ và tên: Nguyễn Đình Tuấn *@
 @* Mã sinh viên: 23103100235 *@
 @* Nội dung thực hiện: Layout chung, menu theo trạng thái đăng nhập và vai trò. *@
 @{
@@ -39,6 +39,12 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                         </li>
 
+                        @if (daDangNhap && (vaiTro == "Admin" || vaiTro == "NhanVien"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="DatPhong" asp-action="Index">Đặt phòng</a>
+                            </li>
+                        }
                         @if (daDangNhap && vaiTro == "Admin")
                         {
                             <li class="nav-item">
