@@ -1,0 +1,31 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Xác nhận xóa chi tiết đặt phòng (chỉ khi chưa nhận phòng). *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@model ChiTietDatPhong
+@{
+    ViewData["Title"] = "Xóa chi tiết đặt phòng";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h2 class="mb-3 text-danger">Xóa chi tiết đặt phòng</h2>
+        <div class="alert alert-warning">Bạn có chắc muốn xóa phòng này khỏi lần đặt không?</div>
+
+        <dl class="row">
+            <dt class="col-sm-4">Khách hàng</dt>
+            <dd class="col-sm-8">@Model.DatPhong.KhachHang.HoTen</dd>
+            <dt class="col-sm-4">Phòng</dt>
+            <dd class="col-sm-8">@Model.Phong.SoPhong - @Model.Phong.LoaiPhong.TenLoai</dd>
+            <dt class="col-sm-4">Thời gian</dt>
+            <dd class="col-sm-8">@Model.NgayNhan.ToString("dd/MM/yyyy") - @Model.NgayTra.ToString("dd/MM/yyyy")</dd>
+            <dt class="col-sm-4">Thành tiền (tạm tính)</dt>
+            <dd class="col-sm-8">@TrangThaiUi.Tien(Model.ThanhTien)</dd>
+        </dl>
+
+        <form asp-action="Delete" asp-route-id="@Model.MaChiTiet" method="post">
+            <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+            <a asp-action="KetQua" asp-route-maDatPhong="@Model.MaDatPhong" class="btn btn-outline-secondary">Hủy</a>
+        </form>
+    </div>
+</div>

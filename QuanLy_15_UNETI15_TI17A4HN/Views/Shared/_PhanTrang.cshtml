@@ -1,0 +1,65 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Thanh phân trang dùng chung, giữ nguyên toàn bộ điều kiện tìm kiếm/lọc/sắp xếp. *@
+@using Microsoft.AspNetCore.Routing
+@model QuanLy_15_UNETI15_TI17A4HN.Helpers.IPhanTrang
+@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+
+    string Link(int trang)
+    {
+        var rv = new RouteValueDictionary();
+        foreach (var kv in Context.Request.Query)
+        {
+            if (kv.Key != "trang" && !string.IsNullOrEmpty(kv.Value))
+            {
+                rv[kv.Key] = kv.Value.ToString();
+            }
+        }
+        rv["trang"] = trang;
+        return Url.Action(action, controller, rv) ?? "#";
+    }
+
+    var tu = Math.Max(1, Model.TrangHienTai - 2);
+    var den = Math.Min(Model.TongSoTrang, Model.TrangHienTai + 2);
+}
+
+@if (Model.TongSoTrang > 1)
+{
+    <nav aria-label="Phân trang">
+        <ul class="pagination justify-content-center mb-1">
+            <li class="page-item @(Model.CoTrangTruoc ? "" : "disabled")">
+                <a class="page-link" href="@Link(Model.TrangHienTai - 1)">« Trang trước</a>
+            </li>
+            @if (tu > 1)
+            {
+                <li class="page-item"><a class="page-link" href="@Link(1)">1</a></li>
+                @if (tu > 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+            }
+            @for (var i = tu; i <= den; i++)
+            {
+                <li class="page-item @(i == Model.TrangHienTai ? "active" : "")">
+                    <a class="page-link" href="@Link(i)">@i</a>
+                </li>
+            }
+            @if (den < Model.TongSoTrang)
+            {
+                @if (den < Model.TongSoTrang - 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                }
+                <li class="page-item"><a class="page-link" href="@Link(Model.TongSoTrang)">@Model.TongSoTrang</a></li>
+            }
+            <li class="page-item @(Model.CoTrangSau ? "" : "disabled")">
+                <a class="page-link" href="@Link(Model.TrangHienTai + 1)">Trang sau »</a>
+            </li>
+        </ul>
+    </nav>
+}
+<p class="text-center text-muted small">
+    Trang @Model.TrangHienTai / @Model.TongSoTrang &middot; Tổng @Model.TongSoDong bản ghi
+</p>

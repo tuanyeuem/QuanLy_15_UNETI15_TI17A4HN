@@ -1,0 +1,12 @@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong
+@{ ViewData["Title"] = "Xác nhận nhận phòng"; }
+<h3>Xác nhận khách nhận phòng #@Model.MaDatPhong</h3>
+<div class="alert alert-info">
+    Khách <strong>@Model.KhachHang.HoTen</strong> nhận phòng <strong>@Model.Phong.SoPhong</strong>.
+    Thời điểm nhận sẽ được hệ thống ghi tự động là <strong>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong>.
+</div>
+<form asp-action="NhanPhong" method="post">
+    <input type="hidden" name="id" value="@Model.MaDatPhong" />
+    <button type="submit" class="btn btn-primary">🏠 Xác nhận</button>
+    <a asp-action="ChiTiet" asp-route-id="@Model.MaDatPhong" class="btn btn-secondary ms-2">Quay lại</a>
+</form>

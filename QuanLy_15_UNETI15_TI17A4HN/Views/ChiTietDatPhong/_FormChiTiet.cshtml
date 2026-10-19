@@ -1,0 +1,44 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Các trường nhập dùng chung cho thêm/sửa chi tiết đặt phòng. *@
+@model QuanLy_15_UNETI15_TI17A4HN.ViewModels.ChiTietDatPhongFormViewModel
+@{
+    var dangO = (ViewData["TrangThaiChiTiet"] as string) == TrangThaiChiTiet.DangO;
+}
+
+<input type="hidden" asp-for="MaChiTiet" />
+<input type="hidden" asp-for="MaDatPhong" />
+<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+<div class="mb-3">
+    <label asp-for="MaPhong" class="form-label"></label>
+    @if (dangO)
+    {
+        <input class="form-control" value="@ViewData["SoPhongHienTai"]" disabled />
+        <input type="hidden" asp-for="MaPhong" />
+        <div class="form-text">Phòng đang có khách ở nên không thể đổi sang phòng khác.</div>
+    }
+    else
+    {
+        <select asp-for="MaPhong" asp-items="Model.Phongs" class="form-select">
+            <option value="">-- Chọn phòng --</option>
+        </select>
+        <span asp-validation-for="MaPhong" class="text-danger"></span>
+    }
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-3">
+        <label asp-for="NgayNhan" class="form-label"></label>
+        <input asp-for="NgayNhan" type="date" class="form-control" />
+        <span asp-validation-for="NgayNhan" class="text-danger"></span>
+    </div>
+    <div class="col-md-6 mb-3">
+        <label asp-for="NgayTra" class="form-label"></label>
+        <input asp-for="NgayTra" type="date" class="form-control" />
+        <span asp-validation-for="NgayTra" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-text mb-3">
+    Đơn giá, số ngày và thành tiền do hệ thống tự tính, không cần nhập.
+</div>

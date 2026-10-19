@@ -1,0 +1,33 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Sửa chi tiết đặt phòng (đổi phòng/ngày khi còn cho phép). *@
+@model QuanLy_15_UNETI15_TI17A4HN.ViewModels.ChiTietDatPhongFormViewModel
+@{
+    ViewData["Title"] = "Sửa chi tiết đặt phòng";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <h2 class="mb-3">Sửa chi tiết #@Model.MaChiTiet (đặt phòng #@Model.MaDatPhong)</h2>
+        <partial name="_ThongBao" />
+
+        @if (Model.DatPhong != null)
+        {
+            <div class="alert alert-light border">
+                Khách hàng: <strong>@Model.DatPhong.KhachHang.HoTen</strong><br />
+                Thời gian đặt: @Model.DatPhong.NgayNhan.ToString("dd/MM/yyyy") - @Model.DatPhong.NgayTraDuKien.ToString("dd/MM/yyyy"),
+                @Model.DatPhong.SoNguoi người
+            </div>
+        }
+
+        <form asp-action="Edit" asp-route-id="@Model.MaChiTiet" method="post">
+            <partial name="_FormChiTiet" model="Model" />
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a asp-action="KetQua" asp-route-maDatPhong="@Model.MaDatPhong" class="btn btn-outline-secondary">Quay lại</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

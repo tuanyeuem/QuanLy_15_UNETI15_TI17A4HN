@@ -1,0 +1,95 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Báo cáo doanh thu theo khoảng ngày, xuất CSV. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@using QuanLy_15_UNETI15_TI17A4HN.ViewModels
+@model BaoCaoViewModel
+@{
+    ViewData["Title"] = "Báo cáo doanh thu";
+}
+
+<h2 class="mb-3">Báo cáo doanh thu</h2>
+
+<form method="get" asp-action="BaoCao" class="card card-body mb-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label" for="tuNgay">Từ ngày (ngày trả)</label>
+            <input id="tuNgay" type="date" name="tuNgay" value="@Model.TuNgay.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="denNgay">Đến ngày</label>
+            <input id="denNgay" type="date" name="denNgay" value="@Model.DenNgay.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="col-md-6 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">Xem báo cáo</button>
+            <a asp-action="XuatCsv" asp-route-tuNgay="@Model.TuNgay.ToString("yyyy-MM-dd")"
+               asp-route-denNgay="@Model.DenNgay.ToString("yyyy-MM-dd")" class="btn btn-outline-success">Xuất CSV (Excel)</a>
+            <button type="button" class="btn btn-outline-secondary" onclick="window.print()">In</button>
+        </div>
+    </div>
+</form>
+
+<div class="row g-3 mb-3">
+    <div class="col-md-4"><div class="card text-center"><div class="card-body">
+        <div class="text-muted">Số lượt phòng đã trả</div>
+        <div class="fs-3 fw-bold">@Model.Dong.Count</div>
+    </div></div></div>
+    <div class="col-md-4"><div class="card text-center"><div class="card-body">
+        <div class="text-muted">Tổng số đêm</div>
+        <div class="fs-3 fw-bold">@Model.TongSoDem</div>
+    </div></div></div>
+    <div class="col-md-4"><div class="card text-center"><div class="card-body">
+        <div class="text-muted">Tổng doanh thu</div>
+        <div class="fs-3 fw-bold text-success">@TrangThaiUi.Tien(Model.TongDoanhThu)</div>
+    </div></div></div>
+</div>
+
+<h5>Theo loại phòng</h5>
+<table class="table table-sm mb-4">
+    <thead class="table-light"><tr><th>Loại phòng</th><th class="text-end">Lượt</th><th class="text-end">Doanh thu</th></tr></thead>
+    <tbody>
+        @foreach (var l in Model.TheoLoai)
+        {
+            <tr><td>@l.TenLoai</td><td class="text-end">@l.SoLuot</td><td class="text-end">@TrangThaiUi.Tien(l.DoanhThu)</td></tr>
+        }
+        @if (!Model.TheoLoai.Any())
+        {
+            <tr><td colspan="3" class="text-center text-muted">Không có dữ liệu trong khoảng ngày này.</td></tr>
+        }
+    </tbody>
+</table>
+
+<h5>Chi tiết</h5>
+<div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Đặt phòng</th><th>Khách hàng</th><th>Phòng</th><th>Ngày nhận</th><th>Ngày trả</th>
+                <th class="text-end">Đơn giá</th><th class="text-end">Số ngày</th><th class="text-end">Thành tiền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.Dong)
+            {
+                <tr>
+                    <td><a asp-controller="ChiTietDatPhong" asp-action="KetQua" asp-route-maDatPhong="@d.MaDatPhong">#@d.MaDatPhong</a></td>
+                    <td>@d.DatPhong.KhachHang.HoTen</td>
+                    <td>@d.Phong.SoPhong <small class="text-muted">(@d.Phong.LoaiPhong.TenLoai)</small></td>
+                    <td>@d.NgayNhan.ToString("dd/MM/yyyy")</td>
+                    <td>@d.NgayTra.ToString("dd/MM/yyyy")</td>
+                    <td class="text-end">@TrangThaiUi.Tien(d.DonGia)</td>
+                    <td class="text-end">@d.SoNgay</td>
+                    <td class="text-end">@TrangThaiUi.Tien(d.ThanhTien)</td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="6" class="text-end">Tổng cộng</th>
+                <th class="text-end">@Model.TongSoDem</th>
+                <th class="text-end">@TrangThaiUi.Tien(Model.TongDoanhThu)</th>
+            </tr>
+        </tfoot>
+    </table>
+</div>

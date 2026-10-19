@@ -1,0 +1,120 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Xem kết quả một lần đặt phòng (cho khách hàng và nhân viên). *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@using QuanLy_15_UNETI15_TI17A4HN.ViewModels
+@model KetQuaDatPhongViewModel
+@{
+    ViewData["Title"] = "Kết quả đặt phòng #" + Model.DatPhong.MaDatPhong;
+    var vaiTro = Context.Session.GetString("VaiTro");
+    var laNhanSu = vaiTro == VaiTroTaiKhoan.Admin || vaiTro == VaiTroTaiKhoan.NhanVien;
+    var dp = Model.DatPhong;
+    var dangMo = dp.TrangThai == TrangThaiDatPhong.ChoXuLy || dp.TrangThai == TrangThaiDatPhong.DangXuLy;
+}
+
+<h2 class="mb-3">Kết quả đặt phòng #@dp.MaDatPhong</h2>
+<partial name="_ThongBao" />
+
+<div class="card mb-3">
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Khách hàng</dt>
+            <dd class="col-sm-9">@dp.KhachHang.HoTen</dd>
+            <dt class="col-sm-3">Ngày đặt</dt>
+            <dd class="col-sm-9">@dp.NgayDat.ToString("dd/MM/yyyy HH:mm")</dd>
+            <dt class="col-sm-3">Thời gian lưu trú</dt>
+            <dd class="col-sm-9">@dp.NgayNhan.ToString("dd/MM/yyyy") - @dp.NgayTraDuKien.ToString("dd/MM/yyyy") (@dp.SoNguoi người)</dd>
+            <dt class="col-sm-3">Trạng thái</dt>
+            <dd class="col-sm-9"><span class="badge @TrangThaiUi.Badge(dp.TrangThai)">@dp.TrangThai</span></dd>
+            @if (!string.IsNullOrWhiteSpace(dp.GhiChu))
+            {
+                <dt class="col-sm-3">Ghi chú</dt>
+                <dd class="col-sm-9">@dp.GhiChu</dd>
+            }
+        </dl>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Phòng</th>
+                <th>Ngày nhận</th>
+                <th>Ngày trả</th>
+                <th class="text-end">Đơn giá</th>
+                <th class="text-end">Số ngày</th>
+                <th class="text-end">Thành tiền</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model.ChiTiets)
+            {
+                var choSua = dangMo && (c.TrangThai == TrangThaiChiTiet.ChuaNhan || c.TrangThai == TrangThaiChiTiet.DangO);
+                var choXoa = dangMo && c.TrangThai == TrangThaiChiTiet.ChuaNhan;
+                <tr>
+                    <td>@c.Phong.SoPhong <small class="text-muted">(@c.Phong.LoaiPhong.TenLoai)</small></td>
+                    <td>@c.NgayNhan.ToString("dd/MM/yyyy")</td>
+                    <td>@c.NgayTra.ToString("dd/MM/yyyy")</td>
+                    <td class="text-end">@TrangThaiUi.Tien(c.DonGia)</td>
+                    <td class="text-end">@c.SoNgay</td>
+                    <td class="text-end">@TrangThaiUi.Tien(c.ThanhTien)</td>
+                    <td><span class="badge @TrangThaiUi.Badge(c.TrangThai)">@c.TrangThai</span></td>
+                    <td class="text-nowrap">
+                        <a asp-action="Details" asp-route-id="@c.MaChiTiet" class="btn btn-sm btn-outline-info">Xem</a>
+                        @if (laNhanSu && choSua)
+                        {
+                            <a asp-action="Edit" asp-route-id="@c.MaChiTiet" class="btn btn-sm btn-outline-primary">Sửa</a>
+                        }
+                        @if (laNhanSu && choXoa)
+                        {
+                            <a asp-action="Delete" asp-route-id="@c.MaChiTiet" class="btn btn-sm btn-outline-danger">Xóa</a>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!Model.ChiTiets.Any())
+            {
+                <tr><td colspan="8" class="text-center text-muted py-3">Lần đặt này chưa có phòng nào.</td></tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="5" class="text-end">@(Model.DaHoanTat ? "Tổng tiền" : "Tổng tiền (tạm tính)")</th>
+                <th class="text-end">@TrangThaiUi.Tien(Model.TongTien)</th>
+                <th colspan="2"></th>
+            </tr>
+            <tr>
+                <td colspan="5" class="text-end">Đã đặt cọc</td>
+                <td class="text-end">- @TrangThaiUi.Tien(dp.TienCoc)</td>
+                <td colspan="2"></td>
+            </tr>
+            <tr>
+                <th colspan="5" class="text-end">@(Model.ConPhaiThu >= 0 ? "Còn phải thanh toán" : "Hoàn lại khách")</th>
+                <th class="text-end">@TrangThaiUi.Tien(Math.Abs(Model.ConPhaiThu))</th>
+                <th colspan="2"></th>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<div class="d-flex gap-2">
+    @if (laNhanSu)
+    {
+        @if (dangMo)
+        {
+            <a asp-action="Create" asp-route-maDatPhong="@dp.MaDatPhong" class="btn btn-outline-primary">+ Thêm phòng</a>
+        }
+        @if (dp.TrangThai == TrangThaiDatPhong.DangXuLy)
+        {
+            <a asp-action="ChotKetQua" asp-route-maDatPhong="@dp.MaDatPhong" class="btn btn-success">Tính tiền & chốt kết quả</a>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">Về danh sách</a>
+    }
+    else
+    {
+        <a asp-action="KetQuaCuaToi" class="btn btn-outline-secondary">Về danh sách của tôi</a>
+    }
+</div>

@@ -1,0 +1,105 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Dashboard tổng quan hệ thống đặt phòng khách sạn. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@using QuanLy_15_UNETI15_TI17A4HN.ViewModels
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="mb-3">Dashboard</h2>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center h-100"><div class="card-body">
+            <div class="text-muted">Loại phòng</div>
+            <div class="fs-2 fw-bold">@Model.TongLoaiPhong</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center h-100"><div class="card-body">
+            <div class="text-muted">Tổng số phòng</div>
+            <div class="fs-2 fw-bold">@Model.TongPhong</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center h-100 border-success"><div class="card-body">
+            <div class="text-muted">Phòng đang khả dụng</div>
+            <div class="fs-2 fw-bold text-success">@Model.PhongKhaDung</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center h-100"><div class="card-body">
+            <div class="text-muted">Khách hàng</div>
+            <div class="fs-2 fw-bold">@Model.TongKhachHang</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center h-100"><div class="card-body">
+            <div class="text-muted">Tổng giao dịch</div>
+            <div class="fs-2 fw-bold">@Model.TongGiaoDich</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center h-100 border-warning"><div class="card-body">
+            <div class="text-muted">Chờ xử lý</div>
+            <div class="fs-2 fw-bold text-warning">@Model.ChoXuLy</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center h-100 border-primary"><div class="card-body">
+            <div class="text-muted">Đang xử lý</div>
+            <div class="fs-2 fw-bold text-primary">@Model.DangXuLy</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center h-100 border-success"><div class="card-body">
+            <div class="text-muted">Hoàn thành</div>
+            <div class="fs-2 fw-bold text-success">@Model.HoanThanh</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card h-100 bg-light"><div class="card-body">
+            <div class="text-muted">Tổng doanh thu (phòng đã trả)</div>
+            <div class="fs-1 fw-bold text-success">@TrangThaiUi.Tien(Model.TongDoanhThu)</div>
+            <a asp-action="Index" class="btn btn-sm btn-outline-primary mt-2">Xem thống kê</a>
+            <a asp-action="BaoCao" class="btn btn-sm btn-outline-secondary mt-2">Báo cáo doanh thu</a>
+        </div></div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100"><div class="card-body">
+            <div class="text-muted">Giao dịch hủy</div>
+            <div class="fs-2 fw-bold">@Model.DaHuy</div>
+            <div class="text-muted small">trên tổng @Model.TongGiaoDich giao dịch</div>
+        </div></div>
+    </div>
+</div>
+
+<h5>Đặt phòng gần đây</h5>
+<div class="table-responsive">
+    <table class="table table-sm align-middle">
+        <thead class="table-light">
+            <tr><th>Mã</th><th>Khách hàng</th><th>Ngày đặt</th><th>Nhận - Trả dự kiến</th><th>Trạng thái</th><th></th></tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.GanDay)
+            {
+                <tr>
+                    <td>#@d.MaDatPhong</td>
+                    <td>@d.KhachHang.HoTen</td>
+                    <td>@d.NgayDat.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@d.NgayNhan.ToString("dd/MM/yyyy") - @d.NgayTraDuKien.ToString("dd/MM/yyyy")</td>
+                    <td><span class="badge @TrangThaiUi.Badge(d.TrangThai)">@d.TrangThai</span></td>
+                    <td><a asp-controller="ChiTietDatPhong" asp-action="KetQua" asp-route-maDatPhong="@d.MaDatPhong" class="btn btn-sm btn-outline-primary">Xem</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

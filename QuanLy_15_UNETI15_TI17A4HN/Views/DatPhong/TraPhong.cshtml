@@ -1,0 +1,13 @@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong
+@{ ViewData["Title"] = "Xác nhận trả phòng"; }
+<h3>Xác nhận khách trả phòng #@Model.MaDatPhong</h3>
+<div class="alert alert-warning">
+    Khách <strong>@Model.KhachHang.HoTen</strong> trả phòng <strong>@Model.Phong.SoPhong</strong>.
+    Thời điểm trả sẽ được hệ thống ghi tự động là <strong>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong>.
+    Sau khi xác nhận, hệ thống mở bước tính tiền của Module 5. Đặt phòng chỉ hoàn tất khi nhân viên chốt kết quả.
+</div>
+<form asp-action="TraPhong" method="post">
+    <input type="hidden" name="id" value="@Model.MaDatPhong" />
+    <button type="submit" class="btn btn-success">🚪 Xác nhận trả phòng</button>
+    <a asp-action="ChiTiet" asp-route-id="@Model.MaDatPhong" class="btn btn-secondary ms-2">Quay lại</a>
+</form>

@@ -1,0 +1,166 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Thống kê bằng LINQ: phòng theo loại, tỷ lệ sử dụng, lượt đặt, doanh thu, lượt hủy. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@using QuanLy_15_UNETI15_TI17A4HN.ViewModels
+@model ThongKeViewModel
+@{
+    ViewData["Title"] = "Thống kê";
+    var maxLuot = Math.Max(1, Model.TheoThang.Max(t => t.SoLuot));
+    var maxTien = Math.Max(1m, Model.TheoThang.Max(t => t.DoanhThu));
+    var maxLoai = Math.Max(1m, Model.DoanhThuTheoLoai.Any() ? Model.DoanhThuTheoLoai.Max(t => t.DoanhThu) : 1m);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Thống kê năm @Model.Nam</h2>
+    <form method="get" asp-action="Index" class="d-flex gap-2">
+        <select name="nam" class="form-select" onchange="this.form.submit()">
+            @foreach (var n in Model.CacNam)
+            {
+                <option value="@n" selected="@(n == Model.Nam)">Năm @n</option>
+            }
+        </select>
+    </form>
+</div>
+
+@if (!Model.CoDuLieu)
+{
+    <div class="alert alert-info">Năm @Model.Nam chưa có lượt đặt hay doanh thu nào.</div>
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card text-center h-100"><div class="card-body">
+        <div class="text-muted">Tổng lượt đặt</div>
+        <div class="fs-3 fw-bold">@Model.TongLuotDatTrongNam</div>
+    </div></div></div>
+    <div class="col-md-3"><div class="card text-center h-100"><div class="card-body">
+        <div class="text-muted">Số lượt hủy</div>
+        <div class="fs-3 fw-bold text-danger">@Model.SoLuotHuyTrongNam</div>
+    </div></div></div>
+    <div class="col-md-3"><div class="card text-center h-100"><div class="card-body">
+        <div class="text-muted">Doanh thu năm</div>
+        <div class="fs-3 fw-bold text-success">@TrangThaiUi.Tien(Model.TongDoanhThuTrongNam)</div>
+    </div></div></div>
+    <div class="col-md-3"><div class="card text-center h-100"><div class="card-body">
+        <div class="text-muted">Tỷ lệ sử dụng phòng hiện tại</div>
+        <div class="fs-3 fw-bold">@Model.TyLeSuDungChung%</div>
+        <div class="small text-muted">@Model.PhongDangSuDung / @Model.PhongKinhDoanh phòng kinh doanh</div>
+    </div></div></div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <h5>Số phòng và tỷ lệ sử dụng theo loại</h5>
+        <table class="table table-sm align-middle">
+            <thead class="table-light">
+                <tr><th>Loại phòng</th><th class="text-end">Số phòng</th><th class="text-end">Đang sử dụng</th><th style="width:35%">Tỷ lệ</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.TyLeSuDung)
+                {
+                    <tr>
+                        <td>@t.TenLoai</td>
+                        <td class="text-end">@t.TongPhong</td>
+                        <td class="text-end">@t.DangSuDung</td>
+                        <td>
+                            <div class="progress" role="progressbar" aria-label="@t.TenLoai">
+                                <div class="progress-bar" style="width:@t.TyLe.ToString(System.Globalization.CultureInfo.InvariantCulture)%">@t.TyLe%</div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        <div class="small text-muted">Tỷ lệ sử dụng = số phòng đang có khách / tổng số phòng của loại đó.</div>
+    </div>
+
+    <div class="col-lg-6">
+        <h5>Doanh thu theo loại phòng</h5>
+        <div class="small text-muted mb-1">Chỉ tính phòng đã trả; loại nào đứng đầu là loại mang lại nhiều doanh thu nhất.</div>
+        <table class="table table-sm align-middle">
+            <thead class="table-light">
+                <tr><th>Loại phòng</th><th class="text-end">Lượt</th><th class="text-end">Doanh thu</th><th style="width:30%"></th></tr>
+            </thead>
+            <tbody>
+                @foreach (var t in Model.DoanhThuTheoLoai)
+                {
+                    var pt = (int)Math.Round(t.DoanhThu * 100 / maxLoai);
+                    <tr>
+                        <td>@t.TenLoai</td>
+                        <td class="text-end">@t.SoLuot</td>
+                        <td class="text-end">@TrangThaiUi.Tien(t.DoanhThu)</td>
+                        <td><div class="progress"><div class="progress-bar bg-success" style="width:@pt%"></div></div></td>
+                    </tr>
+                }
+                @if (!Model.DoanhThuTheoLoai.Any())
+                {
+                    <tr><td colspan="4" class="text-center text-muted">Chưa có doanh thu trong năm này.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<h5>Lượt đặt và doanh thu theo tháng</h5>
+<div class="small text-muted mb-1">Lượt đặt tính theo ngày đặt; doanh thu tính theo ngày trả thực tế của phòng đã trả.</div>
+<table class="table table-sm align-middle mb-4">
+    <thead class="table-light">
+        <tr>
+            <th>Tháng</th>
+            <th class="text-end">Số lượt đặt</th>
+            <th style="width:25%"></th>
+            <th class="text-end">Doanh thu</th>
+            <th style="width:25%"></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model.TheoThang)
+        {
+            var ptLuot = t.SoLuot * 100 / maxLuot;
+            var ptTien = (int)Math.Round(t.DoanhThu * 100 / maxTien);
+            <tr>
+                <td>Tháng @t.Thang</td>
+                <td class="text-end">@t.SoLuot</td>
+                <td><div class="progress"><div class="progress-bar" style="width:@ptLuot%"></div></div></td>
+                <td class="text-end">@TrangThaiUi.Tien(t.DoanhThu)</td>
+                <td><div class="progress"><div class="progress-bar bg-success" style="width:@ptTien%"></div></div></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <h5>Phòng được đặt nhiều nhất</h5>
+        <div class="small text-muted mb-1">Top 5 phòng có nhiều lượt đặt nhất (không tính lượt đã hủy).</div>
+        <table class="table table-sm align-middle">
+            <thead class="table-light">
+                <tr><th>#</th><th>Phòng</th><th>Loại</th><th class="text-end">Lượt đặt</th><th class="text-end">Tổng tiền</th></tr>
+            </thead>
+            <tbody>
+                @{ var stt = 1; }
+                @foreach (var p in Model.PhongDatNhieuNhat)
+                {
+                    <tr>
+                        <td>@(stt++)</td>
+                        <td>@p.SoPhong</td>
+                        <td>@p.TenLoai</td>
+                        <td class="text-end">@p.SoLuot</td>
+                        <td class="text-end">@TrangThaiUi.Tien(p.TongTien)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="col-lg-6">
+        <h5>Số phòng theo loại</h5>
+        <ul class="list-group">
+            @foreach (var l in Model.SoPhongTheoLoai)
+            {
+                <li class="list-group-item d-flex justify-content-between">
+                    <span>@l.Ten</span><span class="badge bg-secondary">@l.SoLuong phòng</span>
+                </li>
+            }
+        </ul>
+    </div>
+</div>
