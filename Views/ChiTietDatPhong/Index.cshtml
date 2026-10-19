@@ -1,0 +1,125 @@
+@* Họ và tên: Lê Văn Thanh *@
+@* Mã sinh viên: 23103100200 *@
+@* Nội dung thực hiện: Module 5 - Danh sách chi tiết đặt phòng: tìm kiếm, lọc, sắp xếp, phân trang. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@using QuanLy_15_UNETI15_TI17A4HN.ViewModels
+@model ChiTietDatPhongIndexViewModel
+@{
+    ViewData["Title"] = "Chi tiết đặt phòng";
+}
+
+<h2 class="mb-3">Chi tiết đặt phòng</h2>
+<partial name="_ThongBao" />
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="row g-2">
+        <div class="col-md-4">
+            <label class="form-label" for="tuKhoa">Tìm kiếm</label>
+            <input id="tuKhoa" name="tuKhoa" value="@Model.TuKhoa" class="form-control"
+                   placeholder="Tên khách hàng, số phòng, loại phòng" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="maLoaiPhong">Loại phòng</label>
+            <select id="maLoaiPhong" name="maLoaiPhong" class="form-select">
+                <option value="">Tất cả</option>
+                @foreach (var l in Model.LoaiPhongs)
+                {
+                    <option value="@l.Value" selected="@(l.Value == Model.MaLoaiPhong?.ToString())">@l.Text</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="trangThai">Trạng thái</label>
+            <select id="trangThai" name="trangThai" class="form-select">
+                <option value="">Tất cả</option>
+                @foreach (var t in TrangThaiChiTiet.TatCa)
+                {
+                    <option value="@t" selected="@(t == Model.TrangThai)">@t</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="tuNgay">Nhận từ ngày</label>
+            <input id="tuNgay" type="date" name="tuNgay" value="@(Model.TuNgay?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="col-md-2">
+            <label class="form-label" for="denNgay">Đến ngày</label>
+            <input id="denNgay" type="date" name="denNgay" value="@(Model.DenNgay?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="col-md-3">
+            <label class="form-label" for="sapXep">Sắp xếp</label>
+            <select id="sapXep" name="sapXep" class="form-select">
+                <option value="ngay_giam" selected="@(Model.SapXep == "ngay_giam")">Ngày nhận mới nhất</option>
+                <option value="ngay_tang" selected="@(Model.SapXep == "ngay_tang")">Ngày nhận cũ nhất</option>
+                <option value="ten_az" selected="@(Model.SapXep == "ten_az")">Tên khách A → Z</option>
+                <option value="tien_giam" selected="@(Model.SapXep == "tien_giam")">Thành tiền giảm dần</option>
+                <option value="tien_tang" selected="@(Model.SapXep == "tien_tang")">Thành tiền tăng dần</option>
+            </select>
+        </div>
+        <div class="col-md-9 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary">Lọc</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Xóa bộ lọc</a>
+        </div>
+    </div>
+</form>
+
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Mã</th>
+                <th>Đặt phòng</th>
+                <th>Khách hàng</th>
+                <th>Phòng</th>
+                <th>Ngày nhận</th>
+                <th>Ngày trả</th>
+                <th class="text-end">Đơn giá</th>
+                <th class="text-end">Số ngày</th>
+                <th class="text-end">Thành tiền</th>
+                <th>Trạng thái</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var c in Model.KetQua.Items)
+            {
+                var datPhongMo = c.DatPhong.TrangThai == TrangThaiDatPhong.ChoXuLy
+                              || c.DatPhong.TrangThai == TrangThaiDatPhong.DangXuLy;
+                var choSua = datPhongMo && (c.TrangThai == TrangThaiChiTiet.ChuaNhan || c.TrangThai == TrangThaiChiTiet.DangO);
+                var choXoa = datPhongMo && c.TrangThai == TrangThaiChiTiet.ChuaNhan;
+                <tr>
+                    <td>@c.MaChiTiet</td>
+                    <td>
+                        <a asp-action="KetQua" asp-route-maDatPhong="@c.MaDatPhong">#@c.MaDatPhong</a>
+                        <span class="badge @TrangThaiUi.Badge(c.DatPhong.TrangThai)">@c.DatPhong.TrangThai</span>
+                    </td>
+                    <td>@c.DatPhong.KhachHang.HoTen</td>
+                    <td>@c.Phong.SoPhong <small class="text-muted">(@c.Phong.LoaiPhong.TenLoai)</small></td>
+                    <td>@c.NgayNhan.ToString("dd/MM/yyyy")</td>
+                    <td>@c.NgayTra.ToString("dd/MM/yyyy")</td>
+                    <td class="text-end">@TrangThaiUi.Tien(c.DonGia)</td>
+                    <td class="text-end">@c.SoNgay</td>
+                    <td class="text-end fw-semibold">@TrangThaiUi.Tien(c.ThanhTien)</td>
+                    <td><span class="badge @TrangThaiUi.Badge(c.TrangThai)">@c.TrangThai</span></td>
+                    <td class="text-nowrap">
+                        <a asp-action="Details" asp-route-id="@c.MaChiTiet" class="btn btn-sm btn-outline-info">Xem</a>
+                        @if (choSua)
+                        {
+                            <a asp-action="Edit" asp-route-id="@c.MaChiTiet" class="btn btn-sm btn-outline-primary">Sửa</a>
+                        }
+                        @if (choXoa)
+                        {
+                            <a asp-action="Delete" asp-route-id="@c.MaChiTiet" class="btn btn-sm btn-outline-danger">Xóa</a>
+                        }
+                    </td>
+                </tr>
+            }
+            @if (!Model.KetQua.Items.Any())
+            {
+                <tr><td colspan="11" class="text-center text-muted py-4">Không có chi tiết đặt phòng phù hợp.</td></tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<partial name="_PhanTrang" model="Model.KetQua" />
