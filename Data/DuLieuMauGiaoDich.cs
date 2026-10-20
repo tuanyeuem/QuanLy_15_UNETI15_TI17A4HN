@@ -178,6 +178,7 @@ public static class DuLieuMauGiaoDich
             db.DatPhongs.Add(new DatPhong
             {
                 MaKhachHang = khachs[i % khachs.Count].MaKhachHang,
+                MaPhong = phong.MaPhong,
                 NgayDat = ngayDat,
                 NgayNhan = nhan,
                 NgayTraDuKien = tra,

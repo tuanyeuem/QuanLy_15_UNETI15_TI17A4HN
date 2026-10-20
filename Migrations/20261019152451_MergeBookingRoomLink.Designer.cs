@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
 
@@ -11,9 +12,11 @@ using QuanLy_15_UNETI15_TI17A4HN.Data;
 namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20261019152451_MergeBookingRoomLink")]
+    partial class MergeBookingRoomLink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,55 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.ChiTietDatPhong", b =>
+                {
+                    b.Property<int>("MaChiTiet")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaChiTiet"));
+
+                    b.Property<decimal>("DonGia")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("MaDatPhong")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaPhong")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("NgayCapNhat")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("NgayNhan")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("NgayTra")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SoNgay")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ThanhTien")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TrangThai")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("MaChiTiet");
+
+                    b.HasIndex("MaDatPhong");
+
+                    b.HasIndex("MaPhong", "NgayNhan", "NgayTra");
+
+                    b.ToTable("ChiTietDatPhongs", t =>
+                        {
+                            t.HasCheckConstraint("CK_ChiTietDatPhong_GiaTri", "[DonGia] >= 0 AND [SoNgay] >= 0 AND [ThanhTien] >= 0 AND [NgayTra] >= [NgayNhan]");
+                        });
+                });
 
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong", b =>
                 {
@@ -79,6 +131,37 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     b.ToTable("DatPhongs");
                 });
 
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.DichVu", b =>
+                {
+                    b.Property<int>("MaDichVu")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaDichVu"));
+
+                    b.Property<decimal>("DonGia")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("DonViTinh")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("TenDichVu")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("TrangThai")
+                        .HasColumnType("bit");
+
+                    b.HasKey("MaDichVu");
+
+                    b.HasIndex("TenDichVu")
+                        .IsUnique();
+
+                    b.ToTable("DichVus");
+                });
+
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.KhachHang", b =>
                 {
                     b.Property<int>("MaKhachHang")
@@ -88,8 +171,9 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaKhachHang"));
 
                     b.Property<string>("CCCD")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
 
                     b.Property<string>("DiaChi")
                         .HasMaxLength(200)
@@ -130,6 +214,9 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("MaKhachHang");
+
+                    b.HasIndex("CCCD")
+                        .IsUnique();
 
                     b.HasIndex("MaTaiKhoan");
 
@@ -270,6 +357,25 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     b.ToTable("TaiKhoans");
                 });
 
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.ChiTietDatPhong", b =>
+                {
+                    b.HasOne("QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong", "DatPhong")
+                        .WithMany("ChiTietDatPhongs")
+                        .HasForeignKey("MaDatPhong")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuanLy_15_UNETI15_TI17A4HN.Models.Phong", "Phong")
+                        .WithMany("ChiTietDatPhongs")
+                        .HasForeignKey("MaPhong")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("DatPhong");
+
+                    b.Navigation("Phong");
+                });
+
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong", b =>
                 {
                     b.HasOne("QuanLy_15_UNETI15_TI17A4HN.Models.KhachHang", "KhachHang")
@@ -294,7 +400,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     b.HasOne("QuanLy_15_UNETI15_TI17A4HN.Models.TaiKhoan", "TaiKhoan")
                         .WithMany()
                         .HasForeignKey("MaTaiKhoan")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("TaiKhoan");
                 });
@@ -310,6 +416,11 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     b.Navigation("LoaiPhong");
                 });
 
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong", b =>
+                {
+                    b.Navigation("ChiTietDatPhongs");
+                });
+
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.KhachHang", b =>
                 {
                     b.Navigation("DatPhongs");
@@ -317,6 +428,8 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
 
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.Phong", b =>
                 {
+                    b.Navigation("ChiTietDatPhongs");
+
                     b.Navigation("DatPhongs");
                 });
 #pragma warning restore 612, 618

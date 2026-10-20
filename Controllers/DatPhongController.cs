@@ -132,7 +132,7 @@ public class DatPhongController : Controller
         if (trungLich)
         { TempData["Loi"] = "Phòng đã có lịch đặt trùng thời gian."; return RedirectToAction(nameof(ChiTiet), new { id }); }
 
-        if (dp.Phong.TrangThai is not ("TrongRanh" or "DangSuDung"))
+        if (dp.Phong.TrangThai is not (TrangThaiPhong.SanSang or TrangThaiPhong.DangSuDung))
         { TempData["Loi"] = "Phòng không ở trạng thái có thể đặt."; return RedirectToAction(nameof(ChiTiet), new { id }); }
 
         dp.TrangThai = TrangThaiDatPhong.DaDuyet;

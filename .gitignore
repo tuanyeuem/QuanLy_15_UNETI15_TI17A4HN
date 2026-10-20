@@ -480,3 +480,14 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+# Visual Studio
+.vs/
+**/.vs/
+
+# Build output
+bin/
+obj/
+
+# User-specific files
+*.user
+*.suo

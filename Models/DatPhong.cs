@@ -68,4 +68,5 @@ public class DatPhong
     // Navigation
     public KhachHang KhachHang { get; set; } = null!;
     public Phong Phong { get; set; } = null!;
+    public ICollection<ChiTietDatPhong> ChiTietDatPhongs { get; set; } = new List<ChiTietDatPhong>();
 }

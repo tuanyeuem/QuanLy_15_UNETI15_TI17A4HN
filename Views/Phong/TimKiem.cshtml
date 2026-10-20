@@ -1,0 +1,299 @@
+@model IEnumerable<QuanLy_15_UNETI15_TI17A4HN.Models.Phong>
+
+@{
+    ViewData["Title"] = "Tìm kiếm phòng";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Tìm kiếm và lọc phòng</h2>
+
+        <a asp-controller="Phong"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Quay lại danh sách phòng
+        </a>
+    </div>
+
+    <form asp-controller="Phong"
+          asp-action="TimKiem"
+          method="get"
+          class="card card-body mb-4">
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Từ khóa</label>
+                <input type="text"
+                       name="tuKhoa"
+                       value="@Context.Request.Query["tuKhoa"]"
+                       class="form-control"
+                       placeholder="Số phòng, mã phòng, tên loại phòng" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Loại phòng</label>
+                <select name="maLoaiPhong"
+                        class="form-select"
+                        asp-items="ViewBag.LoaiPhongs">
+                    <option value="all">Tất cả loại phòng</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Tầng</label>
+                <select name="tang" class="form-select">
+                    <option value="">Tất cả tầng</option>
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                        <option value="@i"
+                                selected="@(Context.Request.Query["tang"] == i.ToString())">
+                            Tầng @i
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Trạng thái</label>
+                <select name="trangThai" class="form-select">
+                    <option value="all">Tất cả trạng thái</option>
+                    <option value="Trống"
+                            selected="@(Context.Request.Query["trangThai"] == "Trống")">
+                        Trống
+                    </option>
+                    <option value="Đang sử dụng"
+                            selected="@(Context.Request.Query["trangThai"] == "Đang sử dụng")">
+                        Đang sử dụng
+                    </option>
+                    <option value="Bảo trì"
+                            selected="@(Context.Request.Query["trangThai"] == "Bảo trì")">
+                        Bảo trì
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Giá từ (VNĐ)</label>
+                <input type="number"
+                       name="giaTu"
+                       min="0"
+                       value="@Context.Request.Query["giaTu"]"
+                       class="form-control"
+                       placeholder="Giá thấp nhất" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Giá đến (VNĐ)</label>
+                <input type="number"
+                       name="giaDen"
+                       min="0"
+                       value="@Context.Request.Query["giaDen"]"
+                       class="form-control"
+                       placeholder="Giá cao nhất" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Ngày nhận phòng</label>
+                <input type="date"
+                       name="ngayNhan"
+                       value="@Context.Request.Query["ngayNhan"]"
+                       class="form-control" />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Ngày trả phòng</label>
+                <input type="date"
+                       name="ngayTra"
+                       value="@Context.Request.Query["ngayTra"]"
+                       min="@Context.Request.Query["ngayNhan"]"
+                       class="form-control" />
+            </div>
+            <!-- Sắp xếp kết quả -->
+    <div class="col-md-4">
+        <label class="form-label">Sắp xếp theo</label>
+
+        <select name="sapXep" class="form-select">
+            <option value="soPhongTang"
+                    selected="@(Context.Request.Query["sapXep"] == "soPhongTang")">
+                Số phòng: tăng dần
+            </option>
+
+            <option value="soPhongGiam"
+                    selected="@(Context.Request.Query["sapXep"] == "soPhongGiam")">
+                Số phòng: giảm dần
+            </option>
+
+            <option value="donGiaTang"
+                    selected="@(Context.Request.Query["sapXep"] == "donGiaTang")">
+                Đơn giá: thấp đến cao
+            </option>
+
+            <option value="donGiaGiam"
+                    selected="@(Context.Request.Query["sapXep"] == "donGiaGiam")">
+                Đơn giá: cao xuống thấp
+            </option>
+
+            <option value="tangTang"
+                    selected="@(Context.Request.Query["sapXep"] == "tangTang")">
+                Tầng: thấp đến cao
+            </option>
+
+            <option value="tangGiam"
+                    selected="@(Context.Request.Query["sapXep"] == "tangGiam")">
+                Tầng: cao xuống thấp
+            </option>
+
+            <option value="tenLoaiTang"
+                    selected="@(Context.Request.Query["sapXep"] == "tenLoaiTang")">
+                Tên loại phòng: A → Z
+            </option>
+        </select>
+    </div>
+
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                Tìm kiếm
+            </button>
+
+            <a asp-controller="Phong"
+               asp-action="TimKiem"
+               class="btn btn-outline-secondary">
+                Xóa bộ lọc
+            </a>
+        </div>
+    </form>
+
+    <h4 class="mb-3">Kết quả tìm kiếm</h4>
+    
+    @{
+        int trangHienTai = (int)ViewBag.TrangHienTai;
+        int tongSoTrang = (int)ViewBag.TongSoTrang;
+        int tongSoPhong = (int)ViewBag.TongSoPhong;
+    }
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
+        <span>
+            Trang @trangHienTai / @tongSoTrang
+            — Tổng @tongSoPhong phòng
+        </span>
+
+        <nav aria-label="Phân trang">
+            <ul class="pagination mb-0">
+
+                <li class="page-item @(trangHienTai == 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="TimKiem"
+                       asp-route-tuKhoa="@ViewBag.TuKhoa"
+                       asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
+                       asp-route-tang="@ViewBag.Tang"
+                       asp-route-trangThai="@ViewBag.TrangThai"
+                       asp-route-giaTu="@ViewBag.GiaTu"
+                       asp-route-giaDen="@ViewBag.GiaDen"
+                       asp-route-ngayNhan="@ViewBag.NgayNhan"
+                       asp-route-ngayTra="@ViewBag.NgayTra"
+                       asp-route-sapXep="@ViewBag.SapXep"
+                       asp-route-trang="@(trangHienTai - 1)">
+                        Trước
+                    </a>
+                </li>
+
+
+                @for (int i = 1; i <= tongSoTrang; i++)
+                {
+                    <li class="page-item @(i == trangHienTai ? "active" : "")">
+                        <a class="page-link"
+                           asp-action="TimKiem"
+                           asp-route-tuKhoa="@ViewBag.TuKhoa"
+                           asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
+                           asp-route-tang="@ViewBag.Tang"
+                           asp-route-trangThai="@ViewBag.TrangThai"
+                           asp-route-giaTu="@ViewBag.GiaTu"
+                           asp-route-giaDen="@ViewBag.GiaDen"
+                           asp-route-ngayNhan="@ViewBag.NgayNhan"
+                           asp-route-ngayTra="@ViewBag.NgayTra"
+                           asp-route-sapXep="@ViewBag.SapXep"
+                           asp-route-trang="@i">
+                            @i
+                        </a>
+                    </li>
+                }
+
+
+                <li class="page-item @(trangHienTai == tongSoTrang ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-action="TimKiem"
+                       asp-route-tuKhoa="@ViewBag.TuKhoa"
+                       asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
+                       asp-route-tang="@ViewBag.Tang"
+                       asp-route-trangThai="@ViewBag.TrangThai"
+                       asp-route-giaTu="@ViewBag.GiaTu"
+                       asp-route-giaDen="@ViewBag.GiaDen"
+                       asp-route-ngayNhan="@ViewBag.NgayNhan"
+                       asp-route-ngayTra="@ViewBag.NgayTra"
+                       asp-route-sapXep="@ViewBag.SapXep"
+                       asp-route-trang="@(trangHienTai + 1)">
+                        Sau
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Số phòng</th>
+                    <th>Loại phòng</th>
+                    <th>Tầng</th>
+                    <th>Đơn giá</th>
+                    <th>Trạng thái</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model != null && Model.Any())
+                {
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.SoPhong</td>
+                            <td>
+                                @(item.LoaiPhong?.TenLoai ?? item.MaLoaiPhong.ToString())
+                            </td>
+                            <td>@item.Tang</td>
+                            <td>@item.DonGia.ToString("N0") đ</td>
+                            <td>@item.TrangThai</td>
+                            <td class="text-nowrap">
+                                <a asp-action="Details"
+                                   asp-route-id="@item.MaPhong"
+                                   class="btn btn-sm btn-info">
+                                    Chi tiết
+                                </a>
+
+                                <a asp-action="Edit"
+                                   asp-route-id="@item.MaPhong"
+                                   class="btn btn-sm btn-warning">
+                                    Sửa
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            Không tìm thấy phòng phù hợp.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

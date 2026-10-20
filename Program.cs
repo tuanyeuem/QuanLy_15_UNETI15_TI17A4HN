@@ -21,6 +21,29 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+    // A legacy database may already have the complete schema from the old
+    // 20261013171529 migration, which is no longer in this merged source tree.
+    // Adopt the overlapping migration only when its recorded predecessor and
+    // every table it creates are present; otherwise let EF apply it normally.
+    db.Database.ExecuteSqlRaw("""
+        IF OBJECT_ID(N'[dbo].[__EFMigrationsHistory]', N'U') IS NOT NULL
+        AND EXISTS (SELECT 1 FROM [__EFMigrationsHistory]
+                    WHERE [MigrationId] = N'20261013171529_TaoCSDLDayDuKhachSan')
+           AND NOT EXISTS (SELECT 1 FROM [__EFMigrationsHistory]
+                           WHERE [MigrationId] = N'20261006012500_Them_ChiTietDatPhong_VaCacEntityNen')
+           AND OBJECT_ID(N'[dbo].[DichVus]', N'U') IS NOT NULL
+           AND OBJECT_ID(N'[dbo].[KhachHangs]', N'U') IS NOT NULL
+           AND OBJECT_ID(N'[dbo].[Phongs]', N'U') IS NOT NULL
+           AND OBJECT_ID(N'[dbo].[DatPhongs]', N'U') IS NOT NULL
+           AND OBJECT_ID(N'[dbo].[ChiTietDatPhongs]', N'U') IS NOT NULL
+        BEGIN
+            INSERT INTO [__EFMigrationsHistory] ([MigrationId], [ProductVersion])
+            VALUES (N'20261006012500_Them_ChiTietDatPhong_VaCacEntityNen', N'10.0.13');
+        END;
+        """);
+
+    db.Database.Migrate();
     DbSeeder.Seed(db);
 }
 // Configure the HTTP request pipeline.

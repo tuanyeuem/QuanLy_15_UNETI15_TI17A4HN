@@ -1,6 +1,3 @@
-// Họ và tên: Lê Văn Thanh
-// Mã sinh viên: 23103100200
-// Nội dung thực hiện: Module 5 - Entity LoaiPhong (nền tảng) phục vụ thống kê phòng theo loại.
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,24 +8,23 @@ public class LoaiPhong
     [Key]
     public int MaLoaiPhong { get; set; }
 
-    [Required(ErrorMessage = "Tên loại phòng là bắt buộc")]
-    [StringLength(100)]
-    [Display(Name = "Tên loại phòng")]
+    [Required, StringLength(100)]
+    [Display(Name = "T?n lo?i ph?ng")]
     public string TenLoai { get; set; } = string.Empty;
 
-    [Range(1, 20, ErrorMessage = "Số người tối đa từ 1 đến 20")]
-    [Display(Name = "Số người tối đa")]
+    [Range(1, 20)]
+    [Display(Name = "S? ng??i t?i ?a")]
     public int SoNguoiToiDa { get; set; }
 
-    [Range(0, double.MaxValue, ErrorMessage = "Đơn giá phải lớn hơn hoặc bằng 0")]
+    [Range(0, double.MaxValue)]
     [Column(TypeName = "decimal(18,2)")]
-    [Display(Name = "Đơn giá/ngày")]
+    [Display(Name = "??n gi?/ng?y")]
     public decimal DonGiaNgay { get; set; }
 
     [StringLength(500)]
-    [Display(Name = "Mô tả")]
+    [Display(Name = "M? t?")]
     public string? MoTa { get; set; }
 
-    [Display(Name = "Hoạt động")]
+    [Display(Name = "Ho?t ??ng")]
     public bool TrangThai { get; set; } = true;
 }

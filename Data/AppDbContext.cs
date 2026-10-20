@@ -47,6 +47,9 @@ public class AppDbContext : DbContext
             e.HasOne(d => d.KhachHang).WithMany(k => k.DatPhongs)
                 .HasForeignKey(d => d.MaKhachHang)
                 .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(d => d.Phong).WithMany(p => p.DatPhongs)
+                .HasForeignKey(d => d.MaPhong)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         // Module 5: chi tiết gắn bắt buộc với DatPhong và Phong; không xóa dây chuyền để giữ lịch sử.
