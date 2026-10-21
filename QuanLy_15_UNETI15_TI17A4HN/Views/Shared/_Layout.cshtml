@@ -11,7 +11,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Qu?n l? kh?ch s?n</title>
+    <title>@ViewData["Title"] - Quản lý khách sạn</title>
     <script type="importmap"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -21,30 +21,25 @@
 <header>
     <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
         <div class="container-fluid">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">Qu?n l? kh?ch s?n</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="M? menu"><span class="navbar-toggler-icon"></span></button>
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index">Quản lý khách sạn</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Mở menu"><span class="navbar-toggler-icon"></span></button>
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Trang ch?</a></li>
+                    <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
                     @if (quanTri || nhanVien) {
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="Phong" asp-action="Index">Ph?ng</a></li>
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="DatPhong" asp-action="Index">??t ph?ng</a></li>
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ChiTietDatPhong" asp-action="Index">Chi ti?t ??t ph?ng</a></li>
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ThongKe" asp-action="Index">Th?ng k?</a></li>
-                    }
-                    @if (quanTri) {
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="LoaiPhong" asp-action="Index">Lo?i ph?ng</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ChiTietDatPhong" asp-action="Index">Chi tiết đặt phòng</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ThongKe" asp-action="Index">Thống kê</a></li>
                     }
                     @if (khachHang) {
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">??t ph?ng c?a t?i</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">Đặt phòng của tôi</a></li>
                     }
                 </ul>
                 <ul class="navbar-nav">
                     @if (!daDangNhap) {
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="TaiKhoan" asp-action="DangNhap">??ng nh?p</a></li>
+                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a></li>
                     } else {
-                        <li class="nav-item"><span class="nav-link text-dark">Xin ch?o, @hoTen (@vaiTro)</span></li>
-                        <li class="nav-item"><form asp-controller="TaiKhoan" asp-action="DangXuat" method="post"><button type="submit" class="btn btn-link nav-link text-dark">??ng xu?t</button></form></li>
+                        <li class="nav-item"><span class="nav-link text-dark">Xin chào, @hoTen (@vaiTro)</span></li>
+                        <li class="nav-item"><form asp-controller="TaiKhoan" asp-action="DangXuat" method="post"><button type="submit" class="btn btn-link nav-link text-dark">Đăng xuất</button></form></li>
                     }
                 </ul>
             </div>
@@ -52,7 +47,7 @@
     </nav>
 </header>
 <div class="container"><main role="main" class="pb-3">@RenderBody()</main></div>
-<footer class="border-top footer text-muted"><div class="container">&copy; 2026 - Qu?n l? ??t ph?ng kh?ch s?n</div></footer>
+<footer class="border-top footer text-muted"><div class="container">&copy; 2026 - Quản lý đặt phòng khách sạn</div></footer>
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>

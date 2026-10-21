@@ -5,10 +5,10 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Models;
 
 public static class TrangThaiPhong
 {
-    public const string SanSang = "S?n s?ng";
-    public const string DangSuDung = "?ang s? d?ng";
-    public const string BaoTri = "B?o tr?";
-    public const string KhongKinhDoanh = "Kh?ng kinh doanh";
+    public const string SanSang = "Sẵn sàng";
+    public const string DangSuDung = "Đang sử dụng";
+    public const string BaoTri = "Bảo trì";
+    public const string KhongKinhDoanh = "Không kinh doanh";
     public static readonly string[] TatCa = { SanSang, DangSuDung, BaoTri, KhongKinhDoanh };
 }
 
@@ -18,37 +18,37 @@ public class Phong
     public int MaPhong { get; set; }
 
     [Required, StringLength(10)]
-    [Display(Name = "S? ph?ng")]
+    [Display(Name = "Số phòng")]
     public string SoPhong { get; set; } = string.Empty;
 
-    [Required, Display(Name = "Lo?i ph?ng")]
+    [Required, Display(Name = "Loại phòng")]
     public int MaLoaiPhong { get; set; }
     public LoaiPhong LoaiPhong { get; set; } = null!;
 
-    [Range(1, 100), Display(Name = "T?ng")]
+    [Range(1, 100), Display(Name = "Tầng")]
     public int Tang { get; set; }
 
-    [StringLength(50), Display(Name = "H??ng ph?ng")]
+    [StringLength(50), Display(Name = "Hướng phòng")]
     public string? HuongPhong { get; set; }
 
-    [StringLength(500), Display(Name = "Ti?n nghi")]
+    [StringLength(500), Display(Name = "Tiện nghi")]
     public string? TienNghi { get; set; }
 
     [Range(0, 1_000_000_000)]
     [Column(TypeName = "decimal(18,2)")]
-    [Display(Name = "??n gi?/ng?y")]
+    [Display(Name = "Đơn giá/ngày")]
     public decimal DonGia { get; set; }
 
-    [Required, StringLength(30), Display(Name = "Tr?ng th?i")]
+    [Required, StringLength(30), Display(Name = "Trạng thái")]
     public string TrangThai { get; set; } = TrangThaiPhong.SanSang;
 
-    [StringLength(500), Display(Name = "Ghi ch?")]
+    [StringLength(500), Display(Name = "Ghi chú")]
     public string? GhiChu { get; set; }
 
-    [DataType(DataType.Date), Display(Name = "Ng?y b?o tr?")]
+    [DataType(DataType.Date), Display(Name = "Ngày bảo trì")]
     public DateTime? NgayBaoTri { get; set; }
 
-    [StringLength(500), Display(Name = "Ghi ch? b?o tr?")]
+    [StringLength(500), Display(Name = "Ghi chú bảo trì")]
     public string? GhiChuBaoTri { get; set; }
 
     public ICollection<DatPhong> DatPhongs { get; set; } = new List<DatPhong>();
