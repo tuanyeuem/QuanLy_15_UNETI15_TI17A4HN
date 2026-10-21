@@ -1,34 +1,55 @@
-// Họ và tên: Lê Văn Thanh
-// Mã sinh viên: 23103100200
-// Nội dung thực hiện: Module 5 - Attribute kiểm tra đăng nhập và vai trò tại Controller (Admin/NhanVien/KhachHang).
+// Họ và tên: Nguyễn Đình Quang
+// Mã sinh viên: 23103100259
+// Nội dung thực hiện: Hợp nhất bộ lọc phân quyền, xác nhận Session với tài khoản hoạt động trong DB.
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.EntityFrameworkCore;
+using QuanLy_15_UNETI15_TI17A4HN.Data;
 
 namespace QuanLy_15_UNETI15_TI17A4HN.Helpers;
 
-// Dùng: [PhanQuyen] (chỉ cần đăng nhập) hoặc [PhanQuyen("Admin", "NhanVien")]
-public class PhanQuyenAttribute : ActionFilterAttribute
+public sealed class PhanQuyenAttribute : ActionFilterAttribute
 {
     private readonly string[] _vaiTros;
 
     public PhanQuyenAttribute(params string[] vaiTros) => _vaiTros = vaiTros;
 
-    public override void OnActionExecuting(ActionExecutingContext context)
+    public override async Task OnActionExecutionAsync(
+        ActionExecutingContext context,
+        ActionExecutionDelegate next)
     {
-        var session = context.HttpContext.Session;
-        var request = context.HttpContext.Request;
+        var http = context.HttpContext;
+        var session = http.Session;
+        var maTaiKhoan = session.GetInt32("MaTaiKhoan");
 
-        if (session.GetInt32("MaTaiKhoan") == null)
+        if (!maTaiKhoan.HasValue)
         {
-            context.Result = new RedirectToActionResult("DangNhap", "TaiKhoan",
-                new { returnUrl = request.Path + request.QueryString });
+            context.Result = new RedirectToActionResult("DangNhap", "TaiKhoan", new
+            {
+                returnUrl = http.Request.Path + http.Request.QueryString
+            });
             return;
         }
 
-        var vaiTro = session.GetString("VaiTro");
-        if (_vaiTros.Length > 0 && !_vaiTros.Contains(vaiTro))
+        var db = http.RequestServices.GetRequiredService<AppDbContext>();
+        var taiKhoan = await db.TaiKhoans.AsNoTracking()
+            .FirstOrDefaultAsync(t => t.MaTaiKhoan == maTaiKhoan.Value);
+
+        if (taiKhoan == null || !taiKhoan.TrangThai)
+        {
+            session.Clear();
+            context.Result = new RedirectToActionResult("DangNhap", "TaiKhoan", null);
+            return;
+        }
+
+        session.SetString("HoTen", taiKhoan.HoTen);
+        session.SetString("VaiTro", taiKhoan.VaiTro);
+        if (_vaiTros.Length > 0 && !_vaiTros.Contains(taiKhoan.VaiTro, StringComparer.Ordinal))
         {
             context.Result = new RedirectToActionResult("KhongCoQuyen", "TaiKhoan", null);
+            return;
         }
+
+        await next();
     }
 }

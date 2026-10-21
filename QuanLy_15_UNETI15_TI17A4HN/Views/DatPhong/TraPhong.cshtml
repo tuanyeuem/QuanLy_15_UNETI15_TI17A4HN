@@ -4,7 +4,7 @@
 <div class="alert alert-warning">
     Khách <strong>@Model.KhachHang.HoTen</strong> trả phòng <strong>@Model.Phong.SoPhong</strong>.
     Thời điểm trả sẽ được hệ thống ghi tự động là <strong>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong>.
-    Sau bước này, Module 5 sẽ tính tiền.
+    Sau khi xác nhận, hệ thống mở bước tính tiền của Module 5. Đặt phòng chỉ hoàn tất khi nhân viên chốt kết quả.
 </div>
 <form asp-action="TraPhong" method="post">
     <input type="hidden" name="id" value="@Model.MaDatPhong" />

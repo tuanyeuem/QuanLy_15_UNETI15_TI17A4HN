@@ -1,0 +1,5 @@
+@* Họ tên: Nguyễn Đình Tuấn | MSSV: 23103100235 | Nội dung: Thêm loại phòng. *@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.LoaiPhong
+@{ViewData["Title"]="Thêm loại phòng";}
+<h1>Thêm loại phòng</h1><form asp-action="Create" method="post" class="col-md-7"><partial name="_Form" model="Model"/><button class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-secondary">Quay lại</a></form>
+@section Scripts{<partial name="_ValidationScriptsPartial"/>}

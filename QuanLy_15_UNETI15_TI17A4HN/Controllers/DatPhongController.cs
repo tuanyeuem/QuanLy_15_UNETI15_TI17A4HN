@@ -132,7 +132,7 @@ public class DatPhongController : Controller
         if (trungLich)
         { TempData["Loi"] = "Phòng đã có lịch đặt trùng thời gian."; return RedirectToAction(nameof(ChiTiet), new { id }); }
 
-        if (dp.Phong.TrangThai is not (TrangThaiPhong.SanSang or TrangThaiPhong.DangSuDung))
+        if (dp.Phong.TrangThai is not ("TrongRanh" or "DangSuDung"))
         { TempData["Loi"] = "Phòng không ở trạng thái có thể đặt."; return RedirectToAction(nameof(ChiTiet), new { id }); }
 
         dp.TrangThai = TrangThaiDatPhong.DaDuyet;
@@ -161,14 +161,56 @@ public class DatPhongController : Controller
     [ActionName("NhanPhong")]
     public async Task<IActionResult> NhanPhongPost(int id)
     {
-        var dp = await _db.DatPhongs.FindAsync(id);
+        var dp = await _db.DatPhongs
+            .Include(d => d.Phong)
+            .Include(d => d.ChiTietDatPhongs).ThenInclude(c => c.Phong)
+            .FirstOrDefaultAsync(d => d.MaDatPhong == id);
         if (dp == null) return NotFound();
 
         if (dp.TrangThai != TrangThaiDatPhong.DaDuyet)
         { TempData["Loi"] = "Trạng thái không hợp lệ."; return RedirectToAction(nameof(Index)); }
 
-        dp.TrangThai      = TrangThaiDatPhong.DaNhanPhong;
-        dp.NgayNhanThucTe = DateTime.Now;   // Hệ thống xác định, không cho user nhập
+        var thoiDiemNhan = DateTime.Now;
+        if (thoiDiemNhan.Date > dp.NgayTraDuKien.Date)
+        {
+            TempData["Loi"] = "Không thể nhận phòng sau ngày trả dự kiến. Hãy cập nhật lại thời gian đặt trước khi nhận phòng.";
+            return RedirectToAction(nameof(ChiTiet), new { id });
+        }
+
+        // Bảo đảm đặt phòng cũ cũng có chi tiết để Module 5 tính tiền được.
+        if (!dp.ChiTietDatPhongs.Any(c => c.MaPhong == dp.MaPhong && c.TrangThai != TrangThaiChiTiet.DaHuy))
+        {
+            var soNgayDuKien = TinhTienHelper.TinhSoNgay(thoiDiemNhan.Date, dp.NgayTraDuKien.Date);
+            dp.ChiTietDatPhongs.Add(new ChiTietDatPhong
+            {
+                MaPhong = dp.MaPhong,
+                Phong = dp.Phong,
+                NgayNhan = thoiDiemNhan.Date,
+                NgayTra = dp.NgayTraDuKien.Date,
+                DonGia = dp.Phong.DonGia,
+                SoNgay = soNgayDuKien,
+                ThanhTien = TinhTienHelper.TinhThanhTien(dp.Phong.DonGia, soNgayDuKien),
+                TrangThai = TrangThaiChiTiet.ChuaNhan
+            });
+        }
+
+        foreach (var chiTiet in dp.ChiTietDatPhongs.Where(c =>
+                     c.TrangThai == TrangThaiChiTiet.ChuaNhan || c.TrangThai == TrangThaiChiTiet.DangO))
+        {
+            if (chiTiet.TrangThai == TrangThaiChiTiet.ChuaNhan)
+            {
+                chiTiet.NgayNhan = thoiDiemNhan.Date;
+                chiTiet.NgayTra = dp.NgayTraDuKien.Date;
+                chiTiet.SoNgay = TinhTienHelper.TinhSoNgay(chiTiet.NgayNhan, chiTiet.NgayTra);
+                chiTiet.ThanhTien = TinhTienHelper.TinhThanhTien(chiTiet.DonGia, chiTiet.SoNgay);
+                chiTiet.TrangThai = TrangThaiChiTiet.DangO;
+                chiTiet.NgayCapNhat = thoiDiemNhan;
+            }
+            chiTiet.Phong.TrangThai = TrangThaiPhong.DangSuDung;
+        }
+
+        dp.TrangThai = TrangThaiDatPhong.DaNhanPhong;
+        dp.NgayNhanThucTe = thoiDiemNhan;
 
         await _db.SaveChangesAsync();
         TempData["ThanhCong"] = "Đã xác nhận khách nhận phòng.";
@@ -176,7 +218,7 @@ public class DatPhongController : Controller
     }
 
     // ══════════════════════════════════════════
-    //  TRẢ PHÒNG: DaNhanPhong → DaTraPhong
+    //  TRẢ PHÒNG: DaNhanPhong → Module 5 chốt tiền và hoàn thành
     // ══════════════════════════════════════════
     [HttpGet]
     public async Task<IActionResult> TraPhong(int id)
@@ -199,12 +241,12 @@ public class DatPhongController : Controller
         if (dp.TrangThai != TrangThaiDatPhong.DaNhanPhong)
         { TempData["Loi"] = "Trạng thái không hợp lệ."; return RedirectToAction(nameof(Index)); }
 
-        dp.TrangThai     = TrangThaiDatPhong.DaTraPhong;
-        dp.NgayTraThucTe = DateTime.Now;    // Hệ thống xác định
-
-        await _db.SaveChangesAsync();
-        TempData["ThanhCong"] = "Khách đã trả phòng thành công.";
-        return RedirectToAction(nameof(ChiTiet), new { id });
+        // Module 5 tính tiền, cập nhật chi tiết lưu trú và hoàn tất đặt phòng.
+        return RedirectToAction("ChotKetQua", "ChiTietDatPhong", new
+        {
+            maDatPhong = id,
+            ngayTra = DateTime.Today
+        });
     }
 
     // ══════════════════════════════════════════
@@ -223,7 +265,8 @@ public class DatPhongController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Huy(int id, string lyDoHuy)
     {
-        var dp = await _db.DatPhongs.FindAsync(id);
+        var dp = await _db.DatPhongs.Include(d => d.ChiTietDatPhongs)
+            .FirstOrDefaultAsync(d => d.MaDatPhong == id);
         if (dp == null) return NotFound();
 
         if (dp.TrangThai is not (TrangThaiDatPhong.ChoDuyet or TrangThaiDatPhong.DaDuyet))
@@ -237,6 +280,11 @@ public class DatPhongController : Controller
 
         dp.TrangThai = TrangThaiDatPhong.Huy;
         dp.LyDoHuy   = lyDoHuy;
+        foreach (var chiTiet in dp.ChiTietDatPhongs.Where(c => c.TrangThai == TrangThaiChiTiet.ChuaNhan))
+        {
+            chiTiet.TrangThai = TrangThaiChiTiet.DaHuy;
+            chiTiet.NgayCapNhat = DateTime.Now;
+        }
 
         await _db.SaveChangesAsync();
         TempData["ThanhCong"] = "Đã hủy đặt phòng.";

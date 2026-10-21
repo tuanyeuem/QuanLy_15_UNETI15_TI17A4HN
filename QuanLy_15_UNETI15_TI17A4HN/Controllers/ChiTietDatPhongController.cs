@@ -155,8 +155,7 @@ public class ChiTietDatPhongController : Controller
             DonGia = phong.DonGia,                                   // lấy theo phòng tại thời điểm đặt
             SoNgay = soNgay,                                         // hệ thống tự tính
             ThanhTien = TinhTienHelper.TinhThanhTien(phong.DonGia, soNgay),
-            TrangThai = dp.TrangThai == TrangThaiDatPhong.DangXuLy
-                ? TrangThaiChiTiet.DangO : TrangThaiChiTiet.ChuaNhan
+            TrangThai = TrangThaiChiTiet.ChuaNhan
         };
         _context.ChiTietDatPhongs.Add(ct);
         await _context.SaveChangesAsync();
@@ -351,6 +350,7 @@ public class ChiTietDatPhongController : Controller
             dsPhong.Add(ct.MaPhong);
         }
         dp.TrangThai = TrangThaiDatPhong.HoanThanh;
+        dp.NgayTraThucTe = thoiDiemCapNhat;
         await _context.SaveChangesAsync();
 
         // Trả phòng xong thì giải phóng phòng nếu không còn khách khác đang ở.
@@ -536,10 +536,10 @@ public class ChiTietDatPhongController : Controller
         var vm = new ChotKetQuaViewModel { DatPhong = dp, NgayTra = ngayTra, DuDieuKien = true };
 
         // Chỉ giao dịch đủ điều kiện mới được cập nhật kết quả cuối cùng.
-        if (dp.TrangThai != TrangThaiDatPhong.DangXuLy)
+        if (dp.TrangThai != TrangThaiDatPhong.DaNhanPhong)
         {
             vm.DuDieuKien = false;
-            vm.LyDoKhongDuDieuKien = $"Chỉ chốt kết quả khi đặt phòng ở trạng thái \"{TrangThaiDatPhong.DangXuLy}\" (hiện tại: \"{dp.TrangThai}\").";
+            vm.LyDoKhongDuDieuKien = $"Chỉ chốt kết quả sau khi khách đã nhận phòng (trạng thái \"{TrangThaiDatPhong.DaNhanPhong}\", hiện tại: \"{dp.TrangThai}\").";
         }
         else if (dangHoatDong.Count == 0)
         {

@@ -1,0 +1,21 @@
+@* Họ và tên: Nguyễn Đình Quang
+   Mã sinh viên: 23103100259
+   Nội dung thực hiện: Module 3 - Trang hồ sơ cá nhân của khách hàng. *@
+@model QuanLy_15_UNETI15_TI17A4HN.ViewModels.CapNhatHoSoViewModel
+@{ ViewData["Title"] = "Hồ sơ cá nhân"; }
+
+<h2>Hồ sơ cá nhân</h2>
+@if (TempData["ThanhCong"] is string success) { <div class="alert alert-success">@success</div> }
+<form asp-action="HoSo" method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="col-md-6"><label asp-for="HoTen" class="form-label"></label><input asp-for="HoTen" class="form-control" /><span asp-validation-for="HoTen" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="NgaySinh" class="form-label"></label><input asp-for="NgaySinh" type="date" class="form-control" /><span asp-validation-for="NgaySinh" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="GioiTinh" class="form-label"></label><select asp-for="GioiTinh" class="form-select"><option value="">-- Chọn --</option><option>Nam</option><option>Nữ</option><option>Khác</option></select></div>
+    <div class="col-md-6"><label asp-for="CCCD" class="form-label"></label><input asp-for="CCCD" class="form-control" /><span asp-validation-for="CCCD" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="SoDienThoai" class="form-label"></label><input asp-for="SoDienThoai" class="form-control" /><span asp-validation-for="SoDienThoai" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="Email" class="form-label"></label><input asp-for="Email" class="form-control" /><span asp-validation-for="Email" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="DiaChi" class="form-label"></label><input asp-for="DiaChi" class="form-control" /><span asp-validation-for="DiaChi" class="text-danger"></span></div>
+    <div class="col-md-6"><label asp-for="QuocTich" class="form-label"></label><input asp-for="QuocTich" class="form-control" /></div>
+    <div class="col-12"><button type="submit" class="btn btn-primary">Lưu hồ sơ</button></div>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

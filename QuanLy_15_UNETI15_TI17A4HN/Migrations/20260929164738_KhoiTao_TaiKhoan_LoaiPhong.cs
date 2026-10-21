@@ -1,14 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using QuanLy_15_UNETI15_TI17A4HN.Data;
 
 #nullable disable
 
 namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
 {
     /// <inheritdoc />
-    [DbContext(typeof(AppDbContext))]
-    [Migration("20260929164738_KhoiTao_TaiKhoan_LoaiPhong")]
     public partial class KhoiTao_TaiKhoan_LoaiPhong : Migration
     {
         /// <inheritdoc />

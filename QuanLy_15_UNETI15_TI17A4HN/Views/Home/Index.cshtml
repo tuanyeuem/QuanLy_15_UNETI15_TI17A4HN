@@ -1,6 +1,9 @@
 @* Họ và tên: Lê Văn Thanh *@
 @* Mã sinh viên: 23103100200 *@
 @* Nội dung thực hiện: Module 5 - Trang chủ, lối vào các chức năng Dashboard, thống kê và kết quả đặt phòng. *@
+@* Họ và tên: Nguyễn Đình Quang *@
+@* Mã sinh viên: 23103100259 *@
+@* Nội dung thực hiện: Module 3 - Điều hướng đến hồ sơ, đặt phòng, theo dõi và quản lý khách hàng. *@
 @{
     ViewData["Title"] = "Trang chủ";
     var hoTen = Context.Session.GetString("HoTen");
@@ -22,10 +25,14 @@
             {
                 <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-primary btn-lg">Dashboard</a>
                 <a asp-controller="ChiTietDatPhong" asp-action="Index" class="btn btn-outline-primary btn-lg">Chi tiết đặt phòng</a>
+                <a asp-controller="QuanLyKhachHang" asp-action="Index" class="btn btn-outline-primary btn-lg">Quản lý khách hàng</a>
                 <a asp-controller="ThongKe" asp-action="Index" class="btn btn-outline-secondary btn-lg">Thống kê</a>
             }
             else
             {
+                <a asp-controller="KhachHang" asp-action="HoSo" class="btn btn-primary btn-lg">Hồ sơ cá nhân</a>
+                <a asp-controller="KhachHang" asp-action="DatPhong" class="btn btn-outline-primary btn-lg">Đặt phòng</a>
+                <a asp-controller="KhachHang" asp-action="TheoDoi" class="btn btn-outline-primary btn-lg">Theo dõi đặt phòng</a>
                 <a asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi" class="btn btn-primary btn-lg">Kết quả đặt phòng của tôi</a>
             }
         </div>
