@@ -63,23 +63,24 @@ public static class DbSeeder
 
         if (!db.KhachHangs.Any())
         {
+            // Chỉ tạo hồ sơ khách hàng gắn với tài khoản khách hàng (khach1..khach4), không tạo khách mẫu rời.
             var taiKhoanKhach = db.TaiKhoans.Where(t => t.VaiTro == VaiTroTaiKhoan.KhachHang)
                 .OrderBy(t => t.TenDangNhap).Take(4).ToList();
-            for (var i = 0; i < 30; i++)
+            for (var i = 0; i < taiKhoanKhach.Count; i++)
             {
-                var account = i < taiKhoanKhach.Count ? taiKhoanKhach[i] : null;
+                var account = taiKhoanKhach[i];
                 db.KhachHangs.Add(new KhachHang
                 {
-                    MaTaiKhoan = account?.MaTaiKhoan,
-                    HoTen = account?.HoTen ?? $"Khách hàng {i + 1:00}",
+                    MaTaiKhoan = account.MaTaiKhoan,
+                    HoTen = account.HoTen,
                     CCCD = $"079{i + 1:000000000}",
                     SoDienThoai = $"090{i + 1:0000000}",
-                    Email = account?.Email ?? $"khach{i + 1:00}@gmail.com",
+                    Email = account.Email,
                     NgaySinh = new DateTime(1980 + i % 20, 1 + i % 12, 1 + i % 27),
                     GioiTinh = i % 2 == 0 ? "Nam" : "Nữ",
                     DiaChi = $"Quận {i % 12 + 1}, TP. Hồ Chí Minh",
                     QuocTich = "Việt Nam",
-                    TrangThai = i != 29
+                    TrangThai = true
                 });
             }
             db.SaveChanges();
@@ -93,65 +94,6 @@ public static class DbSeeder
                 new DichVu { TenDichVu = "Đưa đón sân bay", DonViTinh = "lượt", DonGia = 250_000 },
                 new DichVu { TenDichVu = "Nước uống", DonViTinh = "chai", DonGia = 20_000 },
                 new DichVu { TenDichVu = "Minibar", DonViTinh = "lần", DonGia = 80_000 });
-            db.SaveChanges();
-        }
-
-        if (!db.DatPhongs.Any())
-        {
-            var customerIds = db.KhachHangs.OrderBy(k => k.MaKhachHang).Select(k => k.MaKhachHang).ToList();
-            var roomIds = db.Phongs.OrderBy(p => p.MaPhong).Select(p => p.MaPhong).ToList();
-            var today = DateTime.Today;
-            var bookings = new List<DatPhong>();
-            for (var i = 0; i < 50; i++)
-            {
-                var isCompleted = i >= 30 && i < 40;
-                var isCancelled = i >= 40;
-                var arrival = isCompleted ? today.AddDays(-20 + i % 5) : today.AddDays(2 + i % 14);
-                bookings.Add(new DatPhong
-                {
-                    MaKhachHang = customerIds[i % customerIds.Count],
-                    MaPhong = roomIds[i % roomIds.Count],
-                    NgayDat = today.AddDays(-i - 1),
-                    NgayNhan = arrival,
-                    NgayTraDuKien = arrival.AddDays(2),
-                    SoNguoi = 1,
-                    TienCoc = isCancelled ? 0 : 200_000,
-                    TrangThai = isCancelled ? TrangThaiDatPhong.Huy :
-                                isCompleted ? TrangThaiDatPhong.DaTraPhong :
-                                i < 15 ? TrangThaiDatPhong.ChoDuyet : TrangThaiDatPhong.DaDuyet,
-                    NgayNhanThucTe = isCompleted ? arrival : null,
-                    NgayTraThucTe = isCompleted ? arrival.AddDays(2) : null,
-                    LyDoHuy = isCancelled ? "Khách hủy vì lý do cá nhân." : null
-                });
-            }
-            db.DatPhongs.AddRange(bookings);
-            db.SaveChanges();
-        }
-
-        if (!db.ChiTietDatPhongs.Any())
-        {
-            var bookings = db.DatPhongs.OrderBy(d => d.MaDatPhong).Take(20).ToList();
-            foreach (var booking in bookings)
-            {
-                var nights = Math.Max(1, (booking.NgayTraDuKien.Date - booking.NgayNhan.Date).Days);
-                var room = db.Phongs.First(p => p.MaPhong == booking.MaPhong);
-                var status = booking.TrangThai == TrangThaiDatPhong.Huy
-                    ? TrangThaiChiTietDatPhong.Huy
-                    : booking.TrangThai == TrangThaiDatPhong.DaTraPhong
-                        ? TrangThaiChiTietDatPhong.DaTraPhong
-                        : TrangThaiChiTietDatPhong.DaDat;
-                db.ChiTietDatPhongs.Add(new ChiTietDatPhong
-                {
-                    MaDatPhong = booking.MaDatPhong,
-                    MaPhong = booking.MaPhong,
-                    NgayNhan = booking.NgayNhan,
-                    NgayTra = booking.NgayTraDuKien,
-                    DonGia = room.DonGia,
-                    SoNgay = nights,
-                    ThanhTien = room.DonGia * nights,
-                    TrangThai = status
-                });
-            }
             db.SaveChanges();
         }
     }
