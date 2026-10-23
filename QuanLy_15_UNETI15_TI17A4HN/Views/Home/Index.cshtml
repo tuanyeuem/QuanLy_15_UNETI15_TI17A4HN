@@ -6,35 +6,104 @@
 @* Nội dung thực hiện: Module 3 - Điều hướng đến hồ sơ, đặt phòng, theo dõi và quản lý khách hàng. *@
 @{
     ViewData["Title"] = "Trang chủ";
+    ViewData["FullWidth"] = true;
     var hoTen = Context.Session.GetString("HoTen");
     var vaiTro = Context.Session.GetString("VaiTro");
+    var loaiPhongs = ViewBag.LoaiPhongs as List<LoaiPhong> ?? new List<LoaiPhong>();
+    var phongNoiBat = ViewBag.PhongNoiBat as List<Phong> ?? new List<Phong>();
+    var homNay = DateTime.Today.ToString("yyyy-MM-dd");
+    var ngayNhanMacDinh = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
+    var ngayTraMacDinh = DateTime.Today.AddDays(2).ToString("yyyy-MM-dd");
+    bool laQuanLy = vaiTro == "Admin" || vaiTro == "NhanVien";
 }
 
-<div class="py-4 text-center">
-    <h1 class="display-5">Hệ thống quản lý đặt phòng khách sạn</h1>
+<section class="hero">
+    <div class="container-xl">
+        <h1 class="mb-3">Tìm phòng phù hợp cho kỳ nghỉ của bạn</h1>
+        <p class="mb-0">Chọn loại phòng, ngày nhận và ngày trả. Hệ thống hiển thị phòng còn trống cùng giá mỗi đêm.</p>
+    </div>
+</section>
+
+<div class="container-xl search-wrap">
+    <form asp-controller="Phong" asp-action="TimKiem" method="get" class="search-bar">
+        <div class="sb-field">
+            <label class="sb-label" for="sb-loai">Loại phòng</label>
+            <select id="sb-loai" name="maLoaiPhong" class="form-select">
+                <option value="all">Tất cả loại phòng</option>
+                @foreach (var lp in loaiPhongs)
+                {
+                    <option value="@lp.MaLoaiPhong">@lp.TenLoai</option>
+                }
+            </select>
+        </div>
+        <div class="sb-field">
+            <label class="sb-label" for="sb-nhan">Ngày nhận phòng</label>
+            <input id="sb-nhan" type="date" name="ngayNhan" value="@ngayNhanMacDinh" min="@homNay" class="form-control" />
+        </div>
+        <div class="sb-field">
+            <label class="sb-label" for="sb-tra">Ngày trả phòng</label>
+            <input id="sb-tra" type="date" name="ngayTra" value="@ngayTraMacDinh" min="@homNay" class="form-control" />
+        </div>
+        <div class="sb-field">
+            <label class="sb-label" for="sb-gia">Giá tối đa (đ/đêm)</label>
+            <input id="sb-gia" type="number" name="giaDen" min="0" step="50000" placeholder="Không giới hạn" class="form-control" />
+        </div>
+        <div class="sb-action">
+            <button type="submit" class="btn btn-search">Tìm kiếm</button>
+        </div>
+    </form>
+</div>
+
+<div class="container-xl">
     @if (hoTen == null)
     {
-        <p class="lead text-muted">Vui lòng đăng nhập để sử dụng hệ thống.</p>
-        <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn-primary btn-lg">Đăng nhập</a>
+        <div class="cta-band mt-4">
+            <div>
+                <strong>Đăng nhập để đặt phòng và theo dõi đặt phòng của bạn.</strong>
+                <div class="text-muted">Bạn vẫn có thể xem phòng và giá mà không cần đăng nhập.</div>
+            </div>
+            <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn-primary px-4">Đăng nhập</a>
+        </div>
     }
     else
     {
-        <p class="lead text-muted">Xin chào, <strong>@hoTen</strong>.</p>
-        <div class="d-flex justify-content-center gap-2 flex-wrap">
-            @if (vaiTro == "Admin" || vaiTro == "NhanVien")
+        <h2 class="section-title">Xin chào, @hoTen</h2>
+        <p class="section-sub">Chọn nhanh chức năng bạn cần.</p>
+        <div class="tile-grid">
+            @if (laQuanLy)
             {
-                <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-primary btn-lg">Dashboard</a>
-                <a asp-controller="ChiTietDatPhong" asp-action="Index" class="btn btn-outline-primary btn-lg">Chi tiết đặt phòng</a>
-                <a asp-controller="QuanLyKhachHang" asp-action="Index" class="btn btn-outline-primary btn-lg">Quản lý khách hàng</a>
-                <a asp-controller="ThongKe" asp-action="Index" class="btn btn-outline-secondary btn-lg">Thống kê</a>
+                <a class="tile" asp-controller="ThongKe" asp-action="Dashboard"><span class="tile__title">Dashboard</span><span class="tile__desc">Số liệu tổng quan về phòng, đặt phòng và doanh thu.</span></a>
+                <a class="tile" asp-controller="DatPhong" asp-action="Index"><span class="tile__title">Đặt phòng</span><span class="tile__desc">Duyệt, nhận phòng, trả phòng và hủy đặt phòng.</span></a>
+                <a class="tile" asp-controller="ChiTietDatPhong" asp-action="Index"><span class="tile__title">Chi tiết đặt phòng</span><span class="tile__desc">Từng phòng trong lượt đặt, số ngày và thành tiền.</span></a>
+                <a class="tile" asp-controller="QuanLyKhachHang" asp-action="Index"><span class="tile__title">Quản lý khách hàng</span><span class="tile__desc">Tìm kiếm, thêm, sửa hồ sơ khách hàng.</span></a>
+                <a class="tile" asp-controller="ThongKe" asp-action="Index"><span class="tile__title">Thống kê</span><span class="tile__desc">Thống kê theo năm và báo cáo theo khoảng ngày.</span></a>
             }
             else
             {
-                <a asp-controller="KhachHang" asp-action="HoSo" class="btn btn-primary btn-lg">Hồ sơ cá nhân</a>
-                <a asp-controller="KhachHang" asp-action="DatPhong" class="btn btn-outline-primary btn-lg">Đặt phòng</a>
-                <a asp-controller="KhachHang" asp-action="TheoDoi" class="btn btn-outline-primary btn-lg">Theo dõi đặt phòng</a>
-                <a asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi" class="btn btn-primary btn-lg">Kết quả đặt phòng của tôi</a>
+                <a class="tile" asp-controller="KhachHang" asp-action="HoSo"><span class="tile__title">Hồ sơ cá nhân</span><span class="tile__desc">Xem và cập nhật thông tin của bạn.</span></a>
+                <a class="tile" asp-controller="KhachHang" asp-action="DatPhong"><span class="tile__title">Đặt phòng</span><span class="tile__desc">Chọn ngày và phòng còn trống để đặt.</span></a>
+                <a class="tile" asp-controller="KhachHang" asp-action="TheoDoi"><span class="tile__title">Theo dõi đặt phòng</span><span class="tile__desc">Xem trạng thái hoặc hủy đặt phòng.</span></a>
+                <a class="tile" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi"><span class="tile__title">Kết quả đặt phòng của tôi</span><span class="tile__desc">Chi tiết lưu trú và số tiền cần thanh toán.</span></a>
             }
         </div>
+    }
+
+    <h2 class="section-title">Phòng nổi bật</h2>
+    <p class="section-sub">Mỗi loại phòng một gợi ý còn trống, sắp xếp theo giá từ thấp đến cao.</p>
+    @if (phongNoiBat.Count > 0)
+    {
+        <div class="room-grid">
+            @foreach (var p in phongNoiBat)
+            {
+                <partial name="_PhongCard" model="p" />
+            }
+        </div>
+        <div class="text-center mt-4">
+            <a asp-controller="Phong" asp-action="TimKiem" class="btn btn-outline-primary px-4">Xem tất cả phòng</a>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">Hiện chưa có phòng trống để hiển thị.</div>
     }
 </div>

@@ -1,3 +1,4 @@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
 @model IEnumerable<QuanLy_15_UNETI15_TI17A4HN.Models.Phong>
 
 @{
@@ -136,7 +137,7 @@
     <a asp-controller="Phong"
        asp-action="TimKiem"
        class="btn btn-success">
-        <i class="bi bi-search"></i> Tìm kiếm và lọc phòng
+        Tìm kiếm và lọc phòng
     </a>
 </div>
 
@@ -274,30 +275,7 @@
 
                     <!-- Trạng thái -->
                     <td class="cot-trang-thai">
-                        @if (item.TrangThai == "Trống")
-                        {
-                            <span class="trang-thai trang-thai-trong">
-                                Trống
-                            </span>
-                        }
-                        else if (item.TrangThai == "Đang sử dụng")
-                        {
-                            <span class="trang-thai trang-thai-su-dung">
-                                Đang sử dụng
-                            </span>
-                        }
-                        else if (item.TrangThai == "Bảo trì")
-                        {
-                            <span class="trang-thai trang-thai-bao-tri">
-                                Bảo trì
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="trang-thai">
-                                @item.TrangThai
-                            </span>
-                        }
+                        <span class="tt @TrangThaiUi.LopPhong(item.TrangThai)">@TrangThaiUi.NhanPhong(item.TrangThai)</span>
                     </td>
 
                     <!-- Ghi chú -->
@@ -356,4 +334,4 @@
             }
         </tbody>
     </table>
-</div>
+</div>

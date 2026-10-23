@@ -1,0 +1,68 @@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@model QuanLy_15_UNETI15_TI17A4HN.Models.Phong
+@{
+    var vaiTro = Context.Session.GetString("VaiTro");
+    var nhan = TrangThaiUi.NhanPhong(Model.TrangThai);
+    bool conTrong = nhan == "Còn trống";
+    var tienNghi = TrangThaiUi.TienNghi(Model.TienNghi, 4);
+    string tenLoai = Model.LoaiPhong?.TenLoai ?? ("Loại " + Model.MaLoaiPhong);
+    int sucChua = Model.LoaiPhong?.SoNguoiToiDa ?? 0;
+    string? ngayNhan = Context.Request.Query["ngayNhan"].FirstOrDefault();
+    string? ngayTra = Context.Request.Query["ngayTra"].FirstOrDefault();
+    bool laQuanLy = vaiTro == "Admin" || vaiTro == "NhanVien";
+}
+<article class="room-card">
+    <div class="room-card__thumb thumb-@(Model.MaLoaiPhong % 5)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7"/><path d="M3 18h18"/><path d="M3 21v-3M21 21v-3"/><path d="M7 9V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M12 9V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2"/></svg>
+        <span class="room-card__no">Phòng @Model.SoPhong</span>
+        <span class="room-card__floor">Tầng @Model.Tang</span>
+    </div>
+    <div class="room-card__body">
+        <div class="room-card__info">
+            <h3 class="room-card__title">
+                <a asp-controller="Phong" asp-action="Details" asp-route-id="@Model.MaPhong">@tenLoai</a>
+            </h3>
+            <div class="room-card__meta">
+                @if (sucChua > 0)
+                {
+                    <span>Tối đa @sucChua người</span>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.HuongPhong))
+                {
+                    <span> &middot; Hướng @Model.HuongPhong</span>
+                }
+            </div>
+            @if (tienNghi.Length > 0)
+            {
+                <div class="chips">
+                    @foreach (var tn in tienNghi)
+                    {
+                        <span class="chip">@tn</span>
+                    }
+                </div>
+            }
+        </div>
+        <div class="room-card__aside">
+            <div class="room-card__price">
+                <small>Giá mỗi đêm</small>
+                <strong>@Model.DonGia.ToString("N0")</strong> <span>đ</span>
+                <div class="mt-1"><span class="tt @TrangThaiUi.LopPhong(Model.TrangThai)">@nhan</span></div>
+            </div>
+            <div class="room-card__actions">
+                @if (conTrong && vaiTro == "KhachHang")
+                {
+                    <a class="btn btn-primary btn-sm" asp-controller="KhachHang" asp-action="DatPhong" asp-route-ngayNhan="@ngayNhan" asp-route-ngayTra="@ngayTra">Đặt phòng</a>
+                }
+                else if (conTrong && vaiTro == null)
+                {
+                    <a class="btn btn-primary btn-sm" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập để đặt</a>
+                }
+                <a class="btn btn-outline-secondary btn-sm" asp-controller="Phong" asp-action="Details" asp-route-id="@Model.MaPhong">Chi tiết</a>
+                @if (laQuanLy)
+                {
+                    <a class="btn btn-outline-secondary btn-sm" asp-controller="Phong" asp-action="Edit" asp-route-id="@Model.MaPhong">Sửa</a>
+                }
+            </div>
+        </div>
+    </div>
+</article>

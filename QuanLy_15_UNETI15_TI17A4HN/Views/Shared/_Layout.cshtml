@@ -15,57 +15,138 @@
     <link rel="stylesheet" href="~/QuanLy_15_UNETI15_TI17A4HN.styles.css" asp-append-version="true" />
 </head>
 <body>
-    @{ var vaiTro = Context.Session.GetString("VaiTro"); var hoTen = Context.Session.GetString("HoTen"); }
-    <header>
-        <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Quản lý khách sạn</a>
+    @{
+        var vaiTro = Context.Session.GetString("VaiTro");
+        var hoTen = Context.Session.GetString("HoTen");
+        var ctl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        var act = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        bool laQuanLy = vaiTro == "Admin" || vaiTro == "NhanVien";
+        bool laAdmin = vaiTro == "Admin";
+        bool laKhach = vaiTro == "KhachHang";
+        string tenVaiTro = vaiTro == "Admin" ? "Quản trị viên"
+            : vaiTro == "NhanVien" ? "Nhân viên"
+            : vaiTro == "KhachHang" ? "Khách hàng"
+            : (vaiTro ?? "");
+        string chuCai = string.IsNullOrWhiteSpace(hoTen) ? "?" : hoTen.Trim().Substring(0, 1).ToUpper();
+        bool trangChu = ctl == "Home";
+        bool timPhong = ctl == "Phong" && act == "TimKiem";
+        bool datPhong = (ctl == "DatPhong") || (ctl == "KhachHang" && act == "DatPhong");
+        bool theoDoi = ctl == "KhachHang" && act == "TheoDoi";
+        bool ketQua = ctl == "ChiTietDatPhong" && act == "KetQuaCuaToi";
+        bool trongQuanLy = (ctl == "Phong" && act != "TimKiem") || ctl == "LoaiPhong" || ctl == "QuanLyKhachHang"
+            || ctl == "QuanLyTaiKhoan" || (ctl == "ChiTietDatPhong" && act != "KetQuaCuaToi");
+        bool trongBaoCao = ctl == "ThongKe";
+        bool toanManHinh = ViewData["FullWidth"] is true;
+    }
+    <header class="site-header">
+        <nav class="navbar navbar-expand-xl">
+            <div class="container-xl">
+                <a class="brand" asp-controller="Home" asp-action="Index">
+                    <span class="brand__mark" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></svg>
+                    </span>
+                    <span class="brand__text"><b>HOTEL</b><small>QUẢN LÝ ĐẶT PHÒNG</small></span>
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div id="mainNav" class="collapse navbar-collapse">
                     <ul class="navbar-nav me-auto">
-                        <li class="nav-item"><a class="nav-link" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
-                        @if (vaiTro is "Admin" or "NhanVien")
+                        <li class="nav-item"><a class="nav-link @(trangChu ? "active" : "")" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                        <li class="nav-item"><a class="nav-link @(timPhong ? "active" : "")" asp-controller="Phong" asp-action="TimKiem">Tìm phòng</a></li>
+                        @if (laQuanLy)
                         {
-                            <li class="nav-item"><a class="nav-link" asp-controller="DatPhong" asp-action="Index">Đặt phòng</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="QuanLyKhachHang" asp-action="Index">Quản lý khách hàng</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="ChiTietDatPhong" asp-action="Index">Chi tiết lưu trú</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="ThongKe" asp-action="Dashboard">Dashboard</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="ThongKe" asp-action="Index">Thống kê</a></li>
+                            <li class="nav-item"><a class="nav-link @(datPhong ? "active" : "")" asp-controller="DatPhong" asp-action="Index">Đặt phòng</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(trongQuanLy ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Quản lý</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Phong" asp-action="Index">Phòng</a></li>
+                                    @if (laAdmin)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="LoaiPhong" asp-action="Index">Loại phòng</a></li>
+                                    }
+                                    <li><a class="dropdown-item" asp-controller="QuanLyKhachHang" asp-action="Index">Quản lý khách hàng</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ChiTietDatPhong" asp-action="Index">Chi tiết lưu trú</a></li>
+                                    @if (laAdmin)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="QuanLyTaiKhoan" asp-action="Index">Tài khoản</a></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(trongBaoCao ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Báo cáo</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="ThongKe" asp-action="Dashboard">Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ThongKe" asp-action="Index">Thống kê</a></li>
+                                </ul>
+                            </li>
                         }
-                        @if (vaiTro == "KhachHang")
+                        @if (laKhach)
                         {
-                            <li class="nav-item"><a class="nav-link" asp-controller="KhachHang" asp-action="HoSo">Hồ sơ cá nhân</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="KhachHang" asp-action="DatPhong">Đặt phòng</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="KhachHang" asp-action="TheoDoi">Theo dõi đặt phòng</a></li>
-                            <li class="nav-item"><a class="nav-link" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">Kết quả đặt phòng</a></li>
+                            <li class="nav-item"><a class="nav-link @(datPhong ? "active" : "")" asp-controller="KhachHang" asp-action="DatPhong">Đặt phòng</a></li>
+                            <li class="nav-item"><a class="nav-link @(theoDoi ? "active" : "")" asp-controller="KhachHang" asp-action="TheoDoi">Theo dõi đặt phòng</a></li>
+                            <li class="nav-item"><a class="nav-link @(ketQua ? "active" : "")" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">Kết quả đặt phòng</a></li>
                         }
                     </ul>
-                    <ul class="navbar-nav">
+                    <div class="d-flex align-items-center py-2 py-xl-0">
                         @if (vaiTro == null)
                         {
-                            <li class="nav-item"><a class="nav-link" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a></li>
+                            <a class="btn btn-primary px-4" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
                         }
                         else
                         {
-                            <li class="nav-item"><span class="nav-link">Xin chào, @hoTen (@vaiTro)</span></li>
-                            <li class="nav-item">
-                                <form asp-controller="TaiKhoan" asp-action="DangXuat" method="post">
-                                    <button type="submit" class="btn btn-link nav-link">Đăng xuất</button>
-                                </form>
-                            </li>
+                            <div class="dropdown">
+                                <button class="user-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="avatar">@chuCai</span>
+                                    <span class="user-chip__text"><strong>@hoTen</strong><small>@tenVaiTro</small></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (laKhach)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="KhachHang" asp-action="HoSo">Hồ sơ cá nhân</a></li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
+                                    <li>
+                                        <form asp-controller="TaiKhoan" asp-action="DangXuat" method="post">
+                                            <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         }
-                    </ul>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <main class="container pb-4" role="main">
+    <main role="main" class="@(toanManHinh ? "" : "container-xl py-4")">
         @RenderBody()
     </main>
-    <footer class="border-top footer text-muted py-3">
-        <div class="container">&copy; 2026 - Quản lý đặt phòng khách sạn</div>
+    <footer class="site-footer">
+        <div class="container-xl py-4">
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <h6>Hệ thống quản lý đặt phòng khách sạn</h6>
+                    <p class="mb-0">Quản lý phòng, đặt phòng, khách hàng, chi tiết lưu trú và báo cáo doanh thu trên một hệ thống thống nhất.</p>
+                </div>
+                <div class="col-6 col-md-3">
+                    <h6>Truy cập nhanh</h6>
+                    <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                    <a asp-controller="Phong" asp-action="TimKiem">Tìm phòng</a>
+                    @if (vaiTro == null)
+                    {
+                        <a asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
+                    }
+                </div>
+                <div class="col-6 col-md-4">
+                    <h6>Thông tin</h6>
+                    <span>Đồ án môn học - Lớp TI17A4HN, UNETI</span>
+                </div>
+            </div>
+        </div>
+        <div class="site-footer__bottom">
+            <div class="container-xl py-3">&copy; 2026 - Quản lý đặt phòng khách sạn</div>
+        </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
