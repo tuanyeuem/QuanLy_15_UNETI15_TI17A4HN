@@ -1,5 +1,5 @@
-// Họ và tên: Thành viên Module 2 (Git: tkv261005)
-// Mã sinh viên: (bổ sung MSSV khi nộp bài)
+// Họ và tên: Vũ Kiều Trinh
+// Mã sinh viên: 23103100199
 // Nội dung thực hiện: Module 2 - Xác định đường dẫn ảnh phòng và ảnh minh họa mặc định.
 using Microsoft.AspNetCore.Hosting;
 using QuanLy_15_UNETI15_TI17A4HN.Models;

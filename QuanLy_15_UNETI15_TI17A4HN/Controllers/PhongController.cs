@@ -1,5 +1,5 @@
-﻿// Họ và tên: Thành viên Module 2 (Git: tkv261005)
-// Mã sinh viên: (bổ sung MSSV khi nộp bài)
+﻿// Họ và tên: Vũ Kiều Trinh
+// Mã sinh viên: 23103100199
 // Nội dung thực hiện: Module 2 - Quản lý phòng, CRUD, trạng thái, tìm kiếm/lọc/sắp xếp/phân trang.
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

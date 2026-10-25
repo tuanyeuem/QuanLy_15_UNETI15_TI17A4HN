@@ -1,5 +1,5 @@
-// Họ và tên: Thành viên Module 2 (Git: tkv261005)
-// Mã sinh viên: (bổ sung MSSV khi nộp bài)
+// Họ và tên: Vũ Kiều Trinh
+// Mã sinh viên: 23103100199
 // Nội dung thực hiện: Module 2 - Tải lên/xóa ảnh phòng, gộp giao diện vào trang sửa phòng.
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;

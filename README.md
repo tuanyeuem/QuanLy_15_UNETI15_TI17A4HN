@@ -7,12 +7,10 @@
 | Họ và tên | MSSV | Phần việc chính |
 |---|---|---|
 | Nguyễn Đình Tuấn | 23103100235 | Module 1: đăng nhập, đăng xuất, Session, phân quyền, quản lý tài khoản; hỗ trợ quản lý loại phòng |
-| Thành viên Module 2 (Git: `tkv261005`) | *(bổ sung MSSV khi nộp)* | Module 2: quản lý phòng, loại phòng, ảnh phòng, tìm kiếm – lọc – sắp xếp – phân trang |
+| Vũ Kiều Trinh | 23103100199 | Module 2: quản lý phòng, loại phòng, ảnh phòng, tìm kiếm – lọc – sắp xếp – phân trang |
 | Nguyễn Đình Quang | 23103100259 | Module 3: khách hàng, hồ sơ khách hàng, đặt phòng của khách |
 | Vũ Xuân Tuấn | 23103100035 | Module 4: duyệt, nhận phòng, trả phòng, hủy đặt phòng (hỗ trợ nhiều phòng/lượt) |
 | Lê Văn Thanh | 23103100200 | Module 5: chi tiết đặt phòng, tính tiền, dashboard, thống kê, báo cáo, dữ liệu mẫu |
-
-> Ghi chú: repository không lưu họ tên/MSSV của tài khoản Git `tkv261005`, nên dòng Module 2 đang để trống MSSV. Nhóm điền trực tiếp trước khi nộp nếu nhà trường yêu cầu.
 
 ## Công nghệ sử dụng
 
