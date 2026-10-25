@@ -12,7 +12,7 @@
     var loaiPhongs = ViewBag.LoaiPhongs as List<LoaiPhong> ?? new List<LoaiPhong>();
     var phongNoiBat = ViewBag.PhongNoiBat as List<Phong> ?? new List<Phong>();
     var phongGoiY = phongNoiBat.FirstOrDefault();
-    var tenPhongGoiY = phongGoiY?.LoaiPhong?.TenLoai ?? "Phòng nghỉ dưỡng";
+    var tenPhongGoiY = phongGoiY?.LoaiPhong?.TenLoai ?? "Phòng khách sạn";
     var giaPhongGoiY = phongGoiY != null ? phongGoiY.DonGia.ToString("N0") + " đ" : "Từ 850.000 đ";
     int tongSoPhong = ViewBag.TongSoPhong is int t1 ? t1 : 0;
     int soPhongTrong = ViewBag.SoPhongTrong is int t2 ? t2 : 0;
@@ -24,13 +24,13 @@
 }
 
 <section class="home-hero" aria-labelledby="home-hero-title">
-    <img class="home-hero__bg" src="~/images/home/hero-resort.jpg" alt="" aria-hidden="true" />
+    <img class="home-hero__bg" src="~/images/home/hero-hotel.jpg" alt="" aria-hidden="true" />
     <div class="home-hero__veil" aria-hidden="true"></div>
     <div class="container-xl home-hero__inner">
         <div class="home-hero__copy reveal">
-            <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Stay · Unwind · Repeat</span>
-            <h1 id="home-hero-title">Kỳ nghỉ của bạn,<br /><em>bắt đầu từ đây.</em></h1>
-            <p>Không gian tinh tế, tiện nghi chuẩn mực và dịch vụ tận tâm — chúng tôi chăm chút từng chi tiết để bạn chỉ cần tận hưởng.</p>
+            <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Highgroup Hotel · Hà Nội</span>
+            <h1 id="home-hero-title">Một kỳ lưu trú,<br /><em>thật đáng nhớ.</em></h1>
+            <p>Phòng nghỉ tinh tế, tiện nghi chuẩn mực và dịch vụ tận tâm — một không gian yên bình giữa trung tâm thành phố.</p>
             <div class="hero-actions">
                 <a asp-controller="Phong" asp-action="TimKiem" class="btn btn-hero-primary btn-lg">
                     <i class="bi bi-calendar2-check me-2" aria-hidden="true"></i>Đặt phòng ngay
@@ -54,13 +54,13 @@
         <div class="hero-card-wrap reveal">
             <aside class="hero-card" aria-label="Gợi ý phòng nổi bật">
                 <div class="hero-card__photo">
-                    <img src="~/images/home/phong-nghi.jpg" alt="Không gian phòng nghỉ dưỡng ấm cúng" loading="lazy" />
+                    <img src="~/images/home/phong-nghi.jpg" alt="Không gian phòng khách sạn ấm cúng" loading="lazy" />
                     <span class="hero-card__badge"><i class="bi bi-stars me-1" aria-hidden="true"></i>Được yêu thích</span>
                 </div>
                 <div class="hero-card__body">
                     <span class="hero-card__kicker">Gợi ý cho bạn</span>
                     <h2>@tenPhongGoiY</h2>
-                    <p>Không gian ấm cúng, đầy đủ tiện nghi và view đẹp cho một kỳ nghỉ thật trọn vẹn.</p>
+                    <p>Không gian ấm cúng, đầy đủ tiện nghi và view đẹp cho một kỳ lưu trú trọn vẹn.</p>
                     <div class="hero-card__price">
                         <strong>@giaPhongGoiY</strong><span>/ đêm</span>
                         <a asp-controller="Phong" asp-action="TimKiem">Xem phòng <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
@@ -106,7 +106,7 @@
 <section class="container-xl stats-strip reveal" aria-label="Thông tin nhanh">
     <div class="stat">
         <span class="stat__icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
-        <div><strong data-count="@tongSoPhong">@tongSoPhong</strong><span>Phòng nghỉ đa dạng</span></div>
+        <div><strong data-count="@tongSoPhong">@tongSoPhong</strong><span>Phòng trong khách sạn</span></div>
     </div>
     <div class="stat">
         <span class="stat__icon"><i class="bi bi-door-open" aria-hidden="true"></i></span>
@@ -118,7 +118,7 @@
     </div>
     <div class="stat">
         <span class="stat__icon"><i class="bi bi-headset" aria-hidden="true"></i></span>
-        <div><strong>24/7</strong><span>Luôn ở đây khi bạn cần</span></div>
+        <div><strong>24/7</strong><span>Hỗ trợ khi bạn cần</span></div>
     </div>
 </section>
 
@@ -127,8 +127,8 @@
     <section class="container-xl guest-banner reveal" aria-label="Đăng nhập để đặt phòng">
         <span class="guest-banner__icon"><i class="bi bi-person-lock" aria-hidden="true"></i></span>
         <div>
-            <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Thành viên Lumière</span>
-            <h3>Đăng nhập để lưu lại kỳ nghỉ của bạn</h3>
+            <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Thành viên Highgroup</span>
+            <h2>Đăng nhập để quản lý kỳ lưu trú của bạn</h2>
             <p>Theo dõi đặt phòng, xem kết quả lưu trú và quản lý thông tin cá nhân trong một không gian duy nhất.</p>
         </div>
         <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn-light">
@@ -141,7 +141,7 @@ else
     <section class="container-xl welcome-panel reveal" aria-label="Lối tắt chức năng">
         <div>
             <span class="eyebrow"><span class="eyebrow__dot"></span> Không gian của bạn</span>
-            <h2>Chào @hoTen, hôm nay bạn muốn đi đâu?</h2>
+            <h2>Chào @hoTen, hôm nay bạn cần gì?</h2>
             <p>Mọi chức năng bạn cần đã được sắp xếp gọn gàng ngay bên dưới.</p>
         </div>
         <div class="welcome-panel__actions">
@@ -261,13 +261,13 @@ else
         </span>
     </div>
     <div class="experience__copy">
-        <span class="eyebrow"><span class="eyebrow__dot"></span> Trải nghiệm Lumière</span>
-        <h2 id="trai-nghiem-title">Một kỳ nghỉ trọn vẹn, từng chi tiết đều được chăm chút.</h2>
-        <p>Chúng tôi tin rằng một kỳ nghỉ đáng nhớ không chỉ nằm ở nơi bạn ở, mà còn ở cảm giác được chào đón từ khoảnh khắc đầu tiên.</p>
+        <span class="eyebrow"><span class="eyebrow__dot"></span> Trải nghiệm Highgroup</span>
+        <h2 id="trai-nghiem-title">Một kỳ lưu trú trọn vẹn, từng chi tiết đều được chăm chút.</h2>
+        <p>Chúng tôi tin rằng một kỳ lưu trú đáng nhớ không chỉ nằm ở nơi bạn ở, mà còn ở cảm giác được chào đón từ khoảnh khắc đầu tiên.</p>
         <ul class="feature-list">
             <li><span class="feature-list__check">✓</span> Không gian được thiết kế tinh tế, ấm cúng và riêng tư.</li>
             <li><span class="feature-list__check">✓</span> Tiện nghi hiện đại, wifi tốc độ cao và dịch vụ chu đáo.</li>
-            <li><span class="feature-list__check">✓</span> Hỗ trợ 24/7 trong suốt kỳ nghỉ của bạn.</li>
+            <li><span class="feature-list__check">✓</span> Hỗ trợ 24/7 trong suốt kỳ lưu trú của bạn.</li>
             <li><span class="feature-list__check">✓</span> Đặt phòng nhanh chóng, thông tin giá và trạng thái rõ ràng.</li>
         </ul>
         <div class="experience__footer">
@@ -282,7 +282,7 @@ else
 <section class="container-xl section-block reveal" aria-labelledby="dich-vu-title">
     <div class="section-head section-head--center">
         <span class="eyebrow"><span class="eyebrow__dot"></span> Đơn giản &amp; an tâm</span>
-        <h2 id="dich-vu-title">Mọi thứ bạn cần cho một kỳ nghỉ dễ dàng.</h2>
+        <h2 id="dich-vu-title">Mọi thứ bạn cần cho một kỳ lưu trú dễ dàng.</h2>
         <p>Từ tìm phòng, kiểm tra tình trạng đến theo dõi đặt phòng — tất cả trong một trải nghiệm liền mạch.</p>
     </div>
     <div class="service-grid">
@@ -301,7 +301,7 @@ else
         <article class="service-card">
             <span class="service-card__icon"><i class="bi bi-headset" aria-hidden="true"></i></span>
             <h3>Đồng hành 24/7</h3>
-            <p>Đội ngũ hỗ trợ luôn sẵn sàng để kỳ nghỉ của bạn diễn ra suôn sẻ từ đầu đến cuối.</p>
+            <p>Đội ngũ hỗ trợ luôn sẵn sàng để kỳ lưu trú của bạn diễn ra suôn sẻ từ đầu đến cuối.</p>
             <a href="tel:19006868">Liên hệ hỗ trợ <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
         </article>
     </div>
@@ -310,9 +310,9 @@ else
 <section class="container-xl cta-feature reveal" aria-labelledby="cta-title">
     <img class="cta-feature__bg" src="~/images/home/khong-gian.jpg" alt="" aria-hidden="true" loading="lazy" />
     <div class="cta-feature__content">
-        <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Kỳ nghỉ kế tiếp</span>
+        <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Kỳ lưu trú kế tiếp</span>
         <h2 id="cta-title">Một chút thư giãn. Một chút phiêu lưu.</h2>
-        <p>Đã đến lúc dành thời gian cho chính mình. Chọn không gian yêu thích và để Lumière lo phần còn lại.</p>
+        <p>Đã đến lúc dành thời gian cho chính mình. Chọn không gian yêu thích và để Highgroup lo phần còn lại.</p>
         <div class="cta-feature__actions">
             <a asp-controller="Phong" asp-action="TimKiem" class="btn btn-hero-primary btn-lg">
                 Đặt phòng ngay <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>

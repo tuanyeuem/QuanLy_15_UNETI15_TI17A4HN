@@ -1,4 +1,4 @@
-﻿// Lumière Hotel & Resort - hiệu ứng giao diện dùng chung
+﻿// Highgroup Hotel - hiệu ứng giao diện dùng chung
 (() => {
     "use strict";
 
