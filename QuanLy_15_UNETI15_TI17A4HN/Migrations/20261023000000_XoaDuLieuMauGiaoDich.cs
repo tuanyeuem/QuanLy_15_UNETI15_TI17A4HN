@@ -1,6 +1,6 @@
-// Dọn dữ liệu mẫu: xóa toàn bộ đặt phòng, chi tiết đặt phòng, sử dụng dịch vụ
-// và các khách hàng không gắn với tài khoản. Giữ lại tài khoản, khách hàng liên kết tài khoản, phòng, loại phòng, dịch vụ.
-// Migration này chỉ chạy một lần (db.Database.Migrate() trong Program.cs).
+// Migration cũ từng xóa toàn bộ đặt phòng, chi tiết đặt phòng và khách hàng rời.
+// Đã vô hiệu hóa phần xóa để không làm mất dữ liệu khi cập nhật cơ sở dữ liệu hiện có.
+// Giữ nguyên migration nhằm bảo toàn lịch sử migration của các cơ sở dữ liệu đã chạy bản cũ.
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
@@ -16,14 +16,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.Sql("DELETE FROM [SuDungDichVus];");
-            migrationBuilder.Sql("DELETE FROM [ChiTietDatPhongs];");
-            migrationBuilder.Sql("DELETE FROM [DatPhongs];");
-            migrationBuilder.Sql("DELETE FROM [KhachHangs] WHERE [MaTaiKhoan] IS NULL;");
-
-            // Phòng đang "đang sử dụng" vì đặt phòng mẫu -> trả về trống/sẵn sàng.
-            migrationBuilder.Sql("UPDATE [Phongs] SET [TrangThai] = N'TrongRanh' WHERE [TrangThai] = N'DangSuDung';");
-
+            // Không xóa dữ liệu. Dữ liệu mẫu được nạp idempotent trong DuLieuMauGiaoDich.Seed.
         }
 
         /// <inheritdoc />

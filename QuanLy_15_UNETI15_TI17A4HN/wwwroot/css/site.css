@@ -251,7 +251,14 @@ a:hover { color: var(--accent); }
   position: relative; height: 170px; color: rgba(255, 255, 255, .9);
   display: flex; align-items: center; justify-content: center; flex: none;
 }
-.room-card__thumb svg { width: 64px; height: 64px; opacity: .85; }
+.room-card__thumb { overflow: hidden; }
+.room-card__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.room-card__thumb::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(to top, rgba(0, 0, 0, .55) 0%, rgba(0, 0, 0, 0) 55%);
+}
+.room-card__no, .room-card__floor { z-index: 1; }
+.room-hero { width: 100%; aspect-ratio: 16 / 9; max-height: 460px; object-fit: cover; display: block; background: #e9e9e9; }
 .room-card__no {
   position: absolute; left: 14px; bottom: 10px; font-weight: 700; font-size: 1.35rem;
   color: #fff; text-shadow: 0 1px 6px rgba(0, 0, 0, .45);

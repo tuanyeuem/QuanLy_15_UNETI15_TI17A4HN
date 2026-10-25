@@ -1,6 +1,6 @@
-// Họ và tên: Nguyễn Đình Quang
-// Mã sinh viên: 23103100259
-// Nội dung thực hiện: Hợp nhất bộ lọc phân quyền, xác nhận Session với tài khoản hoạt động trong DB.
+// Họ và tên: Nguyễn Đình Tuấn
+// Mã sinh viên: 23103100235
+// Nội dung thực hiện: Module 1 - Bộ lọc phân quyền, xác nhận Session với tài khoản hoạt động trong DB.
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;

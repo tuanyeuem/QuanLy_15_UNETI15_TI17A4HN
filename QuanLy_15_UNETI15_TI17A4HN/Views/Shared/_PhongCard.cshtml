@@ -1,19 +1,24 @@
+@* Họ và tên: Thành viên Module 2 (Git: tkv261005)
+   Mã sinh viên: (bổ sung MSSV khi nộp bài)
+   Nội dung thực hiện: Module 2 - Thẻ hiển thị phòng, trạng thái và liên kết đặt phòng. *@
 @using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
 @model QuanLy_15_UNETI15_TI17A4HN.Models.Phong
 @{
     var vaiTro = Context.Session.GetString("VaiTro");
     var nhan = TrangThaiUi.NhanPhong(Model.TrangThai);
-    bool conTrong = nhan == "Còn trống";
+    bool conTrong = nhan is "Còn trống" or "Đang sử dụng" or "Đã đặt";
     var tienNghi = TrangThaiUi.TienNghi(Model.TienNghi, 4);
     string tenLoai = Model.LoaiPhong?.TenLoai ?? ("Loại " + Model.MaLoaiPhong);
     int sucChua = Model.LoaiPhong?.SoNguoiToiDa ?? 0;
     string? ngayNhan = Context.Request.Query["ngayNhan"].FirstOrDefault();
     string? ngayTra = Context.Request.Query["ngayTra"].FirstOrDefault();
     bool laQuanLy = vaiTro == "Admin" || vaiTro == "NhanVien";
+    string anhUrl = PhongAnhHelper.Url(Env, Model);
 }
 <article class="room-card">
     <div class="room-card__thumb thumb-@(Model.MaLoaiPhong % 5)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 18v-7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v7"/><path d="M3 18h18"/><path d="M3 21v-3M21 21v-3"/><path d="M7 9V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2M12 9V7a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1v2"/></svg>
+        <img class="room-card__img" src="@anhUrl" alt="Phòng @Model.SoPhong - @tenLoai" loading="lazy" />
         <span class="room-card__no">Phòng @Model.SoPhong</span>
         <span class="room-card__floor">Tầng @Model.Tang</span>
     </div>
@@ -51,7 +56,8 @@
             <div class="room-card__actions">
                 @if (conTrong && vaiTro == "KhachHang")
                 {
-                    <a class="btn btn-primary btn-sm" asp-controller="KhachHang" asp-action="DatPhong" asp-route-ngayNhan="@ngayNhan" asp-route-ngayTra="@ngayTra">Đặt phòng</a>
+                    <a class="btn btn-primary btn-sm" asp-controller="KhachHang" asp-action="DatPhong"
+                       asp-route-maPhong="@Model.MaPhong" asp-route-ngayNhan="@ngayNhan" asp-route-ngayTra="@ngayTra">Đặt phòng</a>
                 }
                 else if (conTrong && vaiTro == null)
                 {

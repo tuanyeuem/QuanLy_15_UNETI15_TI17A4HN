@@ -1,3 +1,6 @@
+@* Họ và tên: Thành viên Module 2 (Git: tkv261005)
+   Mã sinh viên: (bổ sung MSSV khi nộp bài)
+   Nội dung thực hiện: Module 2 - Danh sách phòng có phân trang. *@
 @using QuanLy_15_UNETI15_TI17A4HN.Helpers
 @model IEnumerable<QuanLy_15_UNETI15_TI17A4HN.Models.Phong>
 
@@ -158,16 +161,7 @@
 
             <li class="page-item @(trangHienTai == 1 ? "disabled" : "")">
                 <a class="page-link"
-                   asp-action="TimKiem"
-                   asp-route-tuKhoa="@ViewBag.TuKhoa"
-                   asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
-                   asp-route-tang="@ViewBag.Tang"
-                   asp-route-trangThai="@ViewBag.TrangThai"
-                   asp-route-giaTu="@ViewBag.GiaTu"
-                   asp-route-giaDen="@ViewBag.GiaDen"
-                   asp-route-ngayNhan="@ViewBag.NgayNhan"
-                   asp-route-ngayTra="@ViewBag.NgayTra"
-                   asp-route-sapXep="@ViewBag.SapXep"
+                   asp-action="Index"
                    asp-route-trang="@(trangHienTai - 1)">
                     Trước
                 </a>
@@ -177,16 +171,7 @@
             {
                 <li class="page-item @(i == trangHienTai ? "active" : "")">
                     <a class="page-link"
-                       asp-action="TimKiem"
-                       asp-route-tuKhoa="@ViewBag.TuKhoa"
-                       asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
-                       asp-route-tang="@ViewBag.Tang"
-                       asp-route-trangThai="@ViewBag.TrangThai"
-                       asp-route-giaTu="@ViewBag.GiaTu"
-                       asp-route-giaDen="@ViewBag.GiaDen"
-                       asp-route-ngayNhan="@ViewBag.NgayNhan"
-                       asp-route-ngayTra="@ViewBag.NgayTra"
-                       asp-route-sapXep="@ViewBag.SapXep"
+                       asp-action="Index"
                        asp-route-trang="@i">
                         @i
                     </a>
@@ -195,16 +180,7 @@
 
             <li class="page-item @(trangHienTai == tongSoTrang ? "disabled" : "")">
                 <a class="page-link"
-                   asp-action="TimKiem"
-                   asp-route-tuKhoa="@ViewBag.TuKhoa"
-                   asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
-                   asp-route-tang="@ViewBag.Tang"
-                   asp-route-trangThai="@ViewBag.TrangThai"
-                   asp-route-giaTu="@ViewBag.GiaTu"
-                   asp-route-giaDen="@ViewBag.GiaDen"
-                   asp-route-ngayNhan="@ViewBag.NgayNhan"
-                   asp-route-ngayTra="@ViewBag.NgayTra"
-                   asp-route-sapXep="@ViewBag.SapXep"
+                   asp-action="Index"
                    asp-route-trang="@(trangHienTai + 1)">
                     Sau
                 </a>
@@ -313,6 +289,7 @@
                                class="btn btn-sm btn-info">
                                 Chi tiết
                             </a>
+
 
                             
                             <form asp-action="Delete"

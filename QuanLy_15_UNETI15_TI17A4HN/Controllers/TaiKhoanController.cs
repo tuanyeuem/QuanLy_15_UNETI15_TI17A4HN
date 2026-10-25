@@ -1,6 +1,6 @@
-// Họ và tên: Lê Văn Thanh
-// Mã sinh viên: 23103100200
-// Nội dung thực hiện: Module 5 - Đăng nhập, đăng xuất, lưu Session và trang không có quyền (phân quyền cho các chức năng Module 5).
+// Họ và tên: Nguyễn Đình Tuấn
+// Mã sinh viên: 23103100235
+// Nội dung thực hiện: Module 1 - Đăng nhập, đăng xuất, lưu Session và trang không có quyền.
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLy_15_UNETI15_TI17A4HN.Data;

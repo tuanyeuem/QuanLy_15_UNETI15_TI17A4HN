@@ -1,7 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿// Họ và tên: Thành viên Module 2 (Git: tkv261005)
+// Mã sinh viên: (bổ sung MSSV khi nộp bài)
+// Nội dung thực hiện: Module 2 - Quản lý phòng, CRUD, trạng thái, tìm kiếm/lọc/sắp xếp/phân trang.
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
+using QuanLy_15_UNETI15_TI17A4HN.Helpers;
 using QuanLy_15_UNETI15_TI17A4HN.Models;
 
 namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
@@ -20,6 +24,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
         }
 
 
+        [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
         public async Task<IActionResult> Index(int trang = 1)
         {
             const int soDongMoiTrang = 5;
@@ -43,6 +48,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
             // Chỉ lấy phòng thuộc trang hiện tại
             var dsPhong = await _context.Phongs
                 .AsNoTracking()
+                .Include(p => p.LoaiPhong)
                 .OrderBy(p => p.Tang)
                 .ThenBy(p => p.SoPhong)
                 .Skip((trang - 1) * soDongMoiTrang)
@@ -66,6 +72,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
 
             return View(phong);
         }
+        [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
         public IActionResult Create()
         {
             LoadLoaiPhong();
@@ -74,6 +81,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
         public async Task<IActionResult> Create(Phong phong)
         {
             _logger.LogInformation(
@@ -189,6 +197,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
         }
 
         [HttpGet]
+        [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
         public async Task<IActionResult> Edit(int id)
         {
             if (id <= 0)
@@ -227,6 +236,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
         public async Task<IActionResult> Edit(int id, Phong phong)
         {
             if (id <= 0 || id != phong.MaPhong)
@@ -370,6 +380,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
             }
         }
 
+        [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
         public async Task<IActionResult> Delete(int id)
         {
             if (id <= 0)
@@ -387,6 +398,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             if (id <= 0)
@@ -443,6 +455,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
         public async Task<IActionResult> CapNhatTrangThai(
             int id,
             string trangThai)
@@ -456,23 +469,33 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
             if (phong == null)
                 return NotFound();
 
-            var trangThaiHopLe = new[]
+            // Chấp nhận cả mã trạng thái và nhãn tiếng Việt cũ để không làm hỏng dữ liệu.
+            var bangTrangThai = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
-                "Trống",
-                "Đang sử dụng",
-                "Bảo trì"
+                ["TrongRanh"] = TrangThaiPhong.TrongRanh,
+                ["Trống"] = TrangThaiPhong.TrongRanh,
+                ["Còn trống"] = TrangThaiPhong.TrongRanh,
+                ["DangSuDung"] = TrangThaiPhong.DangSuDung,
+                ["Đang sử dụng"] = TrangThaiPhong.DangSuDung,
+                ["BaoTri"] = TrangThaiPhong.BaoTri,
+                ["Bảo trì"] = TrangThaiPhong.BaoTri,
+                ["KhongKinhDoanh"] = TrangThaiPhong.KhongKinhDoanh,
+                ["Ngừng kinh doanh"] = TrangThaiPhong.NgungKinhDoanh,
+                ["NgungKinhDoanh"] = TrangThaiPhong.NgungKinhDoanh
             };
 
-            if (!trangThaiHopLe.Contains(trangThai))
+            if (!bangTrangThai.TryGetValue(trangThai ?? string.Empty, out var maTrangThai))
             {
                 TempData["Error"] = "Trạng thái không hợp lệ.";
 
                 return RedirectToAction(nameof(Index));
             }
 
-            phong.TrangThai = trangThai;
+            phong.TrangThai = maTrangThai;
 
             await _context.SaveChangesAsync();
+
+            TempData["Success"] = $"Đã cập nhật trạng thái phòng {phong.SoPhong}.";
 
             return RedirectToAction(nameof(Index));
         }
@@ -510,8 +533,11 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
 
                 query = query.Where(p =>
                     p.SoPhong.Contains(tuKhoa) ||
-                    (p.LoaiPhong != null &&
-                     p.LoaiPhong.TenLoai.Contains(tuKhoa)));
+                    (p.LoaiPhong != null && p.LoaiPhong.TenLoai.Contains(tuKhoa)) ||
+                    _context.DatPhongs.Any(d =>
+                        d.MaPhong == p.MaPhong && d.KhachHang.HoTen.Contains(tuKhoa)) ||
+                    _context.ChiTietDatPhongs.Any(c =>
+                        c.MaPhong == p.MaPhong && c.DatPhong.KhachHang.HoTen.Contains(tuKhoa)));
             }
 
             if (int.TryParse(maLoaiPhong, out var maLoaiPhongId) && maLoaiPhongId > 0)
@@ -540,12 +566,48 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
                 query = query.Where(p => p.DonGia <= giaDen.Value);
             }
 
-            if (ngayNhan.HasValue && ngayTra.HasValue &&
-                ngayNhan.Value.Date >= ngayTra.Value.Date)
+            // Lọc theo khoảng ngày còn trống. Nếu chỉ nhập một đầu ngày, tự suy ra đầu còn lại
+            // để bộ lọc vẫn có ý nghĩa thay vì bị bỏ qua.
+            if (ngayNhan.HasValue || ngayTra.HasValue)
             {
-                ModelState.AddModelError(
-                    string.Empty,
-                    "Ngày trả phòng phải sau ngày nhận phòng.");
+                if (!ngayNhan.HasValue)
+                    ngayNhan = DateTime.Today;
+                if (!ngayTra.HasValue)
+                    ngayTra = ngayNhan.Value.AddDays(1);
+
+                var nhanLoc = ngayNhan.Value.Date;
+                var traLoc = ngayTra.Value.Date;
+
+                if (traLoc <= nhanLoc)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Ngày trả phòng phải sau ngày nhận phòng.");
+                }
+                else
+                {
+                    // Chỉ hiển thị phòng đang kinh doanh khi tìm theo ngày.
+                    if (string.IsNullOrWhiteSpace(trangThai) || trangThai == "all")
+                    {
+                        query = query.Where(p =>
+                            p.TrangThai != TrangThaiPhong.BaoTri &&
+                            p.TrangThai != TrangThaiPhong.KhongKinhDoanh &&
+                            p.TrangThai != TrangThaiPhong.NgungKinhDoanh);
+                    }
+
+                    query = query.Where(p =>
+                        !_context.DatPhongs.Any(d =>
+                            d.MaPhong == p.MaPhong &&
+                            d.TrangThai != TrangThaiDatPhong.Huy &&
+                            d.TrangThai != TrangThaiDatPhong.TuChoi &&
+                            d.NgayNhan < traLoc &&
+                            d.NgayTraDuKien > nhanLoc) &&
+                        !_context.ChiTietDatPhongs.Any(c =>
+                            c.MaPhong == p.MaPhong &&
+                            c.TrangThai != TrangThaiChiTiet.DaHuy &&
+                            c.NgayNhan < traLoc &&
+                            c.NgayTra > nhanLoc));
+                }
             }
 
             ViewBag.LoaiPhongs = new SelectList(

@@ -1,0 +1,64 @@
+@* Họ và tên: Thành viên Module 2 (Git: tkv261005)
+   Mã sinh viên: (bổ sung MSSV khi nộp bài)
+   Nội dung thực hiện: Module 2 - Giao diện tải lên/xóa ảnh phòng. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
+@model QuanLy_15_UNETI15_TI17A4HN.Models.Phong
+@{
+    ViewData["Title"] = "Ảnh phòng " + Model.SoPhong;
+    var anhRieng = PhongAnhHelper.AnhRieng(Env, Model.MaPhong);
+    var anhHienTai = anhRieng ?? PhongAnhHelper.AnhMacDinh(Model);
+    string tenLoai = Model.LoaiPhong?.TenLoai ?? ("Loại " + Model.MaLoaiPhong);
+}
+
+<div class="page-head">
+    <div>
+        <h1>Ảnh phòng @Model.SoPhong</h1>
+        <div class="result-count">@tenLoai &middot; Tầng @Model.Tang</div>
+    </div>
+    <a asp-controller="Phong" asp-action="TimKiem" class="btn btn-outline-secondary">Quay lại danh sách phòng</a>
+</div>
+
+<partial name="_ThongBao" />
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card overflow-hidden">
+            <img id="xemTruoc" class="room-hero" src="@anhHienTai" alt="Ảnh phòng @Model.SoPhong" />
+        </div>
+        <p class="text-muted mt-2 mb-0">
+            @(anhRieng != null ? "Đang dùng ảnh bạn đã tải lên cho phòng này." : "Phòng chưa có ảnh riêng, đang dùng ảnh minh họa mặc định theo loại phòng.")
+        </p>
+    </div>
+    <div class="col-lg-5">
+        <div class="form-card">
+            <form asp-action="Doi" asp-route-id="@Model.MaPhong" method="post" enctype="multipart/form-data">
+                <label for="tepAnh" class="form-label">Chọn ảnh mới</label>
+                <input id="tepAnh" name="tepAnh" type="file" class="form-control" accept="image/jpeg,image/png,image/webp" required />
+                <div class="form-text">Định dạng JPG, PNG hoặc WEBP, tối đa 5 MB. Nên dùng ảnh ngang, tỉ lệ khoảng 16:9.</div>
+                <button type="submit" class="btn btn-primary mt-3 px-4">Lưu ảnh</button>
+            </form>
+
+            @if (anhRieng != null)
+            {
+                <hr />
+                <form asp-action="Xoa" asp-route-id="@Model.MaPhong" method="post"
+                      onsubmit="return confirm('Xóa ảnh riêng của phòng này và dùng lại ảnh mặc định?');">
+                    <button type="submit" class="btn btn-outline-secondary">Dùng lại ảnh mặc định</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('tepAnh').addEventListener('change', function () {
+            var tep = this.files && this.files[0];
+            if (!tep) { return; }
+            var docTep = new FileReader();
+            docTep.onload = function (e) { document.getElementById('xemTruoc').src = e.target.result; };
+            docTep.readAsDataURL(tep);
+        });
+    </script>
+}

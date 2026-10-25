@@ -1,3 +1,6 @@
+@* Họ và tên: Thành viên Module 2 (Git: tkv261005)
+   Mã sinh viên: (bổ sung MSSV khi nộp bài)
+   Nội dung thực hiện: Module 2 - Tìm kiếm, lọc theo ngày/trạng thái/giá và sắp xếp phòng. *@
 @model IEnumerable<QuanLy_15_UNETI15_TI17A4HN.Models.Phong>
 
 @{
@@ -14,7 +17,7 @@
         <div class="sb-field">
             <label class="sb-label" for="tk-tukhoa">Từ khóa</label>
             <input id="tk-tukhoa" type="text" name="tuKhoa" value="@Context.Request.Query["tuKhoa"]"
-                   class="form-control" placeholder="Số phòng hoặc tên loại phòng" />
+                   class="form-control" placeholder="Số phòng, loại phòng hoặc tên khách hàng" />
         </div>
         <div class="sb-field">
             <label class="sb-label" for="tk-loai">Loại phòng</label>

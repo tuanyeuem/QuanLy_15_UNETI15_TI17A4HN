@@ -1,3 +1,6 @@
+@* Họ và tên: Vũ Xuân Tuấn
+   Mã sinh viên: 23103100035
+   Nội dung thực hiện: Module 4 - Xác nhận khách nhận nhiều phòng trong cùng một lượt đặt. *@
 @model QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong
 @{ ViewData["Title"] = "Xác nhận nhận phòng"; }
 <h3>Xác nhận khách nhận phòng #@Model.MaDatPhong</h3>
@@ -5,6 +8,8 @@
     Khách <strong>@Model.KhachHang.HoTen</strong> nhận phòng <strong>@Model.Phong.SoPhong</strong>.
     Thời điểm nhận sẽ được hệ thống ghi tự động là <strong>@DateTime.Now.ToString("dd/MM/yyyy HH:mm")</strong>.
 </div>
+<partial name="_DanhSachPhongDat" model="Model" />
+
 <form asp-action="NhanPhong" method="post">
     <input type="hidden" name="id" value="@Model.MaDatPhong" />
     <button type="submit" class="btn btn-primary">🏠 Xác nhận</button>

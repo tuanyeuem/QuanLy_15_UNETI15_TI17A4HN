@@ -458,9 +458,13 @@ public class ChiTietDatPhongController : Controller
 
     private async Task<List<SelectListItem>> TaoDanhSachPhongAsync(int? maPhongChon)
     {
-        // Phòng đang bảo trì không thể kinh doanh nên không đưa vào danh sách chọn.
+        // Phòng đang bảo trì / ngừng kinh doanh không đưa vào danh sách chọn,
+        // trừ phòng hiện tại đang sửa để người dùng vẫn thấy và đổi sang phòng khác.
         var ds = await _context.Phongs.AsNoTracking()
-            .Where(p => p.TrangThai != TrangThaiPhong.BaoTri || p.MaPhong == maPhongChon)
+            .Where(p => (p.TrangThai != TrangThaiPhong.BaoTri
+                      && p.TrangThai != TrangThaiPhong.KhongKinhDoanh
+                      && p.TrangThai != TrangThaiPhong.NgungKinhDoanh)
+                     || p.MaPhong == maPhongChon)
             .OrderBy(p => p.SoPhong)
             .Select(p => new { p.MaPhong, p.SoPhong, TenLoai = p.LoaiPhong.TenLoai, p.DonGia, p.TrangThai })
             .ToListAsync();
@@ -489,8 +493,11 @@ public class ChiTietDatPhongController : Controller
             return;
         }
 
-        if (phong.TrangThai == TrangThaiPhong.BaoTri)
-            ModelState.AddModelError(nameof(vm.MaPhong), $"Phòng {phong.SoPhong} đang bảo trì, không thể đặt.");
+        if (phong.TrangThai == TrangThaiPhong.BaoTri
+            || phong.TrangThai == TrangThaiPhong.KhongKinhDoanh
+            || phong.TrangThai == TrangThaiPhong.NgungKinhDoanh)
+            ModelState.AddModelError(nameof(vm.MaPhong),
+                $"Phòng {phong.SoPhong} đang bảo trì hoặc ngừng kinh doanh, không thể đặt.");
 
         var nhan = vm.NgayNhan!.Value.Date;
         var tra = vm.NgayTra!.Value.Date;
@@ -509,6 +516,17 @@ public class ChiTietDatPhongController : Controller
         if (trung)
             ModelState.AddModelError(nameof(vm.MaPhong),
                 $"Phòng {phong.SoPhong} đã có người đặt trong khoảng thời gian này.");
+
+        // Một số đặt phòng cũ chỉ có phòng chính (chưa có ChiTietDatPhong), vẫn phải tính là đã chiếm lịch.
+        var trungPhongChinh = await _context.DatPhongs.AnyAsync(d =>
+            d.MaPhong == phong.MaPhong
+            && d.MaDatPhong != dp.MaDatPhong
+            && d.TrangThai != TrangThaiDatPhong.Huy
+            && d.TrangThai != TrangThaiDatPhong.TuChoi
+            && d.NgayNhan < tra && nhan < d.NgayTraDuKien);
+        if (trungPhongChinh)
+            ModelState.AddModelError(nameof(vm.MaPhong),
+                $"Phòng {phong.SoPhong} đã có đặt phòng khác trong khoảng thời gian này.");
 
         // Cảnh báo sức chứa: tổng sức chứa các phòng của lần đặt không đủ cho số người.
         if (ModelState.IsValid)
