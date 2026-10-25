@@ -4,6 +4,7 @@
 // Họ và tên: Nguyễn Đình Quang | Mã sinh viên: 23103100259 | Nội dung: Hợp nhất entity, trạng thái và navigation để các module dùng chung.
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace QuanLy_15_UNETI15_TI17A4HN.Models;
 
@@ -32,6 +33,10 @@ public class Phong
     [Required]
     [Display(Name = "Loại phòng")]
     public int MaLoaiPhong { get; set; }
+
+    // Navigation property chỉ dùng để đọc dữ liệu, không có trong form POST.
+    // Bỏ qua validation để không tạo lỗi "The LoaiPhong field is required".
+    [ValidateNever]
     public LoaiPhong LoaiPhong { get; set; } = null!;
 
     [Range(1, 100, ErrorMessage = "Tầng phải từ 1 đến 100")]
