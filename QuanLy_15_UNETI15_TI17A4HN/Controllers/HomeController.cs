@@ -44,6 +44,11 @@ public class HomeController : Controller
             .Take(6)
             .ToList();
 
+        // Số liệu ngắn gọn phục vụ phần giới thiệu trên trang chủ.
+        ViewBag.TongSoPhong = await _context.Phongs.CountAsync();
+        ViewBag.SoPhongTrong = await _context.Phongs.CountAsync(p => p.TrangThai == TrangThaiPhong.TrongRanh);
+        ViewBag.SoLoaiPhong = await _context.LoaiPhongs.CountAsync(l => l.TrangThai);
+
         return View();
     }
 

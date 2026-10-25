@@ -8,7 +8,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Helpers;
 
 // Quản lý ảnh phòng bằng tệp trong wwwroot (không cần thay đổi cơ sở dữ liệu).
 //  - Ảnh riêng của phòng: wwwroot/uploads/phong/phong-{MaPhong}.jpg|png|webp
-//  - Chưa có ảnh riêng: dùng ảnh minh họa mặc định theo loại phòng (wwwroot/images/phong/*.svg).
+//  - Chưa có ảnh riêng: dùng ảnh minh họa mặc định theo loại phòng (wwwroot/images/phong/*.jpg).
 public static class PhongAnhHelper
 {
     public const string ThuMucUrl = "/uploads/phong";
@@ -63,7 +63,7 @@ public static class PhongAnhHelper
             var n = AnhTheoThuTu.Length;
             tep = AnhTheoThuTu[(((maLoaiPhong - 1) % n) + n) % n];
         }
-        return $"/images/phong/{tep}.svg";
+        return $"/images/phong/{tep}.jpg";
     }
 
     public static string Url(IWebHostEnvironment env, Phong phong)

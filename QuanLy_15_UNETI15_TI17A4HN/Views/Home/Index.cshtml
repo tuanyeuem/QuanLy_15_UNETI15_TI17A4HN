@@ -11,21 +11,68 @@
     var vaiTro = Context.Session.GetString("VaiTro");
     var loaiPhongs = ViewBag.LoaiPhongs as List<LoaiPhong> ?? new List<LoaiPhong>();
     var phongNoiBat = ViewBag.PhongNoiBat as List<Phong> ?? new List<Phong>();
+    var phongGoiY = phongNoiBat.FirstOrDefault();
+    var tenPhongGoiY = phongGoiY?.LoaiPhong?.TenLoai ?? "Phòng nghỉ dưỡng";
+    var giaPhongGoiY = phongGoiY != null ? phongGoiY.DonGia.ToString("N0") + " đ" : "Từ 850.000 đ";
+    int tongSoPhong = ViewBag.TongSoPhong is int t1 ? t1 : 0;
+    int soPhongTrong = ViewBag.SoPhongTrong is int t2 ? t2 : 0;
+    int soLoaiPhong = ViewBag.SoLoaiPhong is int t3 ? t3 : 0;
     var homNay = DateTime.Today.ToString("yyyy-MM-dd");
     var ngayNhanMacDinh = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd");
     var ngayTraMacDinh = DateTime.Today.AddDays(2).ToString("yyyy-MM-dd");
     bool laQuanLy = vaiTro == "Admin" || vaiTro == "NhanVien";
 }
 
-<section class="hero">
-    <div class="container-xl">
-        <h1 class="mb-3">Tìm phòng phù hợp cho kỳ nghỉ của bạn</h1>
-        <p class="mb-0">Chọn loại phòng, ngày nhận và ngày trả. Hệ thống hiển thị phòng còn trống cùng giá mỗi đêm.</p>
+<section class="home-hero" aria-labelledby="home-hero-title">
+    <img class="home-hero__bg" src="~/images/home/hero-resort.jpg" alt="" aria-hidden="true" />
+    <div class="home-hero__veil" aria-hidden="true"></div>
+    <div class="container-xl home-hero__inner">
+        <div class="home-hero__copy reveal">
+            <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Stay · Unwind · Repeat</span>
+            <h1 id="home-hero-title">Kỳ nghỉ của bạn,<br /><em>bắt đầu từ đây.</em></h1>
+            <p>Không gian tinh tế, tiện nghi chuẩn mực và dịch vụ tận tâm — chúng tôi chăm chút từng chi tiết để bạn chỉ cần tận hưởng.</p>
+            <div class="hero-actions">
+                <a asp-controller="Phong" asp-action="TimKiem" class="btn btn-hero-primary btn-lg">
+                    <i class="bi bi-calendar2-check me-2" aria-hidden="true"></i>Đặt phòng ngay
+                </a>
+                <a href="#phong-noi-bat" class="btn btn-hero-ghost btn-lg">
+                    Khám phá phòng <i class="bi bi-arrow-down-right ms-1" aria-hidden="true"></i>
+                </a>
+            </div>
+            <div class="hero-proof">
+                <div class="hero-proof__avatars" aria-hidden="true">
+                    <span>M</span><span>A</span><span>L</span>
+                </div>
+                <div><strong>4.9/5</strong><small>Khách hàng hài lòng</small></div>
+                <div class="hero-proof__divider" aria-hidden="true"></div>
+                <div><strong>@tongSoPhong phòng</strong><small>Không gian đa dạng</small></div>
+                <div class="hero-proof__divider" aria-hidden="true"></div>
+                <div><strong>24/7</strong><small>Hỗ trợ tận tâm</small></div>
+            </div>
+        </div>
+
+        <div class="hero-card-wrap reveal">
+            <aside class="hero-card" aria-label="Gợi ý phòng nổi bật">
+                <div class="hero-card__photo">
+                    <img src="~/images/home/phong-nghi.jpg" alt="Không gian phòng nghỉ dưỡng ấm cúng" loading="lazy" />
+                    <span class="hero-card__badge"><i class="bi bi-stars me-1" aria-hidden="true"></i>Được yêu thích</span>
+                </div>
+                <div class="hero-card__body">
+                    <span class="hero-card__kicker">Gợi ý cho bạn</span>
+                    <h2>@tenPhongGoiY</h2>
+                    <p>Không gian ấm cúng, đầy đủ tiện nghi và view đẹp cho một kỳ nghỉ thật trọn vẹn.</p>
+                    <div class="hero-card__price">
+                        <strong>@giaPhongGoiY</strong><span>/ đêm</span>
+                        <a asp-controller="Phong" asp-action="TimKiem">Xem phòng <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                    </div>
+                </div>
+            </aside>
+        </div>
     </div>
 </section>
 
 <div class="container-xl search-wrap">
-    <form asp-controller="Phong" asp-action="TimKiem" method="get" class="search-bar">
+    <form asp-controller="Phong" asp-action="TimKiem" method="get" class="search-bar" aria-label="Tìm phòng nhanh">
         <div class="sb-field">
             <label class="sb-label" for="sb-loai">Loại phòng</label>
             <select id="sb-loai" name="maLoaiPhong" class="form-select">
@@ -49,47 +96,145 @@
             <input id="sb-gia" type="number" name="giaDen" min="0" step="50000" placeholder="Không giới hạn" class="form-control" />
         </div>
         <div class="sb-action">
-            <button type="submit" class="btn btn-search">Tìm kiếm</button>
+            <button type="submit" class="btn btn-search">
+                <i class="bi bi-search me-2" aria-hidden="true"></i>Tìm phòng
+            </button>
         </div>
     </form>
 </div>
 
-<div class="container-xl">
-    @if (hoTen == null)
-    {
-        <div class="cta-band mt-4">
-            <div>
-                <strong>Đăng nhập để đặt phòng và theo dõi đặt phòng của bạn.</strong>
-                <div class="text-muted">Bạn vẫn có thể xem phòng và giá mà không cần đăng nhập.</div>
-            </div>
-            <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn-primary px-4">Đăng nhập</a>
+<section class="container-xl stats-strip reveal" aria-label="Thông tin nhanh">
+    <div class="stat">
+        <span class="stat__icon"><i class="bi bi-buildings" aria-hidden="true"></i></span>
+        <div><strong data-count="@tongSoPhong">@tongSoPhong</strong><span>Phòng nghỉ đa dạng</span></div>
+    </div>
+    <div class="stat">
+        <span class="stat__icon"><i class="bi bi-door-open" aria-hidden="true"></i></span>
+        <div><strong data-count="@soPhongTrong">@soPhongTrong</strong><span>Phòng đang sẵn sàng</span></div>
+    </div>
+    <div class="stat">
+        <span class="stat__icon"><i class="bi bi-grid-1x2" aria-hidden="true"></i></span>
+        <div><strong data-count="@soLoaiPhong">@soLoaiPhong</strong><span>Hạng phòng để chọn</span></div>
+    </div>
+    <div class="stat">
+        <span class="stat__icon"><i class="bi bi-headset" aria-hidden="true"></i></span>
+        <div><strong>24/7</strong><span>Luôn ở đây khi bạn cần</span></div>
+    </div>
+</section>
+
+@if (hoTen == null)
+{
+    <section class="container-xl guest-banner reveal" aria-label="Đăng nhập để đặt phòng">
+        <span class="guest-banner__icon"><i class="bi bi-person-lock" aria-hidden="true"></i></span>
+        <div>
+            <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Thành viên Lumière</span>
+            <h3>Đăng nhập để lưu lại kỳ nghỉ của bạn</h3>
+            <p>Theo dõi đặt phòng, xem kết quả lưu trú và quản lý thông tin cá nhân trong một không gian duy nhất.</p>
         </div>
-    }
-    else
-    {
-        <h2 class="section-title">Xin chào, @hoTen</h2>
-        <p class="section-sub">Chọn nhanh chức năng bạn cần.</p>
-        <div class="tile-grid">
+        <a asp-controller="TaiKhoan" asp-action="DangNhap" class="btn btn-light">
+            Đăng nhập ngay <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+        </a>
+    </section>
+}
+else
+{
+    <section class="container-xl welcome-panel reveal" aria-label="Lối tắt chức năng">
+        <div>
+            <span class="eyebrow"><span class="eyebrow__dot"></span> Không gian của bạn</span>
+            <h2>Chào @hoTen, hôm nay bạn muốn đi đâu?</h2>
+            <p>Mọi chức năng bạn cần đã được sắp xếp gọn gàng ngay bên dưới.</p>
+        </div>
+        <div class="welcome-panel__actions">
             @if (laQuanLy)
             {
-                <a class="tile" asp-controller="ThongKe" asp-action="Dashboard"><span class="tile__title">Dashboard</span><span class="tile__desc">Số liệu tổng quan về phòng, đặt phòng và doanh thu.</span></a>
-                <a class="tile" asp-controller="DatPhong" asp-action="Index"><span class="tile__title">Đặt phòng</span><span class="tile__desc">Duyệt, nhận phòng, trả phòng và hủy đặt phòng.</span></a>
-                <a class="tile" asp-controller="ChiTietDatPhong" asp-action="Index"><span class="tile__title">Chi tiết đặt phòng</span><span class="tile__desc">Từng phòng trong lượt đặt, số ngày và thành tiền.</span></a>
-                <a class="tile" asp-controller="QuanLyKhachHang" asp-action="Index"><span class="tile__title">Quản lý khách hàng</span><span class="tile__desc">Tìm kiếm, thêm, sửa hồ sơ khách hàng.</span></a>
-                <a class="tile" asp-controller="ThongKe" asp-action="Index"><span class="tile__title">Thống kê</span><span class="tile__desc">Thống kê theo năm và báo cáo theo khoảng ngày.</span></a>
+                <a asp-controller="ThongKe" asp-action="Dashboard" class="btn btn-primary">
+                    <i class="bi bi-speedometer2 me-2" aria-hidden="true"></i>Mở dashboard
+                </a>
             }
             else
             {
-                <a class="tile" asp-controller="KhachHang" asp-action="HoSo"><span class="tile__title">Hồ sơ cá nhân</span><span class="tile__desc">Xem và cập nhật thông tin của bạn.</span></a>
-                <a class="tile" asp-controller="KhachHang" asp-action="DatPhong"><span class="tile__title">Đặt phòng</span><span class="tile__desc">Chọn ngày và phòng còn trống để đặt.</span></a>
-                <a class="tile" asp-controller="KhachHang" asp-action="TheoDoi"><span class="tile__title">Theo dõi đặt phòng</span><span class="tile__desc">Xem trạng thái hoặc hủy đặt phòng.</span></a>
-                <a class="tile" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi"><span class="tile__title">Kết quả đặt phòng của tôi</span><span class="tile__desc">Chi tiết lưu trú và số tiền cần thanh toán.</span></a>
+                <a asp-controller="KhachHang" asp-action="DatPhong" class="btn btn-primary">
+                    <i class="bi bi-calendar-plus me-2" aria-hidden="true"></i>Đặt phòng mới
+                </a>
             }
         </div>
-    }
+    </section>
 
-    <h2 class="section-title">Phòng nổi bật</h2>
-    <p class="section-sub">Mỗi loại phòng một gợi ý còn trống, sắp xếp theo giá từ thấp đến cao.</p>
+    <div class="container-xl tile-grid">
+        @if (laQuanLy)
+        {
+            <a class="tile" asp-controller="ThongKe" asp-action="Dashboard">
+                <span class="tile__icon"><i class="bi bi-grid-1x2" aria-hidden="true"></i></span>
+                <span class="tile__title">Dashboard</span>
+                <span class="tile__desc">Số liệu tổng quan về phòng, đặt phòng và doanh thu.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+            <a class="tile tile--blue" asp-controller="DatPhong" asp-action="Index">
+                <span class="tile__icon"><i class="bi bi-calendar2-check" aria-hidden="true"></i></span>
+                <span class="tile__title">Đặt phòng</span>
+                <span class="tile__desc">Duyệt, nhận phòng, trả phòng và hủy đặt phòng.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+            <a class="tile tile--teal" asp-controller="ChiTietDatPhong" asp-action="Index">
+                <span class="tile__icon"><i class="bi bi-journal-text" aria-hidden="true"></i></span>
+                <span class="tile__title">Chi tiết đặt phòng</span>
+                <span class="tile__desc">Từng phòng trong lượt đặt, số ngày và thành tiền.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+            <a class="tile tile--violet" asp-controller="QuanLyKhachHang" asp-action="Index">
+                <span class="tile__icon"><i class="bi bi-people" aria-hidden="true"></i></span>
+                <span class="tile__title">Quản lý khách hàng</span>
+                <span class="tile__desc">Tìm kiếm, thêm, sửa hồ sơ khách hàng.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+            <a class="tile tile--gold" asp-controller="ThongKe" asp-action="Index">
+                <span class="tile__icon"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></span>
+                <span class="tile__title">Thống kê</span>
+                <span class="tile__desc">Thống kê theo năm và báo cáo theo khoảng ngày.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+        }
+        else
+        {
+            <a class="tile" asp-controller="KhachHang" asp-action="HoSo">
+                <span class="tile__icon"><i class="bi bi-person-circle" aria-hidden="true"></i></span>
+                <span class="tile__title">Hồ sơ cá nhân</span>
+                <span class="tile__desc">Xem và cập nhật thông tin của bạn.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+            <a class="tile tile--blue" asp-controller="KhachHang" asp-action="DatPhong">
+                <span class="tile__icon"><i class="bi bi-calendar-plus" aria-hidden="true"></i></span>
+                <span class="tile__title">Đặt phòng</span>
+                <span class="tile__desc">Chọn ngày và phòng còn trống để đặt.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+            <a class="tile tile--teal" asp-controller="KhachHang" asp-action="TheoDoi">
+                <span class="tile__icon"><i class="bi bi-clock-history" aria-hidden="true"></i></span>
+                <span class="tile__title">Theo dõi đặt phòng</span>
+                <span class="tile__desc">Xem trạng thái hoặc hủy đặt phòng.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+            <a class="tile tile--gold" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">
+                <span class="tile__icon"><i class="bi bi-receipt" aria-hidden="true"></i></span>
+                <span class="tile__title">Kết quả đặt phòng của tôi</span>
+                <span class="tile__desc">Chi tiết lưu trú và số tiền cần thanh toán.</span>
+                <span class="tile__arrow"><i class="bi bi-arrow-up-right" aria-hidden="true"></i></span>
+            </a>
+        }
+    </div>
+}
+
+<section class="container-xl section-block reveal" id="phong-noi-bat" aria-labelledby="phong-noi-bat-title">
+    <div class="section-head">
+        <div>
+            <span class="eyebrow"><span class="eyebrow__dot"></span> Chọn không gian của bạn</span>
+            <h2 id="phong-noi-bat-title">Phòng nổi bật</h2>
+            <p>Mỗi hạng phòng là một trải nghiệm riêng — từ ấm cúng, riêng tư đến rộng rãi và sang trọng.</p>
+        </div>
+        <a asp-controller="Phong" asp-action="TimKiem" class="link-arrow">
+            Xem tất cả phòng <i class="bi bi-arrow-right" aria-hidden="true"></i>
+        </a>
+    </div>
     @if (phongNoiBat.Count > 0)
     {
         <div class="room-grid">
@@ -98,12 +243,81 @@
                 <partial name="_PhongCard" model="p" />
             }
         </div>
-        <div class="text-center mt-4">
-            <a asp-controller="Phong" asp-action="TimKiem" class="btn btn-outline-primary px-4">Xem tất cả phòng</a>
-        </div>
     }
     else
     {
         <div class="empty-state">Hiện chưa có phòng trống để hiển thị.</div>
     }
-</div>
+</section>
+
+<section class="container-xl experience reveal" aria-labelledby="trai-nghiem-title">
+    <div class="experience__gallery">
+        <img class="experience__img experience__img--tall" src="~/images/home/phong-nghi.jpg" alt="Phòng nghỉ được thiết kế tinh tế với ánh sáng ấm" loading="lazy" />
+        <img class="experience__img" src="~/images/home/am-thuc.jpg" alt="Không gian ẩm thực tinh tế" loading="lazy" />
+        <img class="experience__img" src="~/images/home/thu-gian.jpg" alt="Không gian thư giãn và chăm sóc sức khỏe" loading="lazy" />
+        <span class="experience__badge">
+            <i class="bi bi-flower1" aria-hidden="true"></i>
+            <span><strong>Không gian riêng tư</strong><small>Ấm cúng &amp; tinh tế</small></span>
+        </span>
+    </div>
+    <div class="experience__copy">
+        <span class="eyebrow"><span class="eyebrow__dot"></span> Trải nghiệm Lumière</span>
+        <h2 id="trai-nghiem-title">Một kỳ nghỉ trọn vẹn, từng chi tiết đều được chăm chút.</h2>
+        <p>Chúng tôi tin rằng một kỳ nghỉ đáng nhớ không chỉ nằm ở nơi bạn ở, mà còn ở cảm giác được chào đón từ khoảnh khắc đầu tiên.</p>
+        <ul class="feature-list">
+            <li><span class="feature-list__check">✓</span> Không gian được thiết kế tinh tế, ấm cúng và riêng tư.</li>
+            <li><span class="feature-list__check">✓</span> Tiện nghi hiện đại, wifi tốc độ cao và dịch vụ chu đáo.</li>
+            <li><span class="feature-list__check">✓</span> Hỗ trợ 24/7 trong suốt kỳ nghỉ của bạn.</li>
+            <li><span class="feature-list__check">✓</span> Đặt phòng nhanh chóng, thông tin giá và trạng thái rõ ràng.</li>
+        </ul>
+        <div class="experience__footer">
+            <a asp-controller="Phong" asp-action="TimKiem" class="btn btn-primary">
+                Tìm phòng phù hợp <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+            </a>
+            <span class="text-muted"><i class="bi bi-shield-check me-1 text-primary" aria-hidden="true"></i>Đặt phòng an tâm</span>
+        </div>
+    </div>
+</section>
+
+<section class="container-xl section-block reveal" aria-labelledby="dich-vu-title">
+    <div class="section-head section-head--center">
+        <span class="eyebrow"><span class="eyebrow__dot"></span> Đơn giản &amp; an tâm</span>
+        <h2 id="dich-vu-title">Mọi thứ bạn cần cho một kỳ nghỉ dễ dàng.</h2>
+        <p>Từ tìm phòng, kiểm tra tình trạng đến theo dõi đặt phòng — tất cả trong một trải nghiệm liền mạch.</p>
+    </div>
+    <div class="service-grid">
+        <article class="service-card">
+            <span class="service-card__icon"><i class="bi bi-search-heart" aria-hidden="true"></i></span>
+            <h3>Tìm phòng trong vài giây</h3>
+            <p>Lọc theo loại phòng, ngày lưu trú và mức giá để nhanh chóng tìm được không gian phù hợp.</p>
+            <a asp-controller="Phong" asp-action="TimKiem">Bắt đầu tìm phòng <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </article>
+        <article class="service-card">
+            <span class="service-card__icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+            <h3>Thông tin rõ ràng</h3>
+            <p>Giá phòng, tình trạng còn trống và chi tiết lưu trú được hiển thị minh bạch trước khi đặt.</p>
+            <a asp-controller="Phong" asp-action="TimKiem">Xem phòng &amp; giá <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </article>
+        <article class="service-card">
+            <span class="service-card__icon"><i class="bi bi-headset" aria-hidden="true"></i></span>
+            <h3>Đồng hành 24/7</h3>
+            <p>Đội ngũ hỗ trợ luôn sẵn sàng để kỳ nghỉ của bạn diễn ra suôn sẻ từ đầu đến cuối.</p>
+            <a href="tel:19006868">Liên hệ hỗ trợ <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+        </article>
+    </div>
+</section>
+
+<section class="container-xl cta-feature reveal" aria-labelledby="cta-title">
+    <img class="cta-feature__bg" src="~/images/home/khong-gian.jpg" alt="" aria-hidden="true" loading="lazy" />
+    <div class="cta-feature__content">
+        <span class="eyebrow eyebrow--light"><span class="eyebrow__dot"></span> Kỳ nghỉ kế tiếp</span>
+        <h2 id="cta-title">Một chút thư giãn. Một chút phiêu lưu.</h2>
+        <p>Đã đến lúc dành thời gian cho chính mình. Chọn không gian yêu thích và để Lumière lo phần còn lại.</p>
+        <div class="cta-feature__actions">
+            <a asp-controller="Phong" asp-action="TimKiem" class="btn btn-hero-primary btn-lg">
+                Đặt phòng ngay <i class="bi bi-arrow-right ms-1" aria-hidden="true"></i>
+            </a>
+            <a href="#phong-noi-bat" class="btn btn-hero-ghost btn-lg">Xem phòng nổi bật</a>
+        </div>
+    </div>
+</section>

@@ -106,4 +106,4 @@ Bộ nạp dữ liệu dùng cờ `[SEED-KH]` / `[SEED-BK]` và kiểm tra số 
 - Khi tìm phòng theo ngày, chỉ hiển thị phòng đang kinh doanh và không trùng lịch với đặt phòng/chi tiết đặt phòng còn hiệu lực.
 - Khi duyệt hoặc nhận phòng, hệ thống kiểm tra **tất cả phòng trong chi tiết**, không chỉ phòng chính; phòng bảo trì/ngừng kinh doanh bị chặn.
 - Hủy đặt phòng chỉ áp dụng cho lượt `ChoDuyet`/`DaDuyet`; chi tiết chưa nhận được chuyển sang `DaHuy`.
-- Ảnh phòng tải lên được lưu tại `wwwroot/uploads/phong/`; nếu chưa có ảnh riêng, dùng ảnh SVG mặc định trong `wwwroot/images/phong/`.
+- Ảnh phòng tải lên được lưu tại `wwwroot/uploads/phong/`; nếu chưa có ảnh riêng, dùng ảnh JPG mặc định trong `wwwroot/images/phong/`.

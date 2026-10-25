@@ -9,12 +9,16 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Quản lý khách sạn</title>
+    <meta name="theme-color" content="#081528" />
+    <meta name="description" content="Lumière Hotel & Resort - đặt phòng nghỉ dưỡng, quản lý đặt phòng và trải nghiệm kỳ nghỉ trọn vẹn." />
+    <title>@ViewData["Title"] - Lumière Hotel &amp; Resort</title>
+    <script>document.documentElement.classList.add("js");</script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/QuanLy_15_UNETI15_TI17A4HN.styles.css" asp-append-version="true" />
 </head>
 <body>
+    <div class="scroll-progress" aria-hidden="true"><span data-scroll-progress></span></div>
     @{
         var vaiTro = Context.Session.GetString("VaiTro");
         var hoTen = Context.Session.GetString("HoTen");
@@ -38,6 +42,20 @@
         bool trongBaoCao = ctl == "ThongKe";
         bool toanManHinh = ViewData["FullWidth"] is true;
     }
+
+    <div class="site-topbar">
+        <div class="container-xl">
+            <div class="site-topbar__left">
+                <i class="bi bi-stars" aria-hidden="true"></i>
+                <span>Ưu đãi đặt sớm: giảm đến 15% cho kỳ nghỉ từ 2 đêm</span>
+            </div>
+            <div class="site-topbar__right">
+                <span><i class="bi bi-shield-check me-1" aria-hidden="true"></i>Hỗ trợ 24/7</span>
+                <a href="tel:19006868"><i class="bi bi-telephone me-1" aria-hidden="true"></i>1900 6868</a>
+            </div>
+        </div>
+    </div>
+
     <header class="site-header">
         <nav class="navbar navbar-expand-xl">
             <div class="container-xl">
@@ -45,7 +63,7 @@
                     <span class="brand__mark" aria-hidden="true">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></svg>
                     </span>
-                    <span class="brand__text"><b>HOTEL</b><small>QUẢN LÝ ĐẶT PHÒNG</small></span>
+                    <span class="brand__text"><b>LUMIÈRE</b><small>HOTEL &amp; RESORT</small></span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">
                     <span class="navbar-toggler-icon"></span>
@@ -88,7 +106,7 @@
                             <li class="nav-item"><a class="nav-link @(ketQua ? "active" : "")" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">Kết quả đặt phòng</a></li>
                         }
                     </ul>
-                    <div class="d-flex align-items-center py-2 py-xl-0">
+                    <div class="d-flex align-items-center gap-2 py-2 py-xl-0">
                         @if (vaiTro == null)
                         {
                             <a class="btn btn-primary px-4" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
@@ -119,35 +137,82 @@
             </div>
         </nav>
     </header>
+
     <main role="main" class="@(toanManHinh ? "" : "container-xl py-4")">
         @RenderBody()
     </main>
+
     <footer class="site-footer">
-        <div class="container-xl py-4">
-            <div class="row g-4">
-                <div class="col-md-5">
-                    <h6>Hệ thống quản lý đặt phòng khách sạn</h6>
-                    <p class="mb-0">Quản lý phòng, đặt phòng, khách hàng, chi tiết lưu trú và báo cáo doanh thu trên một hệ thống thống nhất.</p>
+        <div class="container-xl">
+            <div class="site-footer__grid">
+                <div class="site-footer__brand">
+                    <a class="brand" asp-controller="Home" asp-action="Index">
+                        <span class="brand__mark" aria-hidden="true">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21v-6h6v6"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></svg>
+                        </span>
+                        <span class="brand__text"><b>LUMIÈRE</b><small>HOTEL &amp; RESORT</small></span>
+                    </a>
+                    <p>Không gian nghỉ dưỡng tinh tế, dịch vụ tận tâm và những trải nghiệm được thiết kế để bạn chỉ cần tận hưởng.</p>
+                    <div class="site-footer__contact">
+                        <span><i class="bi bi-geo-alt" aria-hidden="true"></i> Trung tâm Hà Nội, Việt Nam</span>
+                        <a href="tel:19006868"><i class="bi bi-telephone" aria-hidden="true"></i> 1900 6868</a>
+                        <a href="mailto:hello@lumiere.vn"><i class="bi bi-envelope" aria-hidden="true"></i> hello@lumiere.vn</a>
+                    </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <h6>Truy cập nhanh</h6>
+                <div>
+                    <h2 class="site-footer__title">Khám phá</h2>
                     <a asp-controller="Home" asp-action="Index">Trang chủ</a>
                     <a asp-controller="Phong" asp-action="TimKiem">Tìm phòng</a>
+                    @if (laQuanLy)
+                    {
+                        <a asp-controller="ThongKe" asp-action="Dashboard">Dashboard</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Phong" asp-action="TimKiem">Ưu đãi &amp; trải nghiệm</a>
+                    }
+                </div>
+                <div>
+                    <h2 class="site-footer__title">Tài khoản</h2>
                     @if (vaiTro == null)
                     {
                         <a asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
+                        <a asp-controller="TaiKhoan" asp-action="DangNhap">Đặt phòng</a>
+                    }
+                    else if (laKhach)
+                    {
+                        <a asp-controller="KhachHang" asp-action="HoSo">Hồ sơ cá nhân</a>
+                        <a asp-controller="KhachHang" asp-action="TheoDoi">Theo dõi đặt phòng</a>
+                        <a asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">Kết quả đặt phòng</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="DatPhong" asp-action="Index">Quản lý đặt phòng</a>
+                        <a asp-controller="Phong" asp-action="Index">Quản lý phòng</a>
                     }
                 </div>
-                <div class="col-6 col-md-4">
-                    <h6>Thông tin</h6>
-                    <span>Đồ án môn học - Lớp TI17A4HN, UNETI</span>
+                <div>
+                    <h2 class="site-footer__title">Hỗ trợ</h2>
+                    <div class="site-footer__contact">
+                        <span><i class="bi bi-clock" aria-hidden="true"></i> Hỗ trợ 24/7</span>
+                        <span><i class="bi bi-shield-check" aria-hidden="true"></i> Thông tin đặt phòng minh bạch</span>
+                        <span><i class="bi bi-chat-heart" aria-hidden="true"></i> Đồng hành cùng mọi kỳ nghỉ</span>
+                    </div>
                 </div>
             </div>
         </div>
         <div class="site-footer__bottom">
-            <div class="container-xl py-3">&copy; 2026 - Quản lý đặt phòng khách sạn</div>
+            <div class="container-xl">
+                <span>&copy; 2026 Lumière Hotel &amp; Resort. Hệ thống quản lý đặt phòng khách sạn.</span>
+                <span>Đồ án môn học - Lớp TI17A4HN, UNETI</span>
+            </div>
         </div>
     </footer>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="Lên đầu trang">
+        <i class="bi bi-arrow-up" aria-hidden="true"></i>
+    </button>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
