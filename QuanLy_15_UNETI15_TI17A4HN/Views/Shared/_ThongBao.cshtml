@@ -1,21 +1,27 @@
 @* Họ và tên: Lê Văn Thanh *@
 @* Mã sinh viên: 23103100200 *@
 @* Nội dung thực hiện: Module 5 - Hiển thị thông báo thành công/lỗi/cảnh báo từ TempData. *@
-@if (TempData["ThanhCong"] is string thanhCong)
+@{
+    // Hỗ trợ cả tên khóa cũ (Success/Error) và tên khóa chuẩn (ThanhCong/Loi).
+    var thanhCong = TempData["ThanhCong"] as string ?? TempData["Success"] as string;
+    var loi = TempData["Loi"] as string ?? TempData["Error"] as string;
+    var canhBao = TempData["CanhBao"] as string;
+}
+@if (thanhCong != null)
 {
     <div class="alert alert-success alert-dismissible fade show" role="alert">
         @thanhCong
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
     </div>
 }
-@if (TempData["Loi"] is string loi)
+@if (loi != null)
 {
     <div class="alert alert-danger alert-dismissible fade show" role="alert">
         @loi
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
     </div>
 }
-@if (TempData["CanhBao"] is string canhBao)
+@if (canhBao != null)
 {
     <div class="alert alert-warning alert-dismissible fade show" role="alert">
         @canhBao

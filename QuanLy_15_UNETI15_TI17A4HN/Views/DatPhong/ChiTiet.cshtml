@@ -23,6 +23,8 @@
     @if (!string.IsNullOrEmpty(Model.LyDoHuy))  { <dt class="col-sm-3">Lý do hủy</dt>  <dd class="col-sm-9 text-danger">@Model.LyDoHuy</dd> }
 </dl>
 
+<partial name="_DanhSachPhongDat" model="Model" />
+
 <div class="d-flex gap-2 mt-3 flex-wrap">
     <a asp-action="Index" class="btn btn-secondary">← Danh sách</a>
 

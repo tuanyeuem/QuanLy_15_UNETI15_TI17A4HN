@@ -1,5 +1,5 @@
 // Họ và tên: Vũ Xuân Tuấn
-// Mã sinh viên: 22103100001
+// Mã sinh viên: 23103100035
 // Nội dung thực hiện: DatPhongController - Quản lý duyệt, nhận phòng, trả phòng và hủy đặt phòng (Module 4)
 
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +24,10 @@ public class DatPhongController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(DatPhongListViewModel vm)
     {
-        var q = _db.DatPhongs
+        // Tránh chia cho 0 nếu người dùng sửa query string.
+        vm.SoTrangHienThi = vm.SoTrangHienThi is < 1 or > 100 ? 10 : vm.SoTrangHienThi;
+
+        var q = _db.DatPhongs.AsNoTracking()
             .Include(d => d.KhachHang)
             .Include(d => d.Phong).ThenInclude(p => p.LoaiPhong)
             .AsQueryable();
@@ -106,8 +109,10 @@ public class DatPhongController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Duyet(int id, string? ghiChu)
     {
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_db);
         var dp = await _db.DatPhongs
             .Include(d => d.Phong).ThenInclude(p => p.LoaiPhong)
+            .Include(d => d.ChiTietDatPhongs).ThenInclude(c => c.Phong).ThenInclude(p => p.LoaiPhong)
             .FirstOrDefaultAsync(d => d.MaDatPhong == id);
 
         if (dp == null) return NotFound();
@@ -119,26 +124,94 @@ public class DatPhongController : Controller
         if (dp.NgayTraDuKien <= dp.NgayNhan)
         { TempData["Loi"] = "Ngày trả phải sau ngày nhận."; return RedirectToAction(nameof(ChiTiet), new { id }); }
 
-        if (dp.SoNguoi > dp.Phong.LoaiPhong.SoNguoiToiDa)
-        { TempData["Loi"] = $"Số người ({dp.SoNguoi}) vượt quá sức chứa ({dp.Phong.LoaiPhong.SoNguoiToiDa})."; return RedirectToAction(nameof(ChiTiet), new { id }); }
+        var chiTietHoatDong = dp.ChiTietDatPhongs
+            .Where(c => c.TrangThai != TrangThaiChiTiet.DaHuy)
+            .ToList();
 
-        bool trungLich = await _db.DatPhongs.AnyAsync(d =>
-            d.MaPhong == dp.MaPhong &&
-            d.MaDatPhong != dp.MaDatPhong &&
-            d.TrangThai != TrangThaiDatPhong.Huy &&
-            d.NgayNhan < dp.NgayTraDuKien &&
-            d.NgayTraDuKien > dp.NgayNhan);
+        if (!dp.ChiTietDatPhongs.Any())
+        {
+            // Đặt phòng cũ có thể chưa có ChiTietDatPhong: kiểm tra theo phòng chính.
+            if (dp.Phong.LoaiPhong == null)
+            {
+                TempData["Loi"] = "Phòng chính không còn loại phòng hợp lệ.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
 
-        if (trungLich)
-        { TempData["Loi"] = "Phòng đã có lịch đặt trùng thời gian."; return RedirectToAction(nameof(ChiTiet), new { id }); }
+            if (dp.SoNguoi > dp.Phong.LoaiPhong.SoNguoiToiDa)
+            {
+                TempData["Loi"] = $"Số người ({dp.SoNguoi}) vượt quá sức chứa ({dp.Phong.LoaiPhong.SoNguoiToiDa}) của phòng chính.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
 
-        if (dp.Phong.TrangThai is not (TrangThaiPhong.SanSang or TrangThaiPhong.DangSuDung))
-        { TempData["Loi"] = "Phòng không ở trạng thái có thể đặt."; return RedirectToAction(nameof(ChiTiet), new { id }); }
+            if (!await LichPhongHelper.PhongKinhDoanh(_db).AnyAsync(p => p.MaPhong == dp.MaPhong))
+            {
+                TempData["Loi"] = "Phòng không ở trạng thái có thể đặt.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            if (await CoLichTrungAsync(dp.Phong.MaPhong, dp.NgayNhan, dp.NgayTraDuKien, dp.MaDatPhong))
+            {
+                TempData["Loi"] = "Phòng đã có lịch đặt trùng thời gian.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+        }
+        else
+        {
+            if (chiTietHoatDong.GroupBy(c => c.MaPhong).Any(g => g.Count() > 1))
+            {
+                TempData["Loi"] = "Đặt phòng có phòng bị lặp trong danh sách chi tiết.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            var tongSucChua = 0;
+            foreach (var chiTiet in chiTietHoatDong)
+            {
+                if (chiTiet.Phong?.LoaiPhong == null)
+                {
+                    TempData["Loi"] = "Có phòng trong chi tiết không còn tồn tại.";
+                    return RedirectToAction(nameof(ChiTiet), new { id });
+                }
+
+                if (chiTiet.NgayTra <= chiTiet.NgayNhan)
+                {
+                    TempData["Loi"] = $"Phòng {chiTiet.Phong.SoPhong}: ngày trả phải sau ngày nhận.";
+                    return RedirectToAction(nameof(ChiTiet), new { id });
+                }
+
+                if (chiTiet.NgayNhan.Date < dp.NgayNhan.Date
+                    || chiTiet.NgayTra.Date > dp.NgayTraDuKien.Date)
+                {
+                    TempData["Loi"] = $"Phòng {chiTiet.Phong.SoPhong}: thời gian nằm ngoài khoảng đặt phòng.";
+                    return RedirectToAction(nameof(ChiTiet), new { id });
+                }
+
+                if (!await LichPhongHelper.PhongKinhDoanh(_db).AnyAsync(p => p.MaPhong == chiTiet.MaPhong))
+                {
+                    TempData["Loi"] = $"Phòng {chiTiet.Phong.SoPhong} không ở trạng thái có thể đặt.";
+                    return RedirectToAction(nameof(ChiTiet), new { id });
+                }
+
+                if (await CoLichTrungAsync(chiTiet.MaPhong, chiTiet.NgayNhan, chiTiet.NgayTra, dp.MaDatPhong))
+                {
+                    TempData["Loi"] = $"Phòng {chiTiet.Phong.SoPhong} đã có lịch đặt trùng thời gian.";
+                    return RedirectToAction(nameof(ChiTiet), new { id });
+                }
+
+                tongSucChua += chiTiet.Phong.LoaiPhong.SoNguoiToiDa;
+            }
+
+            if (dp.SoNguoi > tongSucChua)
+            {
+                TempData["Loi"] = $"Số người ({dp.SoNguoi}) vượt quá tổng sức chứa ({tongSucChua}) của các phòng đã chọn.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+        }
 
         dp.TrangThai = TrangThaiDatPhong.DaDuyet;
         if (!string.IsNullOrWhiteSpace(ghiChu)) dp.GhiChu = ghiChu;
 
         await _db.SaveChangesAsync();
+        await giaoDich.CommitAsync();
         TempData["ThanhCong"] = "Đã duyệt đặt phòng.";
         return RedirectToAction(nameof(ChiTiet), new { id });
     }
@@ -161,22 +234,119 @@ public class DatPhongController : Controller
     [ActionName("NhanPhong")]
     public async Task<IActionResult> NhanPhongPost(int id)
     {
-        var dp = await _db.DatPhongs.FindAsync(id);
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_db);
+        var dp = await _db.DatPhongs
+            .Include(d => d.Phong).ThenInclude(p => p.LoaiPhong)
+            .Include(d => d.ChiTietDatPhongs).ThenInclude(c => c.Phong).ThenInclude(p => p.LoaiPhong)
+            .FirstOrDefaultAsync(d => d.MaDatPhong == id);
         if (dp == null) return NotFound();
 
         if (dp.TrangThai != TrangThaiDatPhong.DaDuyet)
         { TempData["Loi"] = "Trạng thái không hợp lệ."; return RedirectToAction(nameof(Index)); }
 
-        dp.TrangThai      = TrangThaiDatPhong.DaNhanPhong;
-        dp.NgayNhanThucTe = DateTime.Now;   // Hệ thống xác định, không cho user nhập
+        var thoiDiemNhan = DateTime.Now;
+        if (thoiDiemNhan.Date < dp.NgayNhan.Date || thoiDiemNhan.Date >= dp.NgayTraDuKien.Date)
+        {
+            TempData["Loi"] = "Chỉ nhận phòng từ ngày nhận dự kiến đến trước ngày trả dự kiến.";
+            return RedirectToAction(nameof(ChiTiet), new { id });
+        }
+
+        // Bảo đảm đặt phòng cũ cũng có chi tiết để Module 5 tính tiền được.
+        if (!dp.ChiTietDatPhongs.Any())
+        {
+            var soNgayDuKien = TinhTienHelper.TinhSoNgay(thoiDiemNhan.Date, dp.NgayTraDuKien.Date);
+            dp.ChiTietDatPhongs.Add(new ChiTietDatPhong
+            {
+                MaPhong = dp.MaPhong,
+                Phong = dp.Phong,
+                NgayNhan = thoiDiemNhan.Date,
+                NgayTra = dp.NgayTraDuKien.Date,
+                DonGia = dp.Phong.DonGia,
+                SoNgay = soNgayDuKien,
+                ThanhTien = TinhTienHelper.TinhThanhTien(dp.Phong.DonGia, soNgayDuKien),
+                TrangThai = TrangThaiChiTiet.ChuaNhan
+            });
+        }
+
+        var chiTietCanNhan = dp.ChiTietDatPhongs
+            .Where(c => c.TrangThai != TrangThaiChiTiet.DaHuy)
+            .ToList();
+
+        if (chiTietCanNhan.Count == 0)
+        {
+            TempData["Loi"] = "Đặt phòng không còn chi tiết nào có thể nhận.";
+            return RedirectToAction(nameof(ChiTiet), new { id });
+        }
+
+        if (chiTietCanNhan.GroupBy(c => c.MaPhong).Any(g => g.Count() > 1))
+        {
+            TempData["Loi"] = "Đặt phòng có phòng bị lặp trong danh sách chi tiết.";
+            return RedirectToAction(nameof(ChiTiet), new { id });
+        }
+
+        if (chiTietCanNhan.Any(c => c.TrangThai != TrangThaiChiTiet.ChuaNhan)
+            || dp.SoNguoi > chiTietCanNhan.Sum(c => c.Phong?.LoaiPhong?.SoNguoiToiDa ?? 0))
+        {
+            TempData["Loi"] = "Chi tiết phòng không hợp lệ hoặc tổng sức chứa không đủ cho số khách.";
+            return RedirectToAction(nameof(ChiTiet), new { id });
+        }
+
+        foreach (var chiTiet in chiTietCanNhan)
+        {
+            if (chiTiet.Phong == null)
+            {
+                TempData["Loi"] = "Có phòng trong chi tiết không còn tồn tại.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            if (!await LichPhongHelper.PhongKinhDoanh(_db).AnyAsync(p => p.MaPhong == chiTiet.MaPhong))
+            {
+                TempData["Loi"] = $"Phòng {chiTiet.Phong.SoPhong} hoặc loại phòng đã ngừng kinh doanh.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            // Ghi ngày thực nhận vào chi tiết để tính tiền; giữ ngày đặt dự kiến trên booking.
+            var ngayNhan = thoiDiemNhan.Date;
+            var ngayTra = chiTiet.NgayTra.Date;
+            if (ngayNhan < chiTiet.NgayNhan.Date || ngayNhan >= ngayTra
+                || ngayTra > dp.NgayTraDuKien.Date)
+            {
+                TempData["Loi"] = $"Phòng {chiTiet.Phong.SoPhong}: hôm nay nằm ngoài khoảng nhận phòng hợp lệ.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            if (await CoLichTrungAsync(chiTiet.MaPhong, ngayNhan, ngayTra, dp.MaDatPhong)
+                || await LichPhongHelper.PhongDangO(_db, dp.MaDatPhong).ContainsAsync(chiTiet.MaPhong))
+            {
+                TempData["Loi"] = $"Phòng {chiTiet.Phong.SoPhong} trùng lịch hoặc vẫn có khách chưa trả phòng.";
+                return RedirectToAction(nameof(ChiTiet), new { id });
+            }
+
+            var donGia = chiTiet.DonGia; // Giữ cả giá 0 nếu đã được chốt lúc đặt.
+
+            chiTiet.NgayNhan = ngayNhan;
+            chiTiet.NgayTra = ngayTra;
+            chiTiet.DonGia = donGia;
+            chiTiet.SoNgay = TinhTienHelper.TinhSoNgay(ngayNhan, ngayTra);
+            chiTiet.ThanhTien = TinhTienHelper.TinhThanhTien(donGia, chiTiet.SoNgay);
+            chiTiet.TrangThai = TrangThaiChiTiet.DangO;
+            chiTiet.NgayCapNhat = thoiDiemNhan;
+            chiTiet.Phong.TrangThai = TrangThaiPhong.DangSuDung;
+        }
+
+        if (!chiTietCanNhan.Any(c => c.MaPhong == dp.MaPhong))
+            dp.MaPhong = chiTietCanNhan.OrderBy(c => c.MaChiTiet).First().MaPhong;
+        dp.TrangThai = TrangThaiDatPhong.DaNhanPhong;
+        dp.NgayNhanThucTe = thoiDiemNhan;
 
         await _db.SaveChangesAsync();
+        await giaoDich.CommitAsync();
         TempData["ThanhCong"] = "Đã xác nhận khách nhận phòng.";
         return RedirectToAction(nameof(ChiTiet), new { id });
     }
 
     // ══════════════════════════════════════════
-    //  TRẢ PHÒNG: DaNhanPhong → DaTraPhong
+    //  TRẢ PHÒNG: DaNhanPhong → Module 5 chốt tiền và hoàn thành
     // ══════════════════════════════════════════
     [HttpGet]
     public async Task<IActionResult> TraPhong(int id)
@@ -188,7 +358,7 @@ public class DatPhongController : Controller
         return View(dp);
     }
 
-    
+
     [HttpPost, ValidateAntiForgeryToken]
     [ActionName("TraPhong")]
     public async Task<IActionResult> TraPhongPost(int id)
@@ -199,12 +369,12 @@ public class DatPhongController : Controller
         if (dp.TrangThai != TrangThaiDatPhong.DaNhanPhong)
         { TempData["Loi"] = "Trạng thái không hợp lệ."; return RedirectToAction(nameof(Index)); }
 
-        dp.TrangThai     = TrangThaiDatPhong.DaTraPhong;
-        dp.NgayTraThucTe = DateTime.Now;    // Hệ thống xác định
-
-        await _db.SaveChangesAsync();
-        TempData["ThanhCong"] = "Khách đã trả phòng thành công.";
-        return RedirectToAction(nameof(ChiTiet), new { id });
+        // Module 5 tính tiền, cập nhật chi tiết lưu trú và hoàn tất đặt phòng.
+        return RedirectToAction("ChotKetQua", "ChiTietDatPhong", new
+        {
+            maDatPhong = id,
+            ngayTra = DateTime.Today
+        });
     }
 
     // ══════════════════════════════════════════
@@ -223,7 +393,9 @@ public class DatPhongController : Controller
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Huy(int id, string lyDoHuy)
     {
-        var dp = await _db.DatPhongs.FindAsync(id);
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_db);
+        var dp = await _db.DatPhongs.Include(d => d.ChiTietDatPhongs)
+            .FirstOrDefaultAsync(d => d.MaDatPhong == id);
         if (dp == null) return NotFound();
 
         if (dp.TrangThai is not (TrangThaiDatPhong.ChoDuyet or TrangThaiDatPhong.DaDuyet))
@@ -237,8 +409,14 @@ public class DatPhongController : Controller
 
         dp.TrangThai = TrangThaiDatPhong.Huy;
         dp.LyDoHuy   = lyDoHuy;
+        foreach (var chiTiet in dp.ChiTietDatPhongs.Where(c => c.TrangThai == TrangThaiChiTiet.ChuaNhan))
+        {
+            chiTiet.TrangThai = TrangThaiChiTiet.DaHuy;
+            chiTiet.NgayCapNhat = DateTime.Now;
+        }
 
         await _db.SaveChangesAsync();
+        await giaoDich.CommitAsync();
         TempData["ThanhCong"] = "Đã hủy đặt phòng.";
         return RedirectToAction(nameof(Index));
     }
@@ -248,5 +426,14 @@ public class DatPhongController : Controller
         => await _db.DatPhongs
             .Include(d => d.KhachHang)
             .Include(d => d.Phong).ThenInclude(p => p.LoaiPhong)
+            .Include(d => d.ChiTietDatPhongs).ThenInclude(c => c.Phong).ThenInclude(p => p.LoaiPhong)
             .FirstOrDefaultAsync(d => d.MaDatPhong == id);
+
+    /// <summary>
+    /// Kiểm tra một phòng đã bị đặt trùng khoảng ngày hay chưa.
+    /// Bỏ qua chính đặt phòng đang xét và các đặt phòng đã hủy/từ chối.
+    /// </summary>
+    private Task<bool> CoLichTrungAsync(int maPhong, DateTime ngayNhan, DateTime ngayTra, int maDatPhongBoQua)
+        => LichPhongHelper.CoTrungAsync(_db, maPhong, ngayNhan, ngayTra, maDatPhongBoQua);
+
 }

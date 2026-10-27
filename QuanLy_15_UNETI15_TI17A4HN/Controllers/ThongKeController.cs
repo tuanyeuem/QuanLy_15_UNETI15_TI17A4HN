@@ -32,15 +32,20 @@ public class ThongKeController : Controller
 
         int Dem(string trangThai) => theoTrangThai.Where(x => x.TrangThai == trangThai).Sum(x => x.SoLuong);
 
+        var phongDangO = LichPhongHelper.PhongDangO(_context);
         var vm = new DashboardViewModel
         {
             TongLoaiPhong = await _context.LoaiPhongs.CountAsync(),
             TongPhong = await _context.Phongs.CountAsync(),
-            PhongKhaDung = await _context.Phongs.CountAsync(p => p.TrangThai == TrangThaiPhong.SanSang),
+            PhongKhaDung = await LichPhongHelper.PhongKinhDoanh(_context)
+                .CountAsync(p => !phongDangO.Contains(p.MaPhong)
+                    && p.TrangThai != TrangThaiPhong.DangSuDung),
             TongKhachHang = await _context.KhachHangs.CountAsync(),
             TongGiaoDich = theoTrangThai.Sum(x => x.SoLuong),
             ChoXuLy = Dem(TrangThaiDatPhong.ChoXuLy),
             DangXuLy = Dem(TrangThaiDatPhong.DangXuLy),
+            DangO = Dem(TrangThaiDatPhong.DaNhanPhong),
+            TuChoi = Dem(TrangThaiDatPhong.TuChoi),
             HoanThanh = Dem(TrangThaiDatPhong.HoanThanh),
             DaHuy = Dem(TrangThaiDatPhong.DaHuy),
             // Where(Đã trả) + Sum(ThanhTien): chỉ cộng tiền các phòng đã chốt kết quả; (decimal?) và ?? 0 để
@@ -62,7 +67,10 @@ public class ThongKeController : Controller
     [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
     public async Task<IActionResult> Index(int? nam)
     {
-        var namChon = nam ?? DateTime.Today.Year;
+        var namChon = nam is >= 1 and <= 9998 ? nam.Value : DateTime.Today.Year;
+        var dauNam = new DateTime(namChon, 1, 1);
+        var namSau = dauNam.AddYears(1);
+        var phongKinhDoanh = LichPhongHelper.PhongKinhDoanh(_context);
 
         var cacNam = await _context.DatPhongs.AsNoTracking()
             .Select(d => d.NgayDat.Year).Distinct()
@@ -80,20 +88,20 @@ public class ThongKeController : Controller
             .Select(l => new TyLeSuDungLoaiPhong
             {
                 TenLoai = l.TenLoai,
-                TongPhong = _context.Phongs.Count(p => p.MaLoaiPhong == l.MaLoaiPhong),
-                DangSuDung = _context.Phongs.Count(p => p.MaLoaiPhong == l.MaLoaiPhong
+                TongPhong = phongKinhDoanh.Count(p => p.MaLoaiPhong == l.MaLoaiPhong),
+                DangSuDung = phongKinhDoanh.Count(p => p.MaLoaiPhong == l.MaLoaiPhong
                                                      && p.TrangThai == TrangThaiPhong.DangSuDung)
             }).ToListAsync();
-        vm.SoPhongTheoLoai = vm.TyLeSuDung
-            .Select(t => new SoLuongTheoTen { Ten = t.TenLoai, SoLuong = t.TongPhong }).ToList();
+        vm.SoPhongTheoLoai = await _context.LoaiPhongs.AsNoTracking().OrderBy(l => l.TenLoai)
+            .Select(l => new SoLuongTheoTen { Ten = l.TenLoai, SoLuong = l.Phongs.Count }).ToListAsync();
 
-        vm.PhongDangSuDung = await _context.Phongs.CountAsync(p => p.TrangThai == TrangThaiPhong.DangSuDung);
-        vm.PhongKinhDoanh = await _context.Phongs.CountAsync(p => p.TrangThai != TrangThaiPhong.BaoTri);
+        vm.PhongDangSuDung = await phongKinhDoanh.CountAsync(p => p.TrangThai == TrangThaiPhong.DangSuDung);
+        vm.PhongKinhDoanh = await phongKinhDoanh.CountAsync();
 
         // 3. Số lượt đặt theo tháng: Where(năm) -> GroupBy(tháng của NgayDat) -> Count().
         // Ý nghĩa: tháng nào đông khách (mùa cao điểm), tháng nào vắng.
         var luotDat = await _context.DatPhongs.AsNoTracking()
-            .Where(d => d.NgayDat.Year == namChon)
+            .Where(d => d.NgayDat >= dauNam && d.NgayDat < namSau)
             .GroupBy(d => d.NgayDat.Month)
             .Select(g => new { Thang = g.Key, SoLuot = g.Count() })
             .ToListAsync();
@@ -101,7 +109,7 @@ public class ThongKeController : Controller
         // 4. Doanh thu theo tháng: Where(Đã trả, năm) -> GroupBy(tháng của NgayTra) -> Sum(ThanhTien).
         // Tính theo ngày trả thực tế vì lúc đó tiền mới được chốt. Ý nghĩa: biến động doanh thu theo thời gian.
         var doanhThu = await _context.ChiTietDatPhongs.AsNoTracking()
-            .Where(c => c.TrangThai == TrangThaiChiTiet.DaTra && c.NgayTra.Year == namChon)
+            .Where(c => c.TrangThai == TrangThaiChiTiet.DaTra && c.NgayTra >= dauNam && c.NgayTra < namSau)
             .GroupBy(c => c.NgayTra.Month)
             .Select(g => new { Thang = g.Key, DoanhThu = g.Sum(c => c.ThanhTien) })
             .ToListAsync();
@@ -116,7 +124,7 @@ public class ThongKeController : Controller
         // 5. Doanh thu theo loại phòng: GroupBy(tên loại) -> Count() số lượt + Sum(ThanhTien) -> OrderByDescending(doanh thu).
         // Ý nghĩa: loại phòng nào mang lại nhiều tiền nhất (đứng đầu danh sách).
         vm.DoanhThuTheoLoai = await _context.ChiTietDatPhongs.AsNoTracking()
-            .Where(c => c.TrangThai == TrangThaiChiTiet.DaTra && c.NgayTra.Year == namChon)
+            .Where(c => c.TrangThai == TrangThaiChiTiet.DaTra && c.NgayTra >= dauNam && c.NgayTra < namSau)
             .GroupBy(c => c.Phong.LoaiPhong.TenLoai)
             .Select(g => new DoanhThuTheoLoai
             {
@@ -130,7 +138,10 @@ public class ThongKeController : Controller
         // 6. Phòng được đặt nhiều nhất: loại bỏ chi tiết đã hủy -> GroupBy(phòng) -> Count() -> OrderByDescending(số lượt)
         // -> ThenBy(số phòng) để kết quả ổn định khi hòa -> Take(5). Ý nghĩa: phòng được khách ưa chuộng nhất.
         vm.PhongDatNhieuNhat = await _context.ChiTietDatPhongs.AsNoTracking()
-            .Where(c => c.TrangThai != TrangThaiChiTiet.DaHuy)
+            .Where(c => c.TrangThai != TrangThaiChiTiet.DaHuy
+                && c.DatPhong.TrangThai != TrangThaiDatPhong.Huy
+                && c.DatPhong.TrangThai != TrangThaiDatPhong.TuChoi
+                && c.DatPhong.NgayDat >= dauNam && c.DatPhong.NgayDat < namSau)
             .GroupBy(c => new { c.MaPhong, c.Phong.SoPhong, c.Phong.LoaiPhong.TenLoai })
             .Select(g => new PhongDatNhieu
             {
@@ -147,12 +158,12 @@ public class ThongKeController : Controller
         // thấy tỷ lệ khách hủy; tỷ lệ cao cần xem lại quy trình đặt/xác nhận.
         // Any(): kiểm tra nhanh năm đang chọn có dữ liệu hay không (SQL EXISTS, nhanh hơn Count() > 0)
         // để giao diện hiển thị thông báo thay vì bảng toàn số 0.
-        vm.CoDuLieu = await _context.DatPhongs.AnyAsync(d => d.NgayDat.Year == namChon)
+        vm.CoDuLieu = await _context.DatPhongs.AnyAsync(d => d.NgayDat >= dauNam && d.NgayDat < namSau)
                    || await _context.ChiTietDatPhongs.AnyAsync(c => c.TrangThai == TrangThaiChiTiet.DaTra
-                                                                 && c.NgayTra.Year == namChon);
+                                                                 && c.NgayTra >= dauNam && c.NgayTra < namSau);
         vm.TongLuotDatTrongNam = luotDat.Sum(x => x.SoLuot);
         vm.SoLuotHuyTrongNam = await _context.DatPhongs
-            .CountAsync(d => d.TrangThai == TrangThaiDatPhong.DaHuy && d.NgayDat.Year == namChon);
+            .CountAsync(d => d.TrangThai == TrangThaiDatPhong.DaHuy && d.NgayDat >= dauNam && d.NgayDat < namSau);
         vm.TongDoanhThuTrongNam = vm.TheoThang.Sum(t => t.DoanhThu);
 
         return View(vm);

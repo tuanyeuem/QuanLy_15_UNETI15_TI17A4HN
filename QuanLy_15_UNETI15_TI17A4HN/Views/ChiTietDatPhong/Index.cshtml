@@ -85,7 +85,7 @@
             {
                 var datPhongMo = c.DatPhong.TrangThai == TrangThaiDatPhong.ChoXuLy
                               || c.DatPhong.TrangThai == TrangThaiDatPhong.DangXuLy;
-                var choSua = datPhongMo && (c.TrangThai == TrangThaiChiTiet.ChuaNhan || c.TrangThai == TrangThaiChiTiet.DangO);
+                var choSua = datPhongMo && c.TrangThai == TrangThaiChiTiet.ChuaNhan;
                 var choXoa = datPhongMo && c.TrangThai == TrangThaiChiTiet.ChuaNhan;
                 <tr>
                     <td>@c.MaChiTiet</td>

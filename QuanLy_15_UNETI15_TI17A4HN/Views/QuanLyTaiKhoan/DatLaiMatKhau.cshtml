@@ -1,0 +1,5 @@
+@* Họ tên: Nguyễn Đình Tuấn | MSSV: 23103100235 | Nội dung: Đặt lại mật khẩu. *@
+@model QuanLy_15_UNETI15_TI17A4HN.ViewModels.DatLaiMatKhauViewModel
+@{ViewData["Title"]="Đặt lại mật khẩu";}
+<h1>Đặt lại mật khẩu</h1><p>Tài khoản: <strong>@Model.TenDangNhap</strong></p><form asp-action="DatLaiMatKhau" asp-route-id="@Model.MaTaiKhoan" method="post" class="col-md-6"><input asp-for="MaTaiKhoan" type="hidden"/><div asp-validation-summary="ModelOnly" class="text-danger"></div><div class="mb-3"><label asp-for="MatKhauMoi" class="form-label"></label><input asp-for="MatKhauMoi" class="form-control"/><span asp-validation-for="MatKhauMoi" class="text-danger"></span></div><button class="btn btn-primary">Cập nhật mật khẩu</button> <a asp-action="Index" class="btn btn-secondary">Quay lại</a></form>
+@section Scripts{<partial name="_ValidationScriptsPartial"/>}

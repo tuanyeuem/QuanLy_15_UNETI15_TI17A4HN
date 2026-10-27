@@ -1,61 +1,217 @@
-@{
-    var hoTen = Context.Session.GetString("HoTen");
-    var vaiTro = Context.Session.GetString("VaiTro");
-    var daDangNhap = hoTen is not null;
-    var quanTri = vaiTro == "Admin";
-    var nhanVien = vaiTro == "NhanVien";
-    var khachHang = vaiTro == "KhachHang";
-}
+@* Họ và tên: Lê Văn Thanh
+   Mã sinh viên: 23103100200
+   Nội dung thực hiện: Khung giao diện dùng chung và menu quản trị.
+   Họ và tên: Nguyễn Đình Quang
+   Mã sinh viên: 23103100259
+   Nội dung thực hiện: Hợp nhất layout và điều hướng đến chức năng khách hàng Module 3. *@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Qu?n l? kh?ch s?n</title>
-    <script type="importmap"></script>
+    <meta name="theme-color" content="#0b1d19" />
+    <meta name="description" content="Highgroup Hotel - đặt phòng khách sạn, quản lý đặt phòng và trải nghiệm kỳ lưu trú trọn vẹn." />
+    <title>@ViewData["Title"] - Highgroup Hotel</title>
+    <script>document.documentElement.classList.add("js");</script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/QuanLy_15_UNETI15_TI17A4HN.styles.css" asp-append-version="true" />
 </head>
 <body>
-<header>
-    <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" asp-controller="Home" asp-action="Index">Qu?n l? kh?ch s?n</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="M? menu"><span class="navbar-toggler-icon"></span></button>
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li class="nav-item"><a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Trang ch?</a></li>
-                    @if (quanTri || nhanVien) {
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="Phong" asp-action="Index">Ph?ng</a></li>
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="DatPhong" asp-action="Index">??t ph?ng</a></li>
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ChiTietDatPhong" asp-action="Index">Chi ti?t ??t ph?ng</a></li>
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ThongKe" asp-action="Index">Th?ng k?</a></li>
-                    }
-                    @if (quanTri) {
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="LoaiPhong" asp-action="Index">Lo?i ph?ng</a></li>
-                    }
-                    @if (khachHang) {
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">??t ph?ng c?a t?i</a></li>
-                    }
-                </ul>
-                <ul class="navbar-nav">
-                    @if (!daDangNhap) {
-                        <li class="nav-item"><a class="nav-link text-dark" asp-controller="TaiKhoan" asp-action="DangNhap">??ng nh?p</a></li>
-                    } else {
-                        <li class="nav-item"><span class="nav-link text-dark">Xin ch?o, @hoTen (@vaiTro)</span></li>
-                        <li class="nav-item"><form asp-controller="TaiKhoan" asp-action="DangXuat" method="post"><button type="submit" class="btn btn-link nav-link text-dark">??ng xu?t</button></form></li>
-                    }
-                </ul>
+    <div class="scroll-progress" aria-hidden="true"><span data-scroll-progress></span></div>
+    @{
+        var vaiTro = Context.Session.GetString("VaiTro");
+        var hoTen = Context.Session.GetString("HoTen");
+        var ctl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+        var act = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+        bool laQuanLy = vaiTro == "Admin" || vaiTro == "NhanVien";
+        bool laAdmin = vaiTro == "Admin";
+        bool laKhach = vaiTro == "KhachHang";
+        string tenVaiTro = vaiTro == "Admin" ? "Quản trị viên"
+            : vaiTro == "NhanVien" ? "Nhân viên"
+            : vaiTro == "KhachHang" ? "Khách hàng"
+            : (vaiTro ?? "");
+        string chuCai = string.IsNullOrWhiteSpace(hoTen) ? "?" : hoTen.Trim().Substring(0, 1).ToUpper();
+        bool trangChu = ctl == "Home";
+        bool timPhong = ctl == "Phong" && act == "TimKiem";
+        bool datPhong = (ctl == "DatPhong") || (ctl == "KhachHang" && act == "DatPhong");
+        bool theoDoi = ctl == "KhachHang" && act == "TheoDoi";
+        bool ketQua = ctl == "ChiTietDatPhong" && act == "KetQuaCuaToi";
+        bool trongQuanLy = (ctl == "Phong" && act != "TimKiem") || ctl == "LoaiPhong" || ctl == "QuanLyKhachHang"
+            || ctl == "QuanLyTaiKhoan" || (ctl == "ChiTietDatPhong" && act != "KetQuaCuaToi");
+        bool trongBaoCao = ctl == "ThongKe";
+        bool toanManHinh = ViewData["FullWidth"] is true;
+    }
+
+    <div class="site-topbar">
+        <div class="container-xl">
+            <div class="site-topbar__left">
+                <i class="bi bi-stars" aria-hidden="true"></i>
+                <span>Ưu đãi đặt sớm: giảm đến 15% cho kỳ lưu trú từ 2 đêm</span>
+            </div>
+            <div class="site-topbar__right">
+                <span><i class="bi bi-shield-check me-1" aria-hidden="true"></i>Hỗ trợ 24/7</span>
+                <a href="tel:19006868"><i class="bi bi-telephone me-1" aria-hidden="true"></i>1900 6868</a>
             </div>
         </div>
-    </nav>
-</header>
-<div class="container"><main role="main" class="pb-3">@RenderBody()</main></div>
-<footer class="border-top footer text-muted"><div class="container">&copy; 2026 - Qu?n l? ??t ph?ng kh?ch s?n</div></footer>
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/js/site.js" asp-append-version="true"></script>
-@await RenderSectionAsync("Scripts", required: false)
+    </div>
+
+    <header class="site-header">
+        <nav class="navbar navbar-expand-xl">
+            <div class="container-xl">
+                <a class="brand" asp-controller="Home" asp-action="Index">
+                    <span class="brand__mark" aria-hidden="true"><span class="brand__monogram">H</span></span>
+                    <span class="brand__text"><b>HIGHGROUP</b><small>HOTEL</small></span>
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div id="mainNav" class="collapse navbar-collapse">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item"><a class="nav-link @(trangChu ? "active" : "")" asp-controller="Home" asp-action="Index">Trang chủ</a></li>
+                        <li class="nav-item"><a class="nav-link @(timPhong ? "active" : "")" asp-controller="Phong" asp-action="TimKiem">Tìm phòng</a></li>
+                        @if (laQuanLy)
+                        {
+                            <li class="nav-item"><a class="nav-link @(datPhong ? "active" : "")" asp-controller="DatPhong" asp-action="Index">Đặt phòng</a></li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(trongQuanLy ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Quản lý</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="Phong" asp-action="Index">Phòng</a></li>
+                                    @if (laAdmin)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="LoaiPhong" asp-action="Index">Loại phòng</a></li>
+                                    }
+                                    <li><a class="dropdown-item" asp-controller="QuanLyKhachHang" asp-action="Index">Quản lý khách hàng</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ChiTietDatPhong" asp-action="Index">Chi tiết lưu trú</a></li>
+                                    @if (laAdmin)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="QuanLyTaiKhoan" asp-action="Index">Tài khoản</a></li>
+                                    }
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(trongBaoCao ? "active" : "")" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Báo cáo</a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-controller="ThongKe" asp-action="Dashboard">Dashboard</a></li>
+                                    <li><a class="dropdown-item" asp-controller="ThongKe" asp-action="Index">Thống kê</a></li>
+                                </ul>
+                            </li>
+                        }
+                        @if (laKhach)
+                        {
+                            <li class="nav-item"><a class="nav-link @(datPhong ? "active" : "")" asp-controller="KhachHang" asp-action="DatPhong">Đặt phòng</a></li>
+                            <li class="nav-item"><a class="nav-link @(theoDoi ? "active" : "")" asp-controller="KhachHang" asp-action="TheoDoi">Theo dõi đặt phòng</a></li>
+                            <li class="nav-item"><a class="nav-link @(ketQua ? "active" : "")" asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">Kết quả đặt phòng</a></li>
+                        }
+                    </ul>
+                    <div class="d-flex align-items-center gap-2 py-2 py-xl-0">
+                        @if (vaiTro == null)
+                        {
+                            <a class="btn btn-primary px-4" asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
+                        }
+                        else
+                        {
+                            <div class="dropdown">
+                                <button class="user-chip dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="avatar">@chuCai</span>
+                                    <span class="user-chip__text"><strong>@hoTen</strong><small>@tenVaiTro</small></span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    @if (laKhach)
+                                    {
+                                        <li><a class="dropdown-item" asp-controller="KhachHang" asp-action="HoSo">Hồ sơ cá nhân</a></li>
+                                        <li><hr class="dropdown-divider" /></li>
+                                    }
+                                    <li>
+                                        <form asp-controller="TaiKhoan" asp-action="DangXuat" method="post">
+                                            <button type="submit" class="dropdown-item">Đăng xuất</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="@(toanManHinh ? "" : "container-xl py-4")">
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container-xl">
+            <div class="site-footer__grid">
+                <div class="site-footer__brand">
+                    <a class="brand" asp-controller="Home" asp-action="Index">
+                        <span class="brand__mark" aria-hidden="true"><span class="brand__monogram">H</span></span>
+                        <span class="brand__text"><b>HIGHGROUP</b><small>HOTEL</small></span>
+                    </a>
+                    <p>Không gian lưu trú tinh tế, dịch vụ tận tâm và những trải nghiệm được thiết kế để bạn chỉ cần tận hưởng.</p>
+                    <div class="site-footer__contact">
+                        <span><i class="bi bi-geo-alt" aria-hidden="true"></i> Trung tâm Hà Nội, Việt Nam</span>
+                        <a href="tel:19006868"><i class="bi bi-telephone" aria-hidden="true"></i> 1900 6868</a>
+                        <a href="mailto:hello@highgroup.vn"><i class="bi bi-envelope" aria-hidden="true"></i> hello@highgroup.vn</a>
+                    </div>
+                </div>
+                <div>
+                    <h2 class="site-footer__title">Khám phá</h2>
+                    <a asp-controller="Home" asp-action="Index">Trang chủ</a>
+                    <a asp-controller="Phong" asp-action="TimKiem">Tìm phòng</a>
+                    @if (laQuanLy)
+                    {
+                        <a asp-controller="ThongKe" asp-action="Dashboard">Dashboard</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="Phong" asp-action="TimKiem">Ưu đãi &amp; trải nghiệm</a>
+                    }
+                </div>
+                <div>
+                    <h2 class="site-footer__title">Tài khoản</h2>
+                    @if (vaiTro == null)
+                    {
+                        <a asp-controller="TaiKhoan" asp-action="DangNhap">Đăng nhập</a>
+                        <a asp-controller="TaiKhoan" asp-action="DangNhap">Đặt phòng</a>
+                    }
+                    else if (laKhach)
+                    {
+                        <a asp-controller="KhachHang" asp-action="HoSo">Hồ sơ cá nhân</a>
+                        <a asp-controller="KhachHang" asp-action="TheoDoi">Theo dõi đặt phòng</a>
+                        <a asp-controller="ChiTietDatPhong" asp-action="KetQuaCuaToi">Kết quả đặt phòng</a>
+                    }
+                    else
+                    {
+                        <a asp-controller="DatPhong" asp-action="Index">Quản lý đặt phòng</a>
+                        <a asp-controller="Phong" asp-action="Index">Quản lý phòng</a>
+                    }
+                </div>
+                <div>
+                    <h2 class="site-footer__title">Hỗ trợ</h2>
+                    <div class="site-footer__contact">
+                        <span><i class="bi bi-clock" aria-hidden="true"></i> Hỗ trợ 24/7</span>
+                        <span><i class="bi bi-shield-check" aria-hidden="true"></i> Thông tin đặt phòng minh bạch</span>
+                        <span><i class="bi bi-chat-heart" aria-hidden="true"></i> Đồng hành cùng mọi kỳ lưu trú</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="site-footer__bottom">
+            <div class="container-xl">
+                <span>&copy; 2026 Highgroup Hotel. Hệ thống quản lý đặt phòng khách sạn.</span>
+                <span>Đồ án môn học - Lớp TI17A4HN, UNETI</span>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-to-top" type="button" data-back-to-top aria-label="Lên đầu trang">
+        <i class="bi bi-arrow-up" aria-hidden="true"></i>
+    </button>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
