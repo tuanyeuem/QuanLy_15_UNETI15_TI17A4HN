@@ -52,7 +52,7 @@
         <tbody>
             @foreach (var c in Model.ChiTiets)
             {
-                var choSua = dangMo && (c.TrangThai == TrangThaiChiTiet.ChuaNhan || c.TrangThai == TrangThaiChiTiet.DangO);
+                var choSua = dangMo && c.TrangThai == TrangThaiChiTiet.ChuaNhan;
                 var choXoa = dangMo && c.TrangThai == TrangThaiChiTiet.ChuaNhan;
                 <tr>
                     <td>@c.Phong.SoPhong <small class="text-muted">(@c.Phong.LoaiPhong.TenLoai)</small></td>
@@ -107,7 +107,7 @@
         {
             <a asp-action="Create" asp-route-maDatPhong="@dp.MaDatPhong" class="btn btn-outline-primary">+ Thêm phòng</a>
         }
-        @if (dp.TrangThai == TrangThaiDatPhong.DangXuLy)
+        @if (dp.TrangThai == TrangThaiDatPhong.DaNhanPhong)
         {
             <a asp-action="ChotKetQua" asp-route-maDatPhong="@dp.MaDatPhong" class="btn btn-success">Tính tiền & chốt kết quả</a>
         }

@@ -52,7 +52,7 @@
     </div>
     <div class="col-6 col-md-3">
         <div class="card text-center h-100 border-primary"><div class="card-body">
-            <div class="text-muted">Đang xử lý</div>
+                <div class="text-muted">Đã duyệt, chờ nhận phòng</div>
             <div class="fs-2 fw-bold text-primary">@Model.DangXuLy</div>
         </div></div>
     </div>
@@ -82,6 +82,14 @@
     </div>
 </div>
 
+<div class="row g-3 mb-4">
+    <div class="col-md-6"><div class="card"><div class="card-body">
+        <div class="text-muted">Khách đang ở</div><div class="fs-2 fw-bold text-primary">@Model.DangO</div>
+    </div></div></div>
+    <div class="col-md-6"><div class="card"><div class="card-body">
+        <div class="text-muted">Đặt phòng bị từ chối</div><div class="fs-2 fw-bold">@Model.TuChoi</div>
+    </div></div></div>
+</div>
 <h5>Đặt phòng gần đây</h5>
 <div class="table-responsive">
     <table class="table table-sm align-middle">

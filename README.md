@@ -20,7 +20,7 @@
 | ORM | Entity Framework Core 10 (Code First + Migrations) |
 | Cơ sở dữ liệu | SQL Server / LocalDB |
 | Giao diện | Razor Views, Bootstrap, jQuery Validation |
-| Xác thực | Session (hết hạn sau 30 phút), mật khẩu băm SHA-256 |
+| Xác thực | Session (hết hạn sau 30 phút), PasswordHasher (PBKDF2 với salt riêng); tự nâng cấp SHA-256 cũ sau đăng nhập thành công |
 
 ## Chức năng chính
 
@@ -103,7 +103,21 @@ Bộ nạp dữ liệu dùng cờ `[SEED-KH]` / `[SEED-BK]` và kiểm tra số 
 ## Ghi chú nghiệp vụ
 
 - Ngày trả phải sau ngày nhận; hệ thống tính tối thiểu 1 ngày.
+- Chỉ nhận phòng từ ngày nhận dự kiến đến trước ngày trả của từng phòng. Nhận muộn thì tiền phòng tính từ ngày thực nhận; đơn giá đã đặt được giữ nguyên, kể cả giá 0.
+- Chỉ sửa chi tiết trước khi nhận phòng. Không xóa phòng cuối cùng trong lượt đặt; dùng chức năng hủy lượt đặt. Xóa phòng chính sẽ chọn phòng còn lại làm đại diện.
+- Phòng đang có khách không được chuyển thủ công sang trống/bảo trì. Phòng còn lịch đặt chưa xử lý không được chuyển sang bảo trì/ngừng kinh doanh.
+- Nút chốt tiền chỉ hiện sau khi nhận phòng. Dashboard hiển thị riêng khách đang ở và lượt bị từ chối; top phòng được lọc theo năm đã chọn.
 - Khi tìm phòng theo ngày, chỉ hiển thị phòng đang kinh doanh và không trùng lịch với đặt phòng/chi tiết đặt phòng còn hiệu lực.
 - Khi duyệt hoặc nhận phòng, hệ thống kiểm tra **tất cả phòng trong chi tiết**, không chỉ phòng chính; phòng bảo trì/ngừng kinh doanh bị chặn.
 - Hủy đặt phòng chỉ áp dụng cho lượt `ChoDuyet`/`DaDuyet`; chi tiết chưa nhận được chuyển sang `DaHuy`.
 - Ảnh phòng tải lên được lưu tại `wwwroot/uploads/phong/`; nếu chưa có ảnh riêng, dùng ảnh JPG mặc định trong `wwwroot/images/phong/`.
+
+## Kiểm thử hồi quy
+
+Chạy từ thư mục chứa solution:
+
+```powershell
+dotnet run --project RegressionTests/RegressionTests.csproj
+```
+
+Cần SQL Server LocalDB hoạt động dưới tài khoản Windows hiện tại. Bộ kiểm thử tạo database riêng tên `QLKS_Regression_<GUID>` rồi xóa sau khi chạy; không dùng database `QuanLyKhachSan`. Các tình huống gồm đặt trùng đồng thời, đổi/xóa phòng chính, booking cũ, nhận phòng sớm/muộn, trả sớm, sức chứa, trạng thái phòng, thống kê và tương thích mật khẩu cũ.

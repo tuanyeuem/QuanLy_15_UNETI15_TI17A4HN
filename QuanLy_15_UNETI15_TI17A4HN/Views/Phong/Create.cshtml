@@ -147,21 +147,6 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="MaPhong" class="control-label">
-                            Mã phòng <span class="required">*</span>
-                        </label>
-
-                        <input asp-for="MaPhong"
-                               class="form-control"
-                               placeholder="Ví dụ: P101" />
-
-                        <span asp-validation-for="MaPhong"
-                              class="text-danger">
-                        </span>
-                    </div>
-                </div>
                 <!-- Số phòng -->
                 <div class="col-md-6">
                     <div class="form-group">
@@ -284,8 +269,6 @@
                         <select asp-for="TrangThai"
                                 class="form-control">
                             <option value="TrongRanh">Còn trống</option>
-                            <option value="DaDat">Đã đặt</option>
-                            <option value="DangSuDung">Đang sử dụng</option>
                             <option value="BaoTri">Bảo trì</option>
                             <option value="KhongKinhDoanh">Ngừng kinh doanh</option>
                         </select>

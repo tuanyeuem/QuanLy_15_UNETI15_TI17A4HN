@@ -10,9 +10,9 @@ public static class TrangThaiUi
     public static string Badge(string? trangThai) => trangThai switch
     {
         TrangThaiDatPhong.ChoXuLy or TrangThaiChiTiet.ChuaNhan => "bg-warning text-dark",
-        TrangThaiDatPhong.DangXuLy or TrangThaiChiTiet.DangO => "bg-primary",
+        TrangThaiDatPhong.DangXuLy or TrangThaiDatPhong.DaNhanPhong or TrangThaiChiTiet.DangO => "bg-primary",
         TrangThaiDatPhong.HoanThanh or TrangThaiChiTiet.DaTra => "bg-success",
-        TrangThaiDatPhong.DaHuy => "bg-secondary",
+        TrangThaiDatPhong.DaHuy or TrangThaiDatPhong.TuChoi => "bg-secondary",
         _ => "bg-light text-dark"
     };
 

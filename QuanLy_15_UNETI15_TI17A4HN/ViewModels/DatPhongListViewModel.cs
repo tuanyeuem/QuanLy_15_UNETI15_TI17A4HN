@@ -33,5 +33,6 @@ public class DatPhongListViewModel
         TrangThaiDatPhong.DaNhanPhong,
         TrangThaiDatPhong.DaTraPhong,
         TrangThaiDatPhong.Huy,
+        TrangThaiDatPhong.TuChoi,
     };
 }

@@ -69,7 +69,7 @@ public class KhachHangController : Controller
         {
             var phong = await _db.Phongs.AsNoTracking()
                 .FirstOrDefaultAsync(p => p.MaPhong == maPhong.Value);
-            if (phong != null && PhongCoTheDat(phong.TrangThai)
+            if (phong != null && await LichPhongHelper.PhongKinhDoanh(_db).AnyAsync(p => p.MaPhong == phong.MaPhong)
                 && !await BiTrungLichAsync(phong.MaPhong, model.NgayNhan.Date, model.NgayTraDuKien.Date))
             {
                 model.MaPhong = phong.MaPhong;
@@ -84,6 +84,7 @@ public class KhachHangController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DatPhong(TaoDatPhongViewModel model)
     {
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_db);
         var khachHang = await LayHoSoAsync();
         var nhan = model.NgayNhan.Date;
         var tra = model.NgayTraDuKien.Date;
@@ -100,7 +101,7 @@ public class KhachHangController : Controller
         {
             phong = await _db.Phongs.Include(p => p.LoaiPhong)
                 .FirstOrDefaultAsync(p => p.MaPhong == model.MaPhong.Value);
-            if (phong == null || !PhongCoTheDat(phong.TrangThai))
+            if (phong == null || !await LichPhongHelper.PhongKinhDoanh(_db).AnyAsync(p => p.MaPhong == phong.MaPhong))
                 ModelState.AddModelError(nameof(model.MaPhong), "Phòng không tồn tại hoặc hiện không kinh doanh.");
             else if (model.SoNguoi > phong.LoaiPhong.SoNguoiToiDa)
                 ModelState.AddModelError(nameof(model.SoNguoi), $"Loại phòng này tối đa {phong.LoaiPhong.SoNguoiToiDa} người.");
@@ -145,6 +146,7 @@ public class KhachHangController : Controller
             TrangThai = TrangThaiChiTiet.ChuaNhan
         });
         await _db.SaveChangesAsync();
+        await giaoDich.CommitAsync();
         TempData["ThanhCong"] = $"Đã gửi yêu cầu đặt phòng #{datPhong.MaDatPhong}. Vui lòng theo dõi trạng thái xử lý.";
         return RedirectToAction(nameof(TheoDoi));
     }
@@ -166,6 +168,7 @@ public class KhachHangController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Huy(int id)
     {
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_db);
         var khachHang = await LayHoSoAsync();
         var datPhong = await _db.DatPhongs.Include(d => d.ChiTietDatPhongs)
             .FirstOrDefaultAsync(d => d.MaDatPhong == id && d.MaKhachHang == khachHang.MaKhachHang);
@@ -185,6 +188,7 @@ public class KhachHangController : Controller
             chiTiet.NgayCapNhat = DateTime.Now;
         }
         await _db.SaveChangesAsync();
+        await giaoDich.CommitAsync();
         TempData["ThanhCong"] = "Đã hủy đặt phòng.";
         return RedirectToAction(nameof(TheoDoi));
     }
@@ -220,21 +224,12 @@ public class KhachHangController : Controller
     {
         var nhan = model.NgayNhan.Date;
         var tra = model.NgayTraDuKien.Date;
-        var query = _db.Phongs.AsNoTracking().Include(p => p.LoaiPhong)
-            .Where(p => p.LoaiPhong.TrangThai
-                && p.TrangThai != TrangThaiPhong.BaoTri
-                && p.TrangThai != TrangThaiPhong.KhongKinhDoanh
-                && p.TrangThai != TrangThaiPhong.NgungKinhDoanh);
-
+        var query = LichPhongHelper.PhongKinhDoanh(_db).AsNoTracking();
         if (tra > nhan)
-            query = query.Where(p =>
-                !_db.DatPhongs.Any(d => d.MaPhong == p.MaPhong &&
-                    d.TrangThai != TrangThaiDatPhong.Huy &&
-                    d.TrangThai != TrangThaiDatPhong.TuChoi &&
-                    d.NgayNhan < tra && d.NgayTraDuKien > nhan) &&
-                !_db.ChiTietDatPhongs.Any(c => c.MaPhong == p.MaPhong &&
-                    c.TrangThai != TrangThaiChiTiet.DaHuy &&
-                    c.NgayNhan < tra && c.NgayTra > nhan));
+        {
+            var phongBan = LichPhongHelper.PhongBiTrung(_db, nhan, tra);
+            query = query.Where(p => !phongBan.Contains(p.MaPhong));
+        }
 
         model.DanhSachPhong = await query.OrderBy(p => p.SoPhong)
             .Select(p => new SelectListItem
@@ -244,24 +239,8 @@ public class KhachHangController : Controller
             }).ToListAsync();
     }
 
-    private async Task<bool> BiTrungLichAsync(int maPhong, DateTime ngayNhan, DateTime ngayTra)
-    {
-        var trungDatPhong = await _db.DatPhongs.AnyAsync(d => d.MaPhong == maPhong &&
-            d.TrangThai != TrangThaiDatPhong.Huy &&
-            d.TrangThai != TrangThaiDatPhong.TuChoi &&
-            d.NgayNhan < ngayTra && d.NgayTraDuKien > ngayNhan);
-
-        if (trungDatPhong) return true;
-
-        return await _db.ChiTietDatPhongs.AnyAsync(c => c.MaPhong == maPhong &&
-            c.TrangThai != TrangThaiChiTiet.DaHuy &&
-            c.NgayNhan < ngayTra && c.NgayTra > ngayNhan);
-    }
-
-    private static bool PhongCoTheDat(string trangThai) =>
-        trangThai != TrangThaiPhong.BaoTri
-        && trangThai != TrangThaiPhong.KhongKinhDoanh
-        && trangThai != TrangThaiPhong.NgungKinhDoanh;
+    private Task<bool> BiTrungLichAsync(int maPhong, DateTime ngayNhan, DateTime ngayTra)
+        => LichPhongHelper.CoTrungAsync(_db, maPhong, ngayNhan, ngayTra);
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 

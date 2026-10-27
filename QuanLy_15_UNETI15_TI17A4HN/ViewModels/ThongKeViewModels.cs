@@ -14,6 +14,8 @@ public class DashboardViewModel
     public int TongGiaoDich { get; set; }
     public int ChoXuLy { get; set; }
     public int DangXuLy { get; set; }
+    public int DangO { get; set; }
+    public int TuChoi { get; set; }
     public int HoanThanh { get; set; }
     public int DaHuy { get; set; }
     public decimal TongDoanhThu { get; set; }

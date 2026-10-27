@@ -1,6 +1,6 @@
-// Họ và tên: Nguyễn Đình Quang
-// Mã sinh viên: 23103100259
-// Nội dung thực hiện: Hợp nhất entity chi tiết lưu trú, giá phòng và trạng thái sử dụng.
+// Họ và tên: Lê Văn Thanh
+// Mã sinh viên: 23103100200
+// Nội dung phụ trách theo phân công: Module 5 - Entity chi tiết đặt phòng, giá phòng và trạng thái lưu trú.
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

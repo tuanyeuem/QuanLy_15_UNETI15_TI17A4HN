@@ -82,7 +82,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
-        public async Task<IActionResult> Create(Phong phong)
+        public async Task<IActionResult> Create([Bind("SoPhong,MaLoaiPhong,Tang,HuongPhong,TienNghi,DonGia,TrangThai,GhiChu,NgayBaoTri,GhiChuBaoTri")] Phong phong)
         {
             _logger.LogInformation(
                 "Bắt đầu thêm phòng. MaPhong={MaPhong}, SoPhong={SoPhong}, MaLoaiPhong={MaLoaiPhong}",
@@ -148,6 +148,14 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
                     return View(phong);
                 }
 
+                var trangThaiMoi = TrangThaiPhongHelper.ChuanHoa(phong.TrangThai);
+                if (trangThaiMoi == null || trangThaiMoi is TrangThaiPhong.DangSuDung or TrangThaiPhong.DaDat)
+                {
+                    ModelState.AddModelError(nameof(phong.TrangThai), "Phòng mới chỉ được để trống, bảo trì hoặc ngừng kinh doanh.");
+                    LoadLoaiPhong(phong.MaLoaiPhong);
+                    return View(phong);
+                }
+                phong.TrangThai = trangThaiMoi;
                 _context.Phongs.Add(phong);
 
                 _logger.LogInformation(
@@ -237,7 +245,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
-        public async Task<IActionResult> Edit(int id, Phong phong)
+        public async Task<IActionResult> Edit(int id, [Bind("MaPhong,SoPhong,MaLoaiPhong,Tang,HuongPhong,TienNghi,DonGia,TrangThai,GhiChu,NgayBaoTri,GhiChuBaoTri")] Phong phong)
         {
             if (id <= 0 || id != phong.MaPhong)
             {
@@ -250,7 +258,15 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
 
             try
             {
+                await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_context);
                 phong.SoPhong = phong.SoPhong?.Trim()!;
+                var trangThaiMoi = TrangThaiPhongHelper.ChuanHoa(phong.TrangThai);
+                var loiTrangThai = trangThaiMoi == null ? "Trạng thái không hợp lệ."
+                    : await TrangThaiPhongHelper.KiemTraAsync(_context, id, trangThaiMoi);
+                if (loiTrangThai != null)
+                    ModelState.AddModelError(nameof(phong.TrangThai), loiTrangThai);
+                else
+                    phong.TrangThai = trangThaiMoi!;
 
                 if (!string.IsNullOrWhiteSpace(phong.SoPhong))
                 {
@@ -317,6 +333,14 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
                     return NotFound();
                 }
 
+                if (phongDb.MaLoaiPhong != phong.MaLoaiPhong
+                    && await LichPhongHelper.PhongDangO(_context).ContainsAsync(id))
+                {
+                    ModelState.AddModelError(nameof(phong.MaLoaiPhong), "Không đổi loại phòng khi đang có khách ở.");
+                    LoadLoaiPhong(phong.MaLoaiPhong);
+                    return View(phong);
+                }
+
                 phongDb.SoPhong = phong.SoPhong;
                 phongDb.MaLoaiPhong = phong.MaLoaiPhong;
                 phongDb.Tang = phong.Tang;
@@ -332,6 +356,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
 
                 _logger.LogInformation(
                     "Cập nhật phòng {MaPhong} thành công.", id);
+                await giaoDich.CommitAsync();
 
                 TempData["Success"] = "Cập nhật phòng thành công!";
                 return RedirectToAction(nameof(Index));
@@ -460,6 +485,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
             int id,
             string trangThai)
         {
+            await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_context);
             if (id <= 0)
                 return NotFound();
 
@@ -469,32 +495,20 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
             if (phong == null)
                 return NotFound();
 
-            // Chấp nhận cả mã trạng thái và nhãn tiếng Việt cũ để không làm hỏng dữ liệu.
-            var bangTrangThai = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            var maTrangThai = TrangThaiPhongHelper.ChuanHoa(trangThai);
+            var loi = maTrangThai == null ? "Trạng thái không hợp lệ."
+                : await TrangThaiPhongHelper.KiemTraAsync(_context, id, maTrangThai);
+            if (loi != null)
             {
-                ["TrongRanh"] = TrangThaiPhong.TrongRanh,
-                ["Trống"] = TrangThaiPhong.TrongRanh,
-                ["Còn trống"] = TrangThaiPhong.TrongRanh,
-                ["DangSuDung"] = TrangThaiPhong.DangSuDung,
-                ["Đang sử dụng"] = TrangThaiPhong.DangSuDung,
-                ["BaoTri"] = TrangThaiPhong.BaoTri,
-                ["Bảo trì"] = TrangThaiPhong.BaoTri,
-                ["KhongKinhDoanh"] = TrangThaiPhong.KhongKinhDoanh,
-                ["Ngừng kinh doanh"] = TrangThaiPhong.NgungKinhDoanh,
-                ["NgungKinhDoanh"] = TrangThaiPhong.NgungKinhDoanh
-            };
-
-            if (!bangTrangThai.TryGetValue(trangThai ?? string.Empty, out var maTrangThai))
-            {
-                TempData["Error"] = "Trạng thái không hợp lệ.";
-
+                TempData["Error"] = loi;
                 return RedirectToAction(nameof(Index));
             }
 
-            phong.TrangThai = maTrangThai;
+            phong.TrangThai = maTrangThai!;
 
             await _context.SaveChangesAsync();
 
+            await giaoDich.CommitAsync();
             TempData["Success"] = $"Đã cập nhật trạng thái phòng {phong.SoPhong}.";
 
             return RedirectToAction(nameof(Index));
@@ -586,27 +600,9 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Controllers
                 }
                 else
                 {
-                    // Chỉ hiển thị phòng đang kinh doanh khi tìm theo ngày.
-                    if (string.IsNullOrWhiteSpace(trangThai) || trangThai == "all")
-                    {
-                        query = query.Where(p =>
-                            p.TrangThai != TrangThaiPhong.BaoTri &&
-                            p.TrangThai != TrangThaiPhong.KhongKinhDoanh &&
-                            p.TrangThai != TrangThaiPhong.NgungKinhDoanh);
-                    }
-
-                    query = query.Where(p =>
-                        !_context.DatPhongs.Any(d =>
-                            d.MaPhong == p.MaPhong &&
-                            d.TrangThai != TrangThaiDatPhong.Huy &&
-                            d.TrangThai != TrangThaiDatPhong.TuChoi &&
-                            d.NgayNhan < traLoc &&
-                            d.NgayTraDuKien > nhanLoc) &&
-                        !_context.ChiTietDatPhongs.Any(c =>
-                            c.MaPhong == p.MaPhong &&
-                            c.TrangThai != TrangThaiChiTiet.DaHuy &&
-                            c.NgayNhan < traLoc &&
-                            c.NgayTra > nhanLoc));
+                    var phongKinhDoanh = LichPhongHelper.PhongKinhDoanh(_context).Select(p => p.MaPhong);
+                    var phongBan = LichPhongHelper.PhongBiTrung(_context, nhanLoc, traLoc);
+                    query = query.Where(p => phongKinhDoanh.Contains(p.MaPhong) && !phongBan.Contains(p.MaPhong));
                 }
             }
 
