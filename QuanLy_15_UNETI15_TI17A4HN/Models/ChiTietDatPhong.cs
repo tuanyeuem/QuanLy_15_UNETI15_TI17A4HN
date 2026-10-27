@@ -38,7 +38,7 @@ public class ChiTietDatPhong
     [Display(Name = "Ngày trả")]
     public DateTime NgayTra { get; set; }
 
-    [Range(0, 1_000_000_000, ErrorMessage = "Đơn giá phải lớn hơn hoặc bằng 0")]
+    [Range(typeof(decimal), "0", "9999999999999999.99", ErrorMessage = "Đơn giá phải lớn hơn hoặc bằng 0")]
     [Column(TypeName = "decimal(18,2)")]
     [Display(Name = "Đơn giá")]
     public decimal DonGia { get; set; }
@@ -47,7 +47,7 @@ public class ChiTietDatPhong
     [Display(Name = "Số ngày")]
     public int SoNgay { get; set; }
 
-    [Range(0, 1_000_000_000_000, ErrorMessage = "Thành tiền phải lớn hơn hoặc bằng 0")]
+    [Range(typeof(decimal), "0", "9999999999999999.99", ErrorMessage = "Thành tiền phải lớn hơn hoặc bằng 0")]
     [Column(TypeName = "decimal(18,2)")]
     [Display(Name = "Thành tiền")]
     public decimal ThanhTien { get; set; }
