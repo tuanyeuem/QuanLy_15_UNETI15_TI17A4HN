@@ -1,109 +1,75 @@
-# Quản lý khách sạn – QuanLy_15_UNETI15_TI17A4HN
+# Module 5 – Chi tiết đặt phòng, tính tiền và thống kê
 
-Ứng dụng web quản lý khách sạn xây dựng bằng **ASP.NET Core MVC (.NET 10)**, **Entity Framework Core 10** và **SQL Server (LocalDB)**. Hệ thống hỗ trợ quản lý phòng, loại phòng, khách hàng, đặt nhiều phòng trong một lượt, duyệt – nhận – trả – hủy đặt phòng, tính tiền và thống kê doanh thu; phân quyền theo vai trò `Admin`, `NhanVien`, `KhachHang`.
+- **Sinh viên phụ trách:** Lê Văn Thanh
+- **Mã sinh viên:** 23103100200
+- **Đồ án:** Quản lý khách sạn – QuanLy_15_UNETI15_TI17A4HN
+- **Nhánh:** `md5`
+- **Nhánh tích hợp:** `maintest1`
 
-## Thành viên nhóm
+Nhánh này chứa phần Module 5 trên nền ứng dụng chung của nhóm. Các module khác được giữ làm nền để chạy và tích hợp.
 
-| Họ và tên | MSSV | Phần việc chính |
-|---|---|---|
-| Nguyễn Đình Tuấn | 23103100235 | Module 1: đăng nhập, đăng xuất, Session, phân quyền, quản lý tài khoản; hỗ trợ quản lý loại phòng |
-| Vũ Kiều Trinh | 23103100199 | Module 2: quản lý phòng, loại phòng, ảnh phòng, tìm kiếm – lọc – sắp xếp – phân trang |
-| Nguyễn Đình Quang | 23103100259 | Module 3: khách hàng, hồ sơ khách hàng, đặt phòng của khách |
-| Vũ Xuân Tuấn | 23103100035 | Module 4: duyệt, nhận phòng, trả phòng, hủy đặt phòng (hỗ trợ nhiều phòng/lượt) |
-| Lê Văn Thanh | 23103100200 | Module 5: chi tiết đặt phòng, tính tiền, dashboard, thống kê, báo cáo, dữ liệu mẫu |
+## Chức năng Module 5
 
-## Công nghệ sử dụng
+- Quản lý chi tiết đặt phòng: danh sách, xem chi tiết, thêm, sửa và xóa theo điều kiện nghiệp vụ.
+- Tìm kiếm theo khách hàng, số phòng, loại phòng; lọc trạng thái và ngày; sắp xếp, phân trang.
+- Tính số ngày lưu trú, đơn giá và thành tiền phòng; chốt kết quả, trừ tiền cọc để hiển thị số tiền còn phải thu hoặc hoàn lại.
+- Cho khách hàng xem kết quả đặt phòng của chính mình.
+- Dashboard tổng quan phòng, khách hàng, đặt phòng và doanh thu tiền phòng đã chốt.
+- Thống kê, báo cáo doanh thu theo khoảng ngày và xuất CSV.
 
-| Thành phần | Công nghệ |
-|---|---|
-| Framework | ASP.NET Core MVC, `net10.0` |
-| ORM | Entity Framework Core 10 (Code First + Migrations) |
-| Cơ sở dữ liệu | SQL Server / LocalDB |
-| Giao diện | Razor Views, Bootstrap, jQuery Validation |
-| Xác thực | Session (hết hạn sau 30 phút), mật khẩu băm SHA-256 |
+## Các file chính
 
-## Chức năng chính
+Các đường dẫn dưới đây nằm trong thư mục `QuanLy_15_UNETI15_TI17A4HN/`:
 
-- **Tài khoản & phân quyền:** đăng nhập/đăng xuất; kiểm tra vai trò bằng `[PhanQuyen]`; khóa/mở khóa tài khoản; đặt lại mật khẩu.
-- **Quản lý phòng:** CRUD phòng và loại phòng; trạng thái `TrongRanh`, `DangSuDung`, `BaoTri`, `KhongKinhDoanh`, `NgungKinhDoanh`; tải lên/xóa ảnh phòng.
-- **Tìm kiếm phòng:** theo số phòng, loại phòng hoặc tên khách hàng; lọc theo tầng, trạng thái, khoảng giá và **khoảng ngày còn trống**; sắp xếp và phân trang.
-- **Đặt phòng:** khách hàng chọn phòng và ngày; hệ thống kiểm tra trùng lịch theo cả phòng chính và chi tiết phòng; hỗ trợ đặt nhiều phòng trong một lượt.
-- **Nghiệp vụ đặt phòng:** `ChoDuyet → DaDuyet → DaNhanPhong → DaTraPhong`; có nhánh `Huy`/`TuChoi`; kiểm tra sức chứa, trạng thái phòng và trùng lịch trước khi duyệt/nhận phòng.
-- **Tính tiền & thống kê:** tính số ngày, thành tiền theo đơn giá; dashboard doanh thu, thống kê theo tháng/loại phòng/trạng thái.
+- `Models/ChiTietDatPhong.cs`: entity chi tiết đặt phòng và trạng thái lưu trú.
+- `Controllers/ChiTietDatPhongController.cs`: xử lý chi tiết, tính tiền và chốt kết quả.
+- `Controllers/ThongKeController.cs`: dashboard, thống kê và báo cáo.
+- `ViewModels/ChiTietDatPhongViewModels.cs`, `ViewModels/ThongKeViewModels.cs`: dữ liệu cho các màn hình.
+- `Views/ChiTietDatPhong/`, `Views/ThongKe/`: giao diện Module 5.
+- `Helpers/TinhTienHelper.cs`: tính số ngày và tiền phòng.
+- `Helpers/GiaoDichLichPhong.cs`: khóa giao dịch trong SQL Server khi thay đổi lịch phòng.
+- `Data/AppDbContext.cs`, `Data/DuLieuMauGiaoDich.cs`: cấu hình dữ liệu dùng chung và dữ liệu giao dịch mẫu.
 
-## Cấu trúc thư mục chính
+## Quy tắc nghiệp vụ và sửa lỗi
 
-```text
-QuanLy_15_UNETI15_TI17A4HN/
-├── Controllers/        # TaiKhoan, Phong, LoaiPhong, KhachHang, DatPhong, ChiTietDatPhong, ThongKe...
-├── Data/               # AppDbContext, DbSeeder, DuLieuMauGiaoDich
-├── Helpers/            # PhanQuyenAttribute, MatKhauHelper, TinhTienHelper, PhongAnhHelper...
-├── Migrations/         # Lịch sử migration EF Core
-├── Models/             # TaiKhoan, Phong, LoaiPhong, KhachHang, DatPhong, ChiTietDatPhong...
-├── ViewModels/         # ViewModel cho đặt phòng, tài khoản, thống kê...
-├── Views/              # Razor Views theo controller
-└── wwwroot/            # CSS, JS, ảnh phòng mặc định, ảnh tải lên
+- Đơn giá và thành tiền do hệ thống tính; giữ đơn giá đã lưu nếu không đổi phòng.
+- Kiểm tra khoảng ngày hợp lệ và lịch đặt trùng trước khi lưu.
+- Khi đổi phòng chính trong chi tiết, cập nhật phòng đại diện của lượt đặt.
+- Ưu tiên lịch trong chi tiết lưu trú; chỉ dùng lịch phòng chính cho booking cũ chưa có chi tiết. Khách trả sớm không bị giữ lịch đến ngày trả dự kiến.
+- Các luồng thay đổi đặt phòng dùng chung khóa giao dịch để tránh hai yêu cầu đồng thời lưu lịch trùng.
+- Chỉ chốt kết quả khi khách đã nhận phòng và các chi tiết còn hiệu lực đủ điều kiện; sau khi chốt, giữ lịch sử và cập nhật trạng thái phòng.
+- Admin và nhân viên được quản lý; khách hàng chỉ xem dữ liệu thuộc tài khoản của mình.
+
+Các điều chỉnh liên quan trong `DatPhongController`, `KhachHangController` và `PhongController` phục vụ việc đồng bộ lịch phòng với Module 5.
+
+## Môi trường và cách chạy
+
+Cần **.NET SDK 10**, **SQL Server LocalDB** hoặc SQL Server. Dự án sử dụng **ASP.NET Core MVC**, **Entity Framework Core 10** và Razor Views.
+
+Từ thư mục gốc repository:
+
+```powershell
+cd QuanLy_15_UNETI15_TI17A4HN
+dotnet restore
+dotnet run
 ```
 
-## Yêu cầu môi trường
+Kiểm tra `ConnectionStrings:DefaultConnection` trong `appsettings.json` trước khi chạy. Kết nối mặc định:
 
-- .NET SDK 10
-- SQL Server LocalDB (mặc định) hoặc SQL Server Express/Developer
-- Visual Studio 2022/2026 hoặc VS Code + C# Dev Kit
+```text
+Server=(localdb)\MSSQLLocalDB;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True
+```
 
-## Cách chạy
+Ứng dụng chạy migration và nạp dữ liệu mẫu khi khởi động. Mở địa chỉ hiển thị trong terminal.
 
-1. Mở terminal tại thư mục chứa file `.csproj`:
-   ```powershell
-   cd QuanLy_15_UNETI15_TI17A4HN
-   ```
-2. Kiểm tra chuỗi kết nối trong `appsettings.json`:
-   ```json
-   "DefaultConnection": "Server=(localdb)\\MSSQLLocalDB;Database=QuanLyKhachSan;Trusted_Connection=True;TrustServerCertificate=True"
-   ```
-3. Khôi phục và chạy:
-   ```powershell
-   dotnet restore
-   dotnet run
-   ```
-4. Mở trình duyệt tại địa chỉ hiển thị trong terminal (thường là `https://localhost:xxxx`).
+Các màn hình chính sau khi đăng nhập đúng vai trò:
 
-Khi khởi động, ứng dụng tự động:
-- chạy migration (`Database.Migrate()`);
-- nạp tài khoản, loại phòng, phòng, dịch vụ mẫu (`DbSeeder`);
-- bổ sung dữ liệu giao dịch mẫu idempotent (`DuLieuMauGiaoDich`).
+- `/ChiTietDatPhong`: danh sách chi tiết đặt phòng.
+- `/ChiTietDatPhong/KetQuaCuaToi`: kết quả của khách hàng đang đăng nhập.
+- `/ThongKe/Dashboard`: dashboard.
+- `/ThongKe`: thống kê.
+- `/ThongKe/BaoCao`: báo cáo doanh thu.
 
-## Tài khoản thử nghiệm
+## Tích hợp
 
-| Vai trò | Tên đăng nhập | Mật khẩu |
-|---|---|---|
-| Admin | `admin1` | `Admin@123` |
-| Admin | `admin2` | `Admin@123` |
-| Nhân viên | `nhanvien1` | `NhanVien@123` |
-| Nhân viên | `nhanvien2` | `NhanVien@123` |
-| Nhân viên | `nhanvien3` | `NhanVien@123` |
-| Khách hàng | `khach1` | `KhachHang@123` |
-| Khách hàng | `khach2` | `KhachHang@123` |
-| Khách hàng | `khach3` | `KhachHang@123` |
-| Khách hàng | `khach4` | `KhachHang@123` |
-| Khách hàng bị khóa | `khachkhoa` | `KhachHang@123` |
-
-## Dữ liệu mẫu
-
-Sau lần chạy đầu tiên trên cơ sở dữ liệu trống, hệ thống có khoảng:
-
-- 10 tài khoản (9 đang hoạt động, 1 khách bị khóa);
-- 5 loại phòng, 15 phòng, 5 dịch vụ;
-- **30 khách hàng**;
-- **45 đặt phòng** với đủ trạng thái: chờ duyệt, đã duyệt, đang ở, đã trả, đã hủy, bị từ chối;
-- **18 chi tiết đặt phòng** gắn với các lượt đã trả/đang ở để kiểm thử tính tiền và thống kê.
-
-Bộ nạp dữ liệu dùng cờ `[SEED-KH]` / `[SEED-BK]` và kiểm tra số lượng trước khi thêm, nên chạy lại không nhân đôi dữ liệu.
-
-## Ghi chú nghiệp vụ
-
-- Ngày trả phải sau ngày nhận; hệ thống tính tối thiểu 1 ngày.
-- Khi tìm phòng theo ngày, chỉ hiển thị phòng đang kinh doanh và không trùng lịch với đặt phòng/chi tiết đặt phòng còn hiệu lực.
-- Khi duyệt hoặc nhận phòng, hệ thống kiểm tra **tất cả phòng trong chi tiết**, không chỉ phòng chính; phòng bảo trì/ngừng kinh doanh bị chặn.
-- Hủy đặt phòng chỉ áp dụng cho lượt `ChoDuyet`/`DaDuyet`; chi tiết chưa nhận được chuyển sang `DaHuy`.
-- Ảnh phòng tải lên được lưu tại `wwwroot/uploads/phong/`; nếu chưa có ảnh riêng, dùng ảnh JPG mặc định trong `wwwroot/images/phong/`.
+Tạo pull request từ **`md5` vào `maintest1`** để đưa các thay đổi vào bản chung. Nhánh đã được đồng bộ nền `maintest1` tại thời điểm cập nhật; cần kiểm tra lại xung đột nếu nhánh đích có thay đổi mới.
