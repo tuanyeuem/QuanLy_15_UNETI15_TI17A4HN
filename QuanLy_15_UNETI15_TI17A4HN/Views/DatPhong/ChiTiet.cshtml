@@ -1,0 +1,45 @@
+@* Họ và tên: Vũ Xuân Tuấn
+ Mã sinh viên: 23103100035
+ Nội dung thực hiện: Chi tiết đặt phòng và nút xử lý theo trạng thái *@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong
+@{ ViewData["Title"] = "Chi tiết #" + Model.MaDatPhong; }
+
+<h3>Chi tiết đặt phòng #@Model.MaDatPhong</h3>
+@if (TempData["ThanhCong"] != null) { <div class="alert alert-success">@TempData["ThanhCong"]</div> }
+@if (TempData["Loi"] != null)       { <div class="alert alert-danger">@TempData["Loi"]</div>       }
+
+<dl class="row">
+    <dt class="col-sm-3">Khách hàng</dt>    <dd class="col-sm-9">@Model.KhachHang.HoTen — @Model.KhachHang.SoDienThoai</dd>
+    <dt class="col-sm-3">Phòng</dt>         <dd class="col-sm-9">@Model.Phong.SoPhong — @Model.Phong.LoaiPhong.TenLoai (Tầng @Model.Phong.Tang)</dd>
+    <dt class="col-sm-3">Ngày đặt</dt>     <dd class="col-sm-9">@Model.NgayDat.ToString("dd/MM/yyyy HH:mm")</dd>
+    <dt class="col-sm-3">Ngày nhận DK</dt> <dd class="col-sm-9">@Model.NgayNhan.ToString("dd/MM/yyyy")</dd>
+    <dt class="col-sm-3">Ngày trả DK</dt>  <dd class="col-sm-9">@Model.NgayTraDuKien.ToString("dd/MM/yyyy")</dd>
+    <dt class="col-sm-3">Nhận thực tế</dt> <dd class="col-sm-9">@(Model.NgayNhanThucTe?.ToString("dd/MM/yyyy HH:mm") ?? "—")</dd>
+    <dt class="col-sm-3">Trả thực tế</dt>  <dd class="col-sm-9">@(Model.NgayTraThucTe?.ToString("dd/MM/yyyy HH:mm")  ?? "—")</dd>
+    <dt class="col-sm-3">Số người</dt>     <dd class="col-sm-9">@Model.SoNguoi / @Model.Phong.LoaiPhong.SoNguoiToiDa người tối đa</dd>
+    <dt class="col-sm-3">Tiền cọc</dt>     <dd class="col-sm-9">@Model.TienCoc.ToString("N0") đ</dd>
+    <dt class="col-sm-3">Trạng thái</dt>   <dd class="col-sm-9"><strong>@Model.TrangThai</strong></dd>
+    @if (!string.IsNullOrEmpty(Model.GhiChu))   { <dt class="col-sm-3">Ghi chú</dt>     <dd class="col-sm-9">@Model.GhiChu</dd> }
+    @if (!string.IsNullOrEmpty(Model.LyDoHuy))  { <dt class="col-sm-3">Lý do hủy</dt>  <dd class="col-sm-9 text-danger">@Model.LyDoHuy</dd> }
+</dl>
+
+<partial name="_DanhSachPhongDat" model="Model" />
+
+<div class="d-flex gap-2 mt-3 flex-wrap">
+    <a asp-action="Index" class="btn btn-secondary">← Danh sách</a>
+
+    @if (Model.TrangThai == "ChoDuyet")
+    {
+        <a asp-action="Duyet"    asp-route-id="@Model.MaDatPhong" class="btn btn-info">✔ Duyệt đặt phòng</a>
+        <a asp-action="Huy"      asp-route-id="@Model.MaDatPhong" class="btn btn-danger">✖ Hủy</a>
+    }
+    else if (Model.TrangThai == "DaDuyet")
+    {
+        <a asp-action="NhanPhong" asp-route-id="@Model.MaDatPhong" class="btn btn-primary">🏠 Xác nhận nhận phòng</a>
+        <a asp-action="Huy"       asp-route-id="@Model.MaDatPhong" class="btn btn-danger">✖ Hủy</a>
+    }
+    else if (Model.TrangThai == "DaNhanPhong")
+    {
+        <a asp-action="TraPhong"  asp-route-id="@Model.MaDatPhong" class="btn btn-success">🚪 Xác nhận trả phòng</a>
+    }
+</div>

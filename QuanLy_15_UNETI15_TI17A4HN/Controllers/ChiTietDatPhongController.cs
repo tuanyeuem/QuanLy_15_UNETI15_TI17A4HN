@@ -156,8 +156,7 @@ public class ChiTietDatPhongController : Controller
             DonGia = phong.DonGia,                                   // lấy theo phòng tại thời điểm đặt
             SoNgay = soNgay,                                         // hệ thống tự tính
             ThanhTien = TinhTienHelper.TinhThanhTien(phong.DonGia, soNgay),
-            TrangThai = dp.TrangThai == TrangThaiDatPhong.DangXuLy
-                ? TrangThaiChiTiet.DangO : TrangThaiChiTiet.ChuaNhan
+            TrangThai = TrangThaiChiTiet.ChuaNhan
         };
         _context.ChiTietDatPhongs.Add(ct);
         await _context.SaveChangesAsync();
@@ -253,6 +252,7 @@ public class ChiTietDatPhongController : Controller
         // Đổi phòng thì lấy đơn giá của phòng mới; giữ phòng cũ thì giữ nguyên đơn giá đã chốt lúc đặt.
         if (phong.MaPhong != ct.MaPhong)
         {
+            // Giữ phòng đại diện đồng bộ khi thay phòng chính.
             var datPhong = await _context.DatPhongs.FindAsync(ct.MaDatPhong);
             if (datPhong != null && datPhong.MaPhong == ct.MaPhong)
                 datPhong.MaPhong = phong.MaPhong;
@@ -467,9 +467,13 @@ public class ChiTietDatPhongController : Controller
 
     private async Task<List<SelectListItem>> TaoDanhSachPhongAsync(int? maPhongChon)
     {
-        // Loại phòng bảo trì/ngừng kinh doanh, trừ phòng đang được sửa.
+        // Phòng đang bảo trì / ngừng kinh doanh không đưa vào danh sách chọn,
+        // trừ phòng hiện tại đang sửa để người dùng vẫn thấy và đổi sang phòng khác.
         var ds = await _context.Phongs.AsNoTracking()
-            .Where(p => (p.TrangThai != TrangThaiPhong.BaoTri && p.TrangThai != TrangThaiPhong.KhongKinhDoanh) || p.MaPhong == maPhongChon)
+            .Where(p => (p.TrangThai != TrangThaiPhong.BaoTri
+                      && p.TrangThai != TrangThaiPhong.KhongKinhDoanh
+                      && p.TrangThai != TrangThaiPhong.NgungKinhDoanh)
+                     || p.MaPhong == maPhongChon)
             .OrderBy(p => p.SoPhong)
             .Select(p => new { p.MaPhong, p.SoPhong, TenLoai = p.LoaiPhong.TenLoai, p.DonGia, p.TrangThai })
             .ToListAsync();
@@ -498,8 +502,11 @@ public class ChiTietDatPhongController : Controller
             return;
         }
 
-        if (phong.TrangThai == TrangThaiPhong.BaoTri || phong.TrangThai == TrangThaiPhong.KhongKinhDoanh)
-            ModelState.AddModelError(nameof(vm.MaPhong), $"Phòng {phong.SoPhong} đang bảo trì hoặc ngừng kinh doanh, không thể đặt.");
+        if (phong.TrangThai == TrangThaiPhong.BaoTri
+            || phong.TrangThai == TrangThaiPhong.KhongKinhDoanh
+            || phong.TrangThai == TrangThaiPhong.NgungKinhDoanh)
+            ModelState.AddModelError(nameof(vm.MaPhong),
+                $"Phòng {phong.SoPhong} đang bảo trì hoặc ngừng kinh doanh, không thể đặt.");
 
         var nhan = vm.NgayNhan!.Value.Date;
         var tra = vm.NgayTra!.Value.Date;
@@ -524,9 +531,7 @@ public class ChiTietDatPhongController : Controller
             d.MaPhong == phong.MaPhong
             && d.MaDatPhong != dp.MaDatPhong
             && d.TrangThai != TrangThaiDatPhong.Huy
-            && d.TrangThai != TrangThaiDatPhong.DaHuy
-            && d.TrangThai != TrangThaiDatPhong.DaTraPhong
-            && d.TrangThai != "TuChoi"
+            && d.TrangThai != TrangThaiDatPhong.TuChoi
             && d.TrangThai != TrangThaiDatPhong.HoanThanh
             && !d.ChiTietDatPhongs.Any()
             && d.NgayNhan < tra && nhan < d.NgayTraDuKien);
@@ -560,10 +565,10 @@ public class ChiTietDatPhongController : Controller
         var vm = new ChotKetQuaViewModel { DatPhong = dp, NgayTra = ngayTra, DuDieuKien = true };
 
         // Chỉ giao dịch đủ điều kiện mới được cập nhật kết quả cuối cùng.
-        if (dp.TrangThai != TrangThaiDatPhong.DangXuLy)
+        if (dp.TrangThai != TrangThaiDatPhong.DaNhanPhong)
         {
             vm.DuDieuKien = false;
-            vm.LyDoKhongDuDieuKien = $"Chỉ chốt kết quả khi đặt phòng ở trạng thái \"{TrangThaiDatPhong.DangXuLy}\" (hiện tại: \"{dp.TrangThai}\").";
+            vm.LyDoKhongDuDieuKien = $"Chỉ chốt kết quả sau khi khách đã nhận phòng (trạng thái \"{TrangThaiDatPhong.DaNhanPhong}\", hiện tại: \"{dp.TrangThai}\").";
         }
         else if (dangHoatDong.Count == 0)
         {
