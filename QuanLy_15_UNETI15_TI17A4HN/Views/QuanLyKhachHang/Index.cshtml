@@ -1,0 +1,34 @@
+@* Họ và tên: Nguyễn Đình Quang
+   Mã sinh viên: 23103100259
+   Nội dung thực hiện: Module 3 - Danh sách, tìm kiếm và phân trang khách hàng. *@
+@model IReadOnlyList<QuanLy_15_UNETI15_TI17A4HN.Models.KhachHang>
+@{ ViewData["Title"] = "Quản lý khách hàng"; int pageNumber = ViewBag.Trang; int pages = ViewBag.TongSoTrang; string? keyword = ViewBag.TuKhoa; }
+
+<h2>Quản lý khách hàng</h2>
+@if (TempData["ThanhCong"] is string success) { <div class="alert alert-success">@success</div> }
+@if (TempData["Loi"] is string error) { <div class="alert alert-danger">@error</div> }
+<div class="d-flex justify-content-between mb-3">
+    <form asp-action="Index" method="get" class="d-flex gap-2">
+        <input name="tuKhoa" value="@keyword" class="form-control" placeholder="Tên, CCCD, điện thoại, email" />
+        <button type="submit" class="btn btn-outline-primary">Tìm</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Xóa lọc</a>
+    </form>
+    <a asp-action="Create" class="btn btn-primary">Thêm khách hàng</a>
+</div>
+<div class="table-responsive"><table class="table table-striped align-middle">
+    <thead><tr><th>Họ tên</th><th>CCCD</th><th>Điện thoại</th><th>Email</th><th>Trạng thái</th><th></th></tr></thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr><td>@item.HoTen</td><td>@(item.CCCD ?? "—")</td><td>@(item.SoDienThoai ?? "—")</td><td>@(item.Email ?? "—")</td><td>@(item.TrangThai ? "Hoạt động" : "Ngừng hoạt động")</td><td><a asp-action="Details" asp-route-id="@item.MaKhachHang" class="btn btn-sm btn-outline-primary">Chi tiết</a></td></tr>
+    }
+    @if (Model.Count == 0) { <tr><td colspan="6" class="text-center text-muted">Không tìm thấy khách hàng.</td></tr> }
+    </tbody>
+</table></div>
+<nav class="d-flex justify-content-between align-items-center">
+    <span>Trang @pageNumber / @pages · @ViewBag.TongSoBanGhi khách hàng</span>
+    <div class="btn-group">
+        <a asp-action="Index" asp-route-trang="@(pageNumber - 1)" asp-route-tuKhoa="@keyword" class="btn btn-outline-secondary @(pageNumber <= 1 ? "disabled" : "")">Trước</a>
+        <a asp-action="Index" asp-route-trang="@(pageNumber + 1)" asp-route-tuKhoa="@keyword" class="btn btn-outline-secondary @(pageNumber >= pages ? "disabled" : "")">Sau</a>
+    </div>
+</nav>

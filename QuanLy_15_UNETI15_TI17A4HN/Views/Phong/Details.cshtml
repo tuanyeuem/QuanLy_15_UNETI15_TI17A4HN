@@ -1,15 +1,15 @@
+@* Họ và tên: Vũ Kiều Trinh
+   Mã sinh viên: 23103100199
+   Nội dung thực hiện: Module 2 - Xem chi tiết phòng. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
 @model QuanLy_15_UNETI15_TI17A4HN.Models.Phong
 
 @{
     ViewData["Title"] = "Chi tiết phòng";
 
-    string statusClass = Model.TrangThai switch
-    {
-        "Trống" => "bg-success",
-        "Đang sử dụng" => "bg-primary",
-        "Đang bảo trì" => "bg-warning text-dark",
-        _ => "bg-secondary"
-    };
+    var vaiTro = Context.Session.GetString("VaiTro");
+    bool laQuanLy = vaiTro == "Admin" || vaiTro == "NhanVien";
 }
 
 <div class="container py-4">
@@ -23,19 +23,27 @@
         </div>
 
         <div class="d-flex gap-2">
-            <a asp-action="Edit"
-               asp-route-id="@Model.MaPhong"
-               class="btn btn-primary">
-                <i class="bi bi-pencil-square me-1"></i>
-                Chỉnh sửa
-            </a>
+            @if (laQuanLy)
+            {
+                <a asp-action="Edit"
+                   asp-route-id="@Model.MaPhong"
+                   class="btn btn-primary">
+                    <i class="bi bi-pencil-square me-1"></i>
+                    Chỉnh sửa
+                </a>
+            }
 
-            <a asp-action="Index"
+            <a asp-action="@(laQuanLy ? "Index" : "TimKiem")"
                class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left me-1"></i>
                 Quay lại
             </a>
         </div>
+    </div>
+
+    <!-- Ảnh phòng -->
+    <div class="card border-0 shadow-sm mb-4 overflow-hidden">
+        <img class="room-hero" src="@PhongAnhHelper.Url(Env, Model)" alt="Ảnh phòng @Model.SoPhong" />
     </div>
 
     <!-- Thông tin tổng quan -->
@@ -60,9 +68,7 @@
                 </div>
 
                 <div class="col-md-auto">
-                    <span class="badge @statusClass fs-6 px-3 py-2">
-                        @Model.TrangThai
-                    </span>
+                    <span class="tt @TrangThaiUi.LopPhong(Model.TrangThai)">@TrangThaiUi.NhanPhong(Model.TrangThai)</span>
                 </div>
 
                 <div class="col-md-auto">
@@ -194,14 +200,17 @@
                 <div class="card-body p-4">
                     <h6 class="fw-semibold mb-3">Thao tác</h6>
 
-                    <a asp-action="Edit"
-                       asp-route-id="@Model.MaPhong"
-                       class="btn btn-primary w-100 mb-2">
-                        <i class="bi bi-pencil-square me-1"></i>
-                        Chỉnh sửa thông tin phòng
-                    </a>
+                    @if (laQuanLy)
+                    {
+                        <a asp-action="Edit"
+                           asp-route-id="@Model.MaPhong"
+                           class="btn btn-primary w-100 mb-2">
+                            <i class="bi bi-pencil-square me-1"></i>
+                            Chỉnh sửa thông tin phòng
+                        </a>
+                    }
 
-                    <a asp-action="Index"
+                    <a asp-action="@(laQuanLy ? "Index" : "TimKiem")"
                        class="btn btn-outline-secondary w-100">
                         <i class="bi bi-list-ul me-1"></i>
                         Danh sách phòng
@@ -210,4 +219,4 @@
             </div>
         </div>
     </div>
-</div>
+</div>

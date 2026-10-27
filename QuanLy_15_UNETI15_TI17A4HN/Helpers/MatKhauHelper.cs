@@ -1,6 +1,6 @@
-// Họ và tên: Lê Văn Thanh
-// Mã sinh viên: 23103100200
-// Nội dung thực hiện: Module 5 - Băm (SHA-256) và kiểm tra mật khẩu, phục vụ đăng nhập/phân quyền truy cập các chức năng Module 5.
+// Họ và tên: Nguyễn Đình Tuấn
+// Mã sinh viên: 23103100235
+// Nội dung thực hiện: Module 1 - Băm (SHA-256) và kiểm tra mật khẩu, phục vụ đăng nhập/phân quyền.
 using System.Security.Cryptography;
 using System.Text;
 

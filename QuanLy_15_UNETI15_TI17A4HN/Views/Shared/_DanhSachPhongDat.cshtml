@@ -1,0 +1,71 @@
+@* Họ và tên: Vũ Xuân Tuấn
+   Mã sinh viên: 23103100035
+   Nội dung thực hiện: Module 4 - Bảng danh sách phòng của một lượt đặt (hỗ trợ đặt nhiều phòng). *@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong
+
+@{
+    var danhSach = Model.ChiTietDatPhongs
+        .Where(c => c.TrangThai != QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiChiTiet.DaHuy)
+        .OrderBy(c => c.Phong != null ? c.Phong.SoPhong : string.Empty)
+        .ToList();
+
+    string NhanTrangThai(string trangThai) => trangThai switch
+    {
+        QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiChiTiet.DangO => "Đang ở",
+        QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiChiTiet.DaTra => "Đã trả",
+        QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiChiTiet.DaHuy => "Đã hủy",
+        _ => "Chưa nhận"
+    };
+}
+
+@if (danhSach.Count > 0)
+{
+    <h5 class="mt-4">Các phòng trong lượt đặt</h5>
+    <div class="table-responsive">
+        <table class="table table-sm table-bordered align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Phòng</th>
+                    <th>Loại phòng</th>
+                    <th>Ngày nhận</th>
+                    <th>Ngày trả</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th class="text-end">Thành tiền</th>
+                    <th>Trạng thái</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var chiTiet in danhSach)
+                {
+                    <tr>
+                        <td><strong>@(chiTiet.Phong?.SoPhong ?? "—")</strong></td>
+                        <td>@(chiTiet.Phong?.LoaiPhong?.TenLoai ?? "—")</td>
+                        <td>@chiTiet.NgayNhan.ToString("dd/MM/yyyy")</td>
+                        <td>@chiTiet.NgayTra.ToString("dd/MM/yyyy")</td>
+                        <td class="text-end">@chiTiet.DonGia.ToString("N0") đ</td>
+                        <td class="text-end">@chiTiet.ThanhTien.ToString("N0") đ</td>
+                        <td>@NhanTrangThai(chiTiet.TrangThai)</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="5" class="text-end">Tổng cộng</th>
+                    <th class="text-end">@danhSach.Sum(c => c.ThanhTien).ToString("N0") đ</th>
+                    <th></th>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+}
+else
+{
+    <div class="alert alert-light border mt-4 mb-0">
+        Lượt đặt này chưa có chi tiết phòng. Phòng chính:
+        <strong>@Model.Phong?.SoPhong</strong>
+        @if (Model.Phong?.LoaiPhong != null)
+        {
+            <span> — @Model.Phong.LoaiPhong.TenLoai</span>
+        }
+    </div>
+}
