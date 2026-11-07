@@ -1,3 +1,6 @@
+@* Họ và tên: Vũ Kiều Trinh
+   Mã sinh viên: 23103100199
+   Nội dung thực hiện: Module 2 - Thêm phòng. *@
 @model QuanLy_15_UNETI15_TI17A4HN.Models.Phong
 
 @{
@@ -280,23 +283,11 @@
 
                         <select asp-for="TrangThai"
                                 class="form-control">
-
-                            <option value="">
-                                -- Chọn trạng thái --
-                            </option>
-
-                            <option value="Trống">
-                                Trống
-                            </option>
-
-                            <option value="Đang sử dụng">
-                                Đang sử dụng
-                            </option>
-
-                            <option value="Bảo trì">
-                                Bảo trì
-                            </option>
-
+                            <option value="TrongRanh">Còn trống</option>
+                            <option value="DaDat">Đã đặt</option>
+                            <option value="DangSuDung">Đang sử dụng</option>
+                            <option value="BaoTri">Bảo trì</option>
+                            <option value="KhongKinhDoanh">Ngừng kinh doanh</option>
                         </select>
 
                         <span asp-validation-for="TrangThai"
@@ -382,4 +373,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+}

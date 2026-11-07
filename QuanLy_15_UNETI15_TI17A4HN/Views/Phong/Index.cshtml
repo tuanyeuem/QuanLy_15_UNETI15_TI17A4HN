@@ -1,3 +1,7 @@
+@* Họ và tên: Vũ Kiều Trinh
+   Mã sinh viên: 23103100199
+   Nội dung thực hiện: Module 2 - Danh sách phòng có phân trang. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
 @model IEnumerable<QuanLy_15_UNETI15_TI17A4HN.Models.Phong>
 
 @{
@@ -136,9 +140,11 @@
     <a asp-controller="Phong"
        asp-action="TimKiem"
        class="btn btn-success">
-        <i class="bi bi-search"></i> Tìm kiếm và lọc phòng
+        Tìm kiếm và lọc phòng
     </a>
 </div>
+
+<partial name="_ThongBao" />
 
 @{
     int trangHienTai = (int)ViewBag.TrangHienTai;
@@ -157,16 +163,7 @@
 
             <li class="page-item @(trangHienTai == 1 ? "disabled" : "")">
                 <a class="page-link"
-                   asp-action="TimKiem"
-                   asp-route-tuKhoa="@ViewBag.TuKhoa"
-                   asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
-                   asp-route-tang="@ViewBag.Tang"
-                   asp-route-trangThai="@ViewBag.TrangThai"
-                   asp-route-giaTu="@ViewBag.GiaTu"
-                   asp-route-giaDen="@ViewBag.GiaDen"
-                   asp-route-ngayNhan="@ViewBag.NgayNhan"
-                   asp-route-ngayTra="@ViewBag.NgayTra"
-                   asp-route-sapXep="@ViewBag.SapXep"
+                   asp-action="Index"
                    asp-route-trang="@(trangHienTai - 1)">
                     Trước
                 </a>
@@ -176,16 +173,7 @@
             {
                 <li class="page-item @(i == trangHienTai ? "active" : "")">
                     <a class="page-link"
-                       asp-action="TimKiem"
-                       asp-route-tuKhoa="@ViewBag.TuKhoa"
-                       asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
-                       asp-route-tang="@ViewBag.Tang"
-                       asp-route-trangThai="@ViewBag.TrangThai"
-                       asp-route-giaTu="@ViewBag.GiaTu"
-                       asp-route-giaDen="@ViewBag.GiaDen"
-                       asp-route-ngayNhan="@ViewBag.NgayNhan"
-                       asp-route-ngayTra="@ViewBag.NgayTra"
-                       asp-route-sapXep="@ViewBag.SapXep"
+                       asp-action="Index"
                        asp-route-trang="@i">
                         @i
                     </a>
@@ -194,16 +182,7 @@
 
             <li class="page-item @(trangHienTai == tongSoTrang ? "disabled" : "")">
                 <a class="page-link"
-                   asp-action="TimKiem"
-                   asp-route-tuKhoa="@ViewBag.TuKhoa"
-                   asp-route-maLoaiPhong="@ViewBag.MaLoaiPhong"
-                   asp-route-tang="@ViewBag.Tang"
-                   asp-route-trangThai="@ViewBag.TrangThai"
-                   asp-route-giaTu="@ViewBag.GiaTu"
-                   asp-route-giaDen="@ViewBag.GiaDen"
-                   asp-route-ngayNhan="@ViewBag.NgayNhan"
-                   asp-route-ngayTra="@ViewBag.NgayTra"
-                   asp-route-sapXep="@ViewBag.SapXep"
+                   asp-action="Index"
                    asp-route-trang="@(trangHienTai + 1)">
                     Sau
                 </a>
@@ -274,30 +253,7 @@
 
                     <!-- Trạng thái -->
                     <td class="cot-trang-thai">
-                        @if (item.TrangThai == "Trống")
-                        {
-                            <span class="trang-thai trang-thai-trong">
-                                Trống
-                            </span>
-                        }
-                        else if (item.TrangThai == "Đang sử dụng")
-                        {
-                            <span class="trang-thai trang-thai-su-dung">
-                                Đang sử dụng
-                            </span>
-                        }
-                        else if (item.TrangThai == "Bảo trì")
-                        {
-                            <span class="trang-thai trang-thai-bao-tri">
-                                Bảo trì
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="trang-thai">
-                                @item.TrangThai
-                            </span>
-                        }
+                        <span class="tt @TrangThaiUi.LopPhong(item.TrangThai)">@TrangThaiUi.NhanPhong(item.TrangThai)</span>
                     </td>
 
                     <!-- Ghi chú -->
@@ -336,6 +292,7 @@
                                 Chi tiết
                             </a>
 
+
                             
                             <form asp-action="Delete"
                                   asp-route-id="@item.MaPhong"
@@ -356,4 +313,4 @@
             }
         </tbody>
     </table>
-</div>
+</div>

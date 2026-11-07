@@ -1,0 +1,11 @@
+@* Họ và tên: Nguyễn Đình Quang
+   Mã sinh viên: 23103100259
+   Nội dung thực hiện: Module 3 - Trang tạo hồ sơ khách hàng cho nhân viên/Admin. *@
+@model QuanLy_15_UNETI15_TI17A4HN.ViewModels.KhachHangQuanLyViewModel
+@{ ViewData["Title"] = "Thêm khách hàng"; }
+<h2>Thêm khách hàng</h2>
+<form asp-action="Create" method="post">
+    <partial name="_Form" model="Model" />
+    <div class="mt-3"><button type="submit" class="btn btn-primary">Lưu</button> <a asp-action="Index" class="btn btn-outline-secondary">Quay lại</a></div>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

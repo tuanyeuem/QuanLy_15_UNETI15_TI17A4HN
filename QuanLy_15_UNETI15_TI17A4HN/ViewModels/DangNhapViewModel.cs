@@ -1,6 +1,6 @@
-// Họ và tên: Lê Văn Thanh
-// Mã sinh viên: 23103100200
-// Nội dung thực hiện: Module 5 - ViewModel cho form đăng nhập.
+// Họ và tên: Nguyễn Đình Tuấn
+// Mã sinh viên: 23103100235
+// Nội dung thực hiện: Module 1 - ViewModel cho form đăng nhập.
 using System.ComponentModel.DataAnnotations;
 
 namespace QuanLy_15_UNETI15_TI17A4HN.ViewModels;

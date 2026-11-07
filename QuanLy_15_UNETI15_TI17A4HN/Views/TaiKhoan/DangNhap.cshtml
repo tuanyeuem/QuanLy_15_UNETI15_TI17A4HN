@@ -1,14 +1,16 @@
-@* Họ và tên: Lê Văn Thanh *@
-@* Mã sinh viên: 23103100200 *@
-@* Nội dung thực hiện: Module 5 - Giao diện đăng nhập. *@
+@* Họ và tên: Nguyễn Đình Tuấn *@
+@* Mã sinh viên: 23103100235 *@
+@* Nội dung thực hiện: Module 1 - Giao diện đăng nhập. *@
 @model QuanLy_15_UNETI15_TI17A4HN.ViewModels.DangNhapViewModel
 @{
     ViewData["Title"] = "Đăng nhập";
 }
 
-<div class="row justify-content-center">
-    <div class="col-md-5">
-        <h2 class="mb-3">Đăng nhập</h2>
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="brand__mark" aria-hidden="true"><span class="brand__monogram">H</span></div>
+        <h2>Đăng nhập</h2>
+        <p class="sub">Chào mừng bạn đến với Highgroup Hotel.</p>
 
         <form asp-action="DangNhap" method="post">
             <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
@@ -16,17 +18,17 @@
 
             <div class="mb-3">
                 <label asp-for="TenDangNhap" class="form-label"></label>
-                <input asp-for="TenDangNhap" class="form-control" />
+                <input asp-for="TenDangNhap" class="form-control form-control-lg" autocomplete="username" />
                 <span asp-validation-for="TenDangNhap" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-4">
                 <label asp-for="MatKhau" class="form-label"></label>
-                <input asp-for="MatKhau" class="form-control" />
+                <input asp-for="MatKhau" class="form-control form-control-lg" autocomplete="current-password" />
                 <span asp-validation-for="MatKhau" class="text-danger"></span>
             </div>
 
-            <button type="submit" class="btn btn-primary">Đăng nhập</button>
+            <button type="submit" class="btn btn-primary btn-lg w-100">Đăng nhập</button>
         </form>
     </div>
 </div>

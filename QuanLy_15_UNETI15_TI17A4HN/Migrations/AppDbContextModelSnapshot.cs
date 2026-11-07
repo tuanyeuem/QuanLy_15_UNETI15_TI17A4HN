@@ -140,8 +140,13 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("DonViTinh")
+                        .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
+
+                    b.Property<string>("MoTa")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("TenDichVu")
                         .IsRequired()
@@ -168,9 +173,8 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaKhachHang"));
 
                     b.Property<string>("CCCD")
-                        .IsRequired()
-                        .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("DiaChi")
                         .HasMaxLength(200)
@@ -213,7 +217,8 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     b.HasKey("MaKhachHang");
 
                     b.HasIndex("CCCD")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[CCCD] IS NOT NULL");
 
                     b.HasIndex("MaTaiKhoan");
 
@@ -308,6 +313,50 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                         .IsUnique();
 
                     b.ToTable("Phongs");
+                });
+
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.SuDungDichVu", b =>
+                {
+                    b.Property<int>("MaSuDungDichVu")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("MaSuDungDichVu"));
+
+                    b.Property<decimal>("DonGia")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("GhiChu")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("MaChiTiet")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MaDichVu")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("NgaySuDung")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SoLuong")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ThanhTien")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("MaSuDungDichVu");
+
+                    b.HasIndex("MaChiTiet");
+
+                    b.HasIndex("MaDichVu");
+
+                    b.ToTable("SuDungDichVus", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_SuDungDichVu_SoLuong", "[SoLuong] > 0");
+
+                            t.HasCheckConstraint("CK_SuDungDichVu_Tien", "[DonGia] >= 0 AND [ThanhTien] >= 0");
+                        });
                 });
 
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.TaiKhoan", b =>
@@ -405,7 +454,7 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.Phong", b =>
                 {
                     b.HasOne("QuanLy_15_UNETI15_TI17A4HN.Models.LoaiPhong", "LoaiPhong")
-                        .WithMany()
+                        .WithMany("Phongs")
                         .HasForeignKey("MaLoaiPhong")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -413,14 +462,48 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     b.Navigation("LoaiPhong");
                 });
 
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.SuDungDichVu", b =>
+                {
+                    b.HasOne("QuanLy_15_UNETI15_TI17A4HN.Models.ChiTietDatPhong", "ChiTietDatPhong")
+                        .WithMany("SuDungDichVus")
+                        .HasForeignKey("MaChiTiet")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("QuanLy_15_UNETI15_TI17A4HN.Models.DichVu", "DichVu")
+                        .WithMany("SuDungDichVus")
+                        .HasForeignKey("MaDichVu")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ChiTietDatPhong");
+
+                    b.Navigation("DichVu");
+                });
+
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.ChiTietDatPhong", b =>
+                {
+                    b.Navigation("SuDungDichVus");
+                });
+
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong", b =>
                 {
                     b.Navigation("ChiTietDatPhongs");
                 });
 
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.DichVu", b =>
+                {
+                    b.Navigation("SuDungDichVus");
+                });
+
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.KhachHang", b =>
                 {
                     b.Navigation("DatPhongs");
+                });
+
+            modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.LoaiPhong", b =>
+                {
+                    b.Navigation("Phongs");
                 });
 
             modelBuilder.Entity("QuanLy_15_UNETI15_TI17A4HN.Models.Phong", b =>
