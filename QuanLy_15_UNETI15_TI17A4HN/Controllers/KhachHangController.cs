@@ -157,9 +157,9 @@ public class KhachHangController : Controller
             .FirstOrDefaultAsync(d => d.MaDatPhong == id && d.MaKhachHang == khachHang.MaKhachHang);
         if (datPhong == null) return NotFound();
 
-        if (datPhong.TrangThai is not (TrangThaiDatPhong.ChoDuyet or TrangThaiDatPhong.DaDuyet))
+        if (datPhong.TrangThai != TrangThaiDatPhong.ChoDuyet)
         {
-            TempData["Loi"] = "Chỉ có thể hủy đặt phòng đang chờ duyệt hoặc đã duyệt.";
+            TempData["Loi"] = "Chỉ có thể hủy đặt phòng đang chờ duyệt.";
             return RedirectToAction(nameof(TheoDoi));
         }
 
