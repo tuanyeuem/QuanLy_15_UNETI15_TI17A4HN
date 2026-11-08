@@ -24,7 +24,7 @@
                 <td>@item.TienCoc.ToString("N0") đ</td>
                 <td>@item.TrangThai</td>
                 <td>
-                    @if (item.TrangThai is QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiDatPhong.ChoDuyet or QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiDatPhong.DaDuyet)
+                    @if (item.TrangThai == QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiDatPhong.ChoDuyet)
                     {
                         <form asp-action="Huy" asp-route-id="@item.MaDatPhong" method="post" onsubmit="return confirm('Bạn muốn hủy đặt phòng này?');">
                             <button type="submit" class="btn btn-sm btn-outline-danger">Hủy</button>
