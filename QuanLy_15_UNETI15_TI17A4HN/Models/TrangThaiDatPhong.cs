@@ -17,4 +17,16 @@ public static class TrangThaiDatPhong
     public const string DangXuLy = DaDuyet;
     public const string HoanThanh = DaTraPhong;
     public const string DaHuy = Huy;
+
+    // Tên hiển thị theo đề bài. Mã lưu trong CSDL không đổi nên không cần migration.
+    public static string Ten(string? maTrangThai) => maTrangThai switch
+    {
+        ChoDuyet => "Chờ xử lý",
+        DaDuyet => "Đang xử lý (đã duyệt)",
+        DaNhanPhong => "Đang xử lý (đang lưu trú)",
+        DaTraPhong => "Hoàn thành",
+        Huy => "Đã hủy",
+        TuChoi => "Từ chối",
+        _ => maTrangThai ?? string.Empty
+    };
 }

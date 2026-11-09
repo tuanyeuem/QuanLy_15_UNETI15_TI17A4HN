@@ -18,7 +18,7 @@
     <dt class="col-sm-3">Trả thực tế</dt>  <dd class="col-sm-9">@(Model.NgayTraThucTe?.ToString("dd/MM/yyyy HH:mm")  ?? "—")</dd>
     <dt class="col-sm-3">Số người</dt>     <dd class="col-sm-9">@Model.SoNguoi / @Model.Phong.LoaiPhong.SoNguoiToiDa người tối đa</dd>
     <dt class="col-sm-3">Tiền cọc</dt>     <dd class="col-sm-9">@Model.TienCoc.ToString("N0") đ</dd>
-    <dt class="col-sm-3">Trạng thái</dt>   <dd class="col-sm-9"><strong>@Model.TrangThai</strong></dd>
+    <dt class="col-sm-3">Trạng thái</dt>   <dd class="col-sm-9"><strong>@QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiDatPhong.Ten(Model.TrangThai)</strong></dd>
     @if (!string.IsNullOrEmpty(Model.GhiChu))   { <dt class="col-sm-3">Ghi chú</dt>     <dd class="col-sm-9">@Model.GhiChu</dd> }
     @if (!string.IsNullOrEmpty(Model.LyDoHuy))  { <dt class="col-sm-3">Lý do hủy</dt>  <dd class="col-sm-9 text-danger">@Model.LyDoHuy</dd> }
 </dl>

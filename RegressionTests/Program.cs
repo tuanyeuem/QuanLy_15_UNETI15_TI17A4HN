@@ -10,7 +10,12 @@ using QuanLy_15_UNETI15_TI17A4HN.Data;
 using QuanLy_15_UNETI15_TI17A4HN.Helpers;
 using QuanLy_15_UNETI15_TI17A4HN.Models;
 using QuanLy_15_UNETI15_TI17A4HN.ViewModels;
-
+// Chạy bộ kiểm thử in-memory khi gõ: dotnet run -- inmemory
+if (args.Length > 0 && args[0] == "inmemory")
+{
+    var fails = RegressionTests.InMemoryTests.Run();
+    Environment.Exit(fails == 0 ? 0 : 1);
+}
 // Database riêng cho mỗi lần chạy; không truy cập database ứng dụng.
 var database = "QLKS_Regression_" + Guid.NewGuid().ToString("N");
 var options = new DbContextOptionsBuilder<AppDbContext>()

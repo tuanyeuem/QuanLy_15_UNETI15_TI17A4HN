@@ -56,6 +56,11 @@ public class DatPhong
     [Display(Name = "Tiền cọc")]
     public decimal TienCoc { get; set; }
 
+    public bool TienCocDaXacNhan { get; set; }
+
+    [NotMapped]
+    public decimal TienCocDaNhan => TienCocDaXacNhan ? TienCoc : 0;
+
     [Required]
     [StringLength(30)]
     [Display(Name = "Trạng thái")]

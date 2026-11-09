@@ -113,6 +113,13 @@ public class KhachHangController : Controller
             ModelState.AddModelError(nameof(model.MaPhong), "Vui lòng chọn phòng.");
         }
 
+        if (phong != null && tra > nhan)
+        {
+            var tongTien = TinhTienHelper.TinhThanhTien(phong.DonGia, TinhTienHelper.TinhSoNgay(nhan, tra));
+            var loiCoc = TienCocHelper.KiemTra(model.TienCoc, tongTien);
+            if (loiCoc != null) ModelState.AddModelError(nameof(model.TienCoc), loiCoc);
+        }
+
         if (!ModelState.IsValid)
         {
             await NapDanhSachPhongAsync(model);
@@ -174,9 +181,9 @@ public class KhachHangController : Controller
             .FirstOrDefaultAsync(d => d.MaDatPhong == id && d.MaKhachHang == khachHang.MaKhachHang);
         if (datPhong == null) return NotFound();
 
-        if (datPhong.TrangThai is not (TrangThaiDatPhong.ChoDuyet or TrangThaiDatPhong.DaDuyet))
+        if (datPhong.TrangThai != TrangThaiDatPhong.ChoDuyet)
         {
-            TempData["Loi"] = "Chỉ có thể hủy đặt phòng đang chờ duyệt hoặc đã duyệt.";
+            TempData["Loi"] = "Chỉ có thể hủy đặt phòng đang chờ duyệt.";
             return RedirectToAction(nameof(TheoDoi));
         }
 

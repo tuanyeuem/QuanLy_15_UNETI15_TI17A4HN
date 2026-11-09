@@ -1,3 +1,6 @@
+// Họ và tên: Vũ Xuân Tuấn
+// Mã sinh viên: 23103100035
+// Nội dung thực hiện: Module 4 - khóa giao dịch cấp ứng dụng khi tạo và duyệt đặt phòng để tránh trùng lịch đồng thời.
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
