@@ -107,7 +107,7 @@
                     <td>@dp.NgayNhan.ToString("dd/MM/yyyy")</td>
                     <td>@dp.NgayTraDuKien.ToString("dd/MM/yyyy")</td>
                     <td>@dp.SoNguoi</td>
-                    <td><span class="badge @badge">@dp.TrangThai</span></td>
+                    <td><span class="badge @badge">@QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiDatPhong.Ten(dp.TrangThai)</span></td>
                     <td>
                         <a asp-action="ChiTiet" asp-route-id="@dp.MaDatPhong" class="btn btn-sm btn-outline-primary">Chi tiết</a>
                     </td>

@@ -22,7 +22,7 @@
                 <td>@item.NgayTraDuKien.ToString("dd/MM/yyyy")<br /><small class="text-muted">Thực tế: @(item.NgayTraThucTe?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa trả")</small></td>
                 <td>@item.SoNguoi</td>
                 <td>@item.TienCoc.ToString("N0") đ</td>
-                <td>@item.TrangThai</td>
+                <td>@QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiDatPhong.Ten(item.TrangThai)</td>
                 <td>
                     @if (item.TrangThai == QuanLy_15_UNETI15_TI17A4HN.Models.TrangThaiDatPhong.ChoDuyet)
                     {

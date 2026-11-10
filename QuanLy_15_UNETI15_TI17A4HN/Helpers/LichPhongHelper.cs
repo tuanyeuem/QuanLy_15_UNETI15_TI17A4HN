@@ -1,3 +1,6 @@
+// Họ và tên: Vũ Xuân Tuấn
+// Mã sinh viên: 23103100035
+// Nội dung thực hiện: Module 4 - kiểm tra trùng lịch phòng khi duyệt và nhận phòng (dùng chung với Module 3).
 using Microsoft.EntityFrameworkCore;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
 using QuanLy_15_UNETI15_TI17A4HN.Models;

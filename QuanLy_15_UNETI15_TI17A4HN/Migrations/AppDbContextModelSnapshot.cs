@@ -114,6 +114,9 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Migrations
                     b.Property<decimal>("TienCoc")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<bool>("TienCocDaXacNhan")
+                        .HasColumnType("bit");
+
                     b.Property<string>("TrangThai")
                         .IsRequired()
                         .HasMaxLength(30)

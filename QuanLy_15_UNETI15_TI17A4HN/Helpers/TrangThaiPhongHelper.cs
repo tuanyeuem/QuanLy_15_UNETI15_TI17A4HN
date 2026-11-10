@@ -1,3 +1,6 @@
+// Họ và tên: Vũ Kiều Trinh
+// Mã sinh viên: 23103100199
+// Nội dung thực hiện: Module 2 - quy tắc chuyển trạng thái phòng (trống, đang ở, bảo trì).
 using Microsoft.EntityFrameworkCore;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
 using QuanLy_15_UNETI15_TI17A4HN.Models;

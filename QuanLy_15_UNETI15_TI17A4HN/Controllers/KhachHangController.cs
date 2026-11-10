@@ -113,6 +113,13 @@ public class KhachHangController : Controller
             ModelState.AddModelError(nameof(model.MaPhong), "Vui lòng chọn phòng.");
         }
 
+        if (phong != null && tra > nhan)
+        {
+            var tongTien = TinhTienHelper.TinhThanhTien(phong.DonGia, TinhTienHelper.TinhSoNgay(nhan, tra));
+            var loiCoc = TienCocHelper.KiemTra(model.TienCoc, tongTien);
+            if (loiCoc != null) ModelState.AddModelError(nameof(model.TienCoc), loiCoc);
+        }
+
         if (!ModelState.IsValid)
         {
             await NapDanhSachPhongAsync(model);

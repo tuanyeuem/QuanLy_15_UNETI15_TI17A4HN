@@ -385,7 +385,7 @@ public class DatPhongController : Controller
     {
         var dp = await LayDatPhong(id);
         if (dp == null) return NotFound();
-        if (dp.TrangThai is not (TrangThaiDatPhong.ChoDuyet or TrangThaiDatPhong.DaDuyet))
+        if (!CoTheHuy(dp))
         { TempData["Loi"] = "Không thể hủy ở trạng thái này."; return RedirectToAction(nameof(ChiTiet), new { id }); }
         return View(dp);
     }
@@ -398,7 +398,7 @@ public class DatPhongController : Controller
             .FirstOrDefaultAsync(d => d.MaDatPhong == id);
         if (dp == null) return NotFound();
 
-        if (dp.TrangThai is not (TrangThaiDatPhong.ChoDuyet or TrangThaiDatPhong.DaDuyet))
+        if (!CoTheHuy(dp))
         { TempData["Loi"] = "Không thể hủy."; return RedirectToAction(nameof(Index)); }
 
         if (string.IsNullOrWhiteSpace(lyDoHuy))
@@ -422,6 +422,10 @@ public class DatPhongController : Controller
     }
 
     // ── Helper ──
+    // Nhân viên chỉ hủy khi đặt phòng chưa được xử lý và đã quá ngày nhận mà khách chưa nhận phòng.
+    private static bool CoTheHuy(DatPhong dp) =>
+        (dp.TrangThai == TrangThaiDatPhong.ChoDuyet || dp.TrangThai == TrangThaiDatPhong.DaDuyet)
+        && dp.NgayNhan.Date < DateTime.Today;
     private async Task<DatPhong?> LayDatPhong(int id)
         => await _db.DatPhongs
             .Include(d => d.KhachHang)
