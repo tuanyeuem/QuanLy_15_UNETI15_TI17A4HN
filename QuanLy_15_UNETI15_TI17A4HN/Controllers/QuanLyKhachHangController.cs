@@ -3,6 +3,8 @@
 // Nội dung thực hiện: Module 3 - Nhân viên/Admin quản lý hồ sơ khách hàng.
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
+using System.Text;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
 using QuanLy_15_UNETI15_TI17A4HN.Helpers;
 using QuanLy_15_UNETI15_TI17A4HN.Models;
@@ -21,17 +23,19 @@ public class QuanLyKhachHangController : Controller
     [HttpGet]
     public async Task<IActionResult> Index(string? tuKhoa, int trang = 1)
     {
-        var query = _db.KhachHangs.AsNoTracking().AsQueryable();
+        // Chuẩn hóa cả dữ liệu lẫn từ khóa trong .NET để kết quả không phụ thuộc vào collation của SQL Server (đặc biệt với dấu tiếng Việt).
+        // Bảng hồ sơ khách hàng nhỏ; lọc trước khi phân trang để số trang chính xác.
+        var khachHangs = await _db.KhachHangs.AsNoTracking().ToListAsync();
         if (!string.IsNullOrWhiteSpace(tuKhoa))
         {
-            var keyword = tuKhoa.Trim();
-            query = query.Where(k => k.HoTen.Contains(keyword) ||
-                (k.CCCD != null && k.CCCD.Contains(keyword)) ||
-                (k.SoDienThoai != null && k.SoDienThoai.Contains(keyword)) ||
-                (k.Email != null && k.Email.Contains(keyword)));
+            var keyword = ChuanHoaTimKiem(tuKhoa);
+            khachHangs = khachHangs.Where(k =>
+                new[] { k.HoTen, k.CCCD, k.SoDienThoai, k.Email, k.DiaChi, k.QuocTich, k.GioiTinh, k.GhiChu }
+                    .Any(giaTri => !string.IsNullOrEmpty(giaTri) && ChuanHoaTimKiem(giaTri).Contains(keyword)))
+                .ToList();
         }
 
-        var tongSoBanGhi = await query.CountAsync();
+        var tongSoBanGhi = khachHangs.Count;
         var tongSoTrang = Math.Max(1, (int)Math.Ceiling(tongSoBanGhi / (double)SoDongMoiTrang));
         trang = Math.Clamp(trang, 1, tongSoTrang);
         ViewBag.TuKhoa = tuKhoa;
@@ -39,8 +43,8 @@ public class QuanLyKhachHangController : Controller
         ViewBag.TongSoTrang = tongSoTrang;
         ViewBag.TongSoBanGhi = tongSoBanGhi;
 
-        var danhSach = await query.OrderBy(k => k.HoTen)
-            .Skip((trang - 1) * SoDongMoiTrang).Take(SoDongMoiTrang).ToListAsync();
+        var danhSach = khachHangs.OrderBy(k => k.HoTen)
+            .Skip((trang - 1) * SoDongMoiTrang).Take(SoDongMoiTrang).ToList();
         return View(danhSach);
     }
 
@@ -164,4 +168,17 @@ public class QuanLyKhachHangController : Controller
     };
 
     private static string? Clean(string? value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static string ChuanHoaTimKiem(string value)
+    {
+        var normalized = value.Trim().Normalize(NormalizationForm.FormD);
+        var result = new StringBuilder(normalized.Length);
+        foreach (var character in normalized)
+        {
+            if (CharUnicodeInfo.GetUnicodeCategory(character) != UnicodeCategory.NonSpacingMark)
+                result.Append(character == 'đ' ? 'd' : character == 'Đ' ? 'D' : character);
+        }
+
+        return result.ToString().Normalize(NormalizationForm.FormC).ToUpperInvariant();
+    }
 }
