@@ -1,7 +1,19 @@
+@* Họ và tên: Vũ Kiều Trinh
+   Mã sinh viên: 23103100199
+   Nội dung thực hiện: Module 2 - Sửa phòng và tải ảnh phòng. *@
+@using QuanLy_15_UNETI15_TI17A4HN.Helpers
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment Env
 @model QuanLy_15_UNETI15_TI17A4HN.Models.Phong
 
 @{
     ViewData["Title"] = "Chỉnh sửa phòng";
+
+    var dsLoai = ViewData["MaLoaiPhong"] as Microsoft.AspNetCore.Mvc.Rendering.SelectList;
+    var tenLoai = dsLoai?.FirstOrDefault(x => x.Value == Model.MaLoaiPhong.ToString())?.Text;
+    var anhRieng = PhongAnhHelper.AnhRieng(Env, Model.MaPhong);
+    var anhHienTai = anhRieng ?? PhongAnhHelper.AnhMacDinh(tenLoai, Model.MaLoaiPhong);
+    var urlDoiAnh = Url.Action("Doi", "PhongAnh", new { id = Model.MaPhong });
+    var urlXoaAnh = Url.Action("Xoa", "PhongAnh", new { id = Model.MaPhong });
 }
 
 <div class="container py-4">
@@ -17,6 +29,8 @@
             <i class="bi bi-arrow-left"></i> Quay lại
         </a>
     </div>
+
+    <partial name="_ThongBao" />
 
     <form asp-action="Edit" asp-route-id="@Model.MaPhong"
           method="post">
@@ -174,6 +188,26 @@
 
             <!-- Cột trạng thái -->
             <div class="col-lg-4">
+                <!-- Ảnh phòng -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-semibold">Ảnh phòng</h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <img id="xemTruocAnh" class="room-hero rounded-3 mb-3" src="@anhHienTai" alt="Ảnh phòng @Model.SoPhong" />
+                        <div id="thongBaoAnh" class="small mb-2" role="status" aria-live="polite"></div>
+                        <input id="tepAnhPhong" type="file" class="form-control" accept="image/jpeg,image/png,image/webp" />
+                        <div class="form-text">
+                            JPG, PNG hoặc WEBP, tối đa 5 MB. Ảnh được lưu ngay khi bấm "Tải ảnh lên",
+                            không cần bấm "Lưu thay đổi".
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mt-3">
+                            <button type="button" id="nutTaiAnh" class="btn btn-primary btn-sm" disabled>Tải ảnh lên</button>
+                            <button type="button" id="nutXoaAnh" class="btn btn-outline-secondary btn-sm" hidden="@(anhRieng == null)">Dùng ảnh mặc định</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="card border-0 shadow-sm mb-4">
                     <div class="card-header bg-white py-3">
                         <h5 class="mb-0 fw-semibold">
@@ -188,10 +222,11 @@
 
                         <select asp-for="TrangThai"
                                 class="form-select">
-                            <option value="">-- Chọn trạng thái --</option>
-                            <option value="Trống">Trống</option>
-                            <option value="Đang sử dụng">Đang sử dụng</option>
-                            <option value="Đang bảo trì">Đang bảo trì</option>
+                            <option value="TrongRanh">Còn trống</option>
+                            <option value="DaDat">Đã đặt</option>
+                            <option value="DangSuDung">Đang sử dụng</option>
+                            <option value="BaoTri">Bảo trì</option>
+                            <option value="KhongKinhDoanh">Ngừng kinh doanh</option>
                         </select>
 
                         <span asp-validation-for="TrangThai"
@@ -230,4 +265,82 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script>
+        (function () {
+            var tepAnh = document.getElementById('tepAnhPhong');
+            var nutTai = document.getElementById('nutTaiAnh');
+            var nutXoa = document.getElementById('nutXoaAnh');
+            var anh = document.getElementById('xemTruocAnh');
+            var thongBao = document.getElementById('thongBaoAnh');
+            var tokenEl = document.querySelector('input[name="__RequestVerificationToken"]');
+            var urlDoi = '@urlDoiAnh';
+            var urlXoa = '@urlXoaAnh';
+            var toiDa = 5 * 1024 * 1024;
+            var duocPhep = ['image/jpeg', 'image/png', 'image/webp'];
+            var anhDangLuu = anh.getAttribute('src');
+
+            function bao(noiDung, loi) {
+                thongBao.textContent = noiDung;
+                thongBao.className = 'small mb-2 ' + (loi ? 'text-danger' : 'text-success');
+            }
+
+            function guiYeuCau(url, duLieu, khiXong) {
+                nutTai.disabled = true;
+                nutXoa.disabled = true;
+                if (tokenEl) { duLieu.append('__RequestVerificationToken', tokenEl.value); }
+                fetch(url, {
+                    method: 'POST',
+                    body: duLieu,
+                    credentials: 'same-origin',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                    .then(function (kq) {
+                        return kq.json().then(function (d) { return { ok: kq.ok, d: d }; });
+                    })
+                    .then(function (kq) {
+                        bao(kq.d.message || 'Đã xử lý.', !kq.ok);
+                        if (kq.ok) { khiXong(kq.d); }
+                    })
+                    .catch(function () { bao('Không gửi được yêu cầu. Vui lòng thử lại.', true); })
+                    .then(function () {
+                        nutXoa.disabled = false;
+                        nutTai.disabled = !(tepAnh.files && tepAnh.files.length);
+                    });
+            }
+
+            tepAnh.addEventListener('change', function () {
+                var tep = tepAnh.files && tepAnh.files[0];
+                nutTai.disabled = !tep;
+                if (!tep) { anh.src = anhDangLuu; bao('', false); return; }
+                if (duocPhep.indexOf(tep.type) < 0) { bao('Chỉ chấp nhận ảnh JPG, PNG hoặc WEBP.', true); nutTai.disabled = true; return; }
+                if (tep.size > toiDa) { bao('Ảnh quá lớn. Dung lượng tối đa là 5 MB.', true); nutTai.disabled = true; return; }
+                anh.src = URL.createObjectURL(tep);
+                bao('Đây là bản xem trước. Bấm "Tải ảnh lên" để lưu.', false);
+            });
+
+            nutTai.addEventListener('click', function () {
+                var tep = tepAnh.files && tepAnh.files[0];
+                if (!tep) { return; }
+                var duLieu = new FormData();
+                duLieu.append('tepAnh', tep);
+                guiYeuCau(urlDoi, duLieu, function (d) {
+                    anhDangLuu = d.url;
+                    anh.src = d.url;
+                    tepAnh.value = '';
+                    nutXoa.hidden = !d.coAnhRieng;
+                });
+            });
+
+            nutXoa.addEventListener('click', function () {
+                if (!confirm('Xóa ảnh riêng của phòng này và dùng lại ảnh mặc định?')) { return; }
+                guiYeuCau(urlXoa, new FormData(), function (d) {
+                    anhDangLuu = d.url;
+                    anh.src = d.url;
+                    tepAnh.value = '';
+                    nutXoa.hidden = true;
+                });
+            });
+        })();
+    </script>
 }

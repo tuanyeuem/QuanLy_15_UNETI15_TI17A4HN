@@ -1,0 +1,19 @@
+@* Họ và tên: Nguyễn Đình Tuấn
+   Mã sinh viên: 23103100235
+   Nội dung thực hiện: Xác nhận xóa loại phòng. *@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.LoaiPhong
+@{ ViewData["Title"] = "Xóa loại phòng"; }
+
+<h1>Xóa loại phòng</h1>
+<div class="alert alert-warning">
+    Bạn có chắc muốn xóa loại phòng <strong>@Model.TenLoai</strong>?
+    Nếu loại phòng đã được dữ liệu khác tham chiếu, hệ thống sẽ từ chối xóa.
+</div>
+<dl class="row">
+    <dt class="col-sm-3">Số người tối đa</dt><dd class="col-sm-9">@Model.SoNguoiToiDa người</dd>
+    <dt class="col-sm-3">Đơn giá/ngày</dt><dd class="col-sm-9">@Model.DonGiaNgay.ToString("N0") đ</dd>
+</dl>
+<form asp-action="Delete" asp-route-id="@Model.MaLoaiPhong" method="post">
+    <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+    <a asp-action="Index" class="btn btn-secondary">Hủy</a>
+</form>

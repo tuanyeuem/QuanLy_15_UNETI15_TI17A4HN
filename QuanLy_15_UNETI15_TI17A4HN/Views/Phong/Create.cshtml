@@ -1,3 +1,6 @@
+@* Họ và tên: Vũ Kiều Trinh
+   Mã sinh viên: 23103100199
+   Nội dung thực hiện: Module 2 - Thêm phòng. *@
 @model QuanLy_15_UNETI15_TI17A4HN.Models.Phong
 
 @{
@@ -144,21 +147,6 @@
             </div>
 
             <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label asp-for="MaPhong" class="control-label">
-                            Mã phòng <span class="required">*</span>
-                        </label>
-
-                        <input asp-for="MaPhong"
-                               class="form-control"
-                               placeholder="Ví dụ: P101" />
-
-                        <span asp-validation-for="MaPhong"
-                              class="text-danger">
-                        </span>
-                    </div>
-                </div>
                 <!-- Số phòng -->
                 <div class="col-md-6">
                     <div class="form-group">
@@ -280,23 +268,9 @@
 
                         <select asp-for="TrangThai"
                                 class="form-control">
-
-                            <option value="">
-                                -- Chọn trạng thái --
-                            </option>
-
-                            <option value="Trống">
-                                Trống
-                            </option>
-
-                            <option value="Đang sử dụng">
-                                Đang sử dụng
-                            </option>
-
-                            <option value="Bảo trì">
-                                Bảo trì
-                            </option>
-
+                            <option value="TrongRanh">Còn trống</option>
+                            <option value="BaoTri">Bảo trì</option>
+                            <option value="KhongKinhDoanh">Ngừng kinh doanh</option>
                         </select>
 
                         <span asp-validation-for="TrangThai"
@@ -382,4 +356,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-}
+}

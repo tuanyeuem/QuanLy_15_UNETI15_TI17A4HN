@@ -1,0 +1,29 @@
+@* Họ và tên: Nguyễn Đình Quang
+   Mã sinh viên: 23103100259
+   Nội dung thực hiện: Module 3 - Chi tiết hồ sơ và lịch sử đặt phòng khách hàng. *@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.KhachHang
+@{ ViewData["Title"] = "Chi tiết khách hàng"; }
+<h2>Khách hàng: @Model.HoTen</h2>
+@if (TempData["ThanhCong"] is string success) { <div class="alert alert-success">@success</div> }
+@if (TempData["Loi"] is string error) { <div class="alert alert-danger">@error</div> }
+<dl class="row">
+    <dt class="col-sm-3">Mã khách hàng</dt><dd class="col-sm-9">@Model.MaKhachHang</dd>
+    <dt class="col-sm-3">Ngày sinh</dt><dd class="col-sm-9">@(Model.NgaySinh?.ToString("dd/MM/yyyy") ?? "—")</dd>
+    <dt class="col-sm-3">Giới tính</dt><dd class="col-sm-9">@(Model.GioiTinh ?? "—")</dd>
+    <dt class="col-sm-3">CCCD</dt><dd class="col-sm-9">@(Model.CCCD ?? "—")</dd>
+    <dt class="col-sm-3">Điện thoại</dt><dd class="col-sm-9">@(Model.SoDienThoai ?? "—")</dd>
+    <dt class="col-sm-3">Email</dt><dd class="col-sm-9">@(Model.Email ?? "—")</dd>
+    <dt class="col-sm-3">Địa chỉ</dt><dd class="col-sm-9">@(Model.DiaChi ?? "—")</dd>
+    <dt class="col-sm-3">Quốc tịch</dt><dd class="col-sm-9">@(Model.QuocTich ?? "—")</dd>
+    <dt class="col-sm-3">Trạng thái</dt><dd class="col-sm-9">@(Model.TrangThai ? "Hoạt động" : "Ngừng hoạt động")</dd>
+    <dt class="col-sm-3">Ghi chú</dt><dd class="col-sm-9">@(Model.GhiChu ?? "—")</dd>
+</dl>
+<div class="mb-4"><a asp-action="Index" class="btn btn-outline-secondary">Danh sách</a> <a asp-action="Edit" asp-route-id="@Model.MaKhachHang" class="btn btn-primary">Sửa</a> <a asp-action="Delete" asp-route-id="@Model.MaKhachHang" class="btn btn-outline-danger">Xóa</a></div>
+<h4>Lịch sử đặt phòng</h4>
+<div class="table-responsive"><table class="table table-sm"><thead><tr><th>Mã</th><th>Phòng</th><th>Ngày đặt</th><th>Thời gian lưu trú</th><th>Trạng thái</th></tr></thead><tbody>
+@foreach (var item in Model.DatPhongs.OrderByDescending(d => d.NgayDat))
+{
+    <tr><td>#@item.MaDatPhong</td><td>@item.Phong.SoPhong</td><td>@item.NgayDat.ToString("dd/MM/yyyy HH:mm")</td><td>@item.NgayNhan.ToString("dd/MM/yyyy") – @item.NgayTraDuKien.ToString("dd/MM/yyyy")</td><td>@item.TrangThai</td></tr>
+}
+@if (Model.DatPhongs.Count == 0) { <tr><td colspan="5" class="text-muted">Chưa có lịch sử đặt phòng.</td></tr> }
+</tbody></table></div>

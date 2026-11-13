@@ -53,7 +53,7 @@
         <h5>Số phòng và tỷ lệ sử dụng theo loại</h5>
         <table class="table table-sm align-middle">
             <thead class="table-light">
-                <tr><th>Loại phòng</th><th class="text-end">Số phòng</th><th class="text-end">Đang sử dụng</th><th style="width:35%">Tỷ lệ</th></tr>
+                <tr><th>Loại phòng</th><th class="text-end">Đang kinh doanh</th><th class="text-end">Đang sử dụng</th><th style="width:35%">Tỷ lệ</th></tr>
             </thead>
             <tbody>
                 @foreach (var t in Model.TyLeSuDung)
@@ -71,7 +71,7 @@
                 }
             </tbody>
         </table>
-        <div class="small text-muted">Tỷ lệ sử dụng = số phòng đang có khách / tổng số phòng của loại đó.</div>
+        <div class="small text-muted">Tỷ lệ sử dụng = số phòng đang có khách / số phòng đang kinh doanh của loại đó.</div>
     </div>
 
     <div class="col-lg-6">
@@ -132,7 +132,7 @@
 <div class="row g-4">
     <div class="col-lg-6">
         <h5>Phòng được đặt nhiều nhất</h5>
-        <div class="small text-muted mb-1">Top 5 phòng có nhiều lượt đặt nhất (không tính lượt đã hủy).</div>
+        <div class="small text-muted mb-1">Top 5 phòng có nhiều lượt đặt nhất trong năm @Model.Nam (không tính lượt đã hủy hoặc từ chối).</div>
         <table class="table table-sm align-middle">
             <thead class="table-light">
                 <tr><th>#</th><th>Phòng</th><th>Loại</th><th class="text-end">Lượt đặt</th><th class="text-end">Tổng tiền</th></tr>

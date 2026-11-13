@@ -1,6 +1,6 @@
-// Họ và tên: Lê Văn Thanh
-// Mã sinh viên: 23103100200
-// Nội dung thực hiện: Module 5 - Đăng nhập, đăng xuất, lưu Session và trang không có quyền (phân quyền cho các chức năng Module 5).
+// Họ và tên: Nguyễn Đình Tuấn
+// Mã sinh viên: 23103100235
+// Nội dung thực hiện: Module 1 - Đăng nhập, đăng xuất, lưu Session và trang không có quyền.
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
@@ -35,7 +35,8 @@ public class TaiKhoanController : Controller
         var tk = await _context.TaiKhoans
             .FirstOrDefaultAsync(t => t.TenDangNhap == model.TenDangNhap);
 
-        if (tk == null || !MatKhauHelper.KiemTraMatKhau(model.MatKhau, tk.MatKhau))
+        var canNangCap = false;
+        if (tk == null || !MatKhauHelper.KiemTraMatKhau(model.MatKhau, tk.MatKhau, out canNangCap))
         {
             ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không đúng.");
             return View(model);
@@ -47,6 +48,11 @@ public class TaiKhoanController : Controller
             return View(model);
         }
 
+        if (canNangCap)
+        {
+            tk.MatKhau = MatKhauHelper.BamMatKhau(model.MatKhau);
+            await _context.SaveChangesAsync();
+        }
         HttpContext.Session.SetInt32("MaTaiKhoan", tk.MaTaiKhoan);
         HttpContext.Session.SetString("HoTen", tk.HoTen);
         HttpContext.Session.SetString("VaiTro", tk.VaiTro);

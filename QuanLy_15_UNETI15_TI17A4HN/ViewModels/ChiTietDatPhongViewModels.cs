@@ -73,7 +73,7 @@ public class ChotKetQuaViewModel
     public DateTime NgayTra { get; set; }
 
     public decimal TongTien => Dong.Sum(d => d.ThanhTien);
-    public decimal TienCoc => DatPhong.TienCoc;
+    public decimal TienCoc => DatPhong.TienCocDaNhan;
     public decimal ConPhaiThu => TongTien - TienCoc;
 
     public bool DuDieuKien { get; set; }
@@ -87,7 +87,7 @@ public class KetQuaDatPhongViewModel
     public List<ChiTietDatPhong> ChiTiets { get; set; } = new();
 
     public decimal TongTien => ChiTiets.Where(c => c.TrangThai != TrangThaiChiTiet.DaHuy).Sum(c => c.ThanhTien);
-    public decimal ConPhaiThu => TongTien - DatPhong.TienCoc;
+    public decimal ConPhaiThu => TongTien - DatPhong.TienCocDaNhan;
     public bool DaHoanTat => DatPhong.TrangThai == TrangThaiDatPhong.HoanThanh;
 }
 

@@ -1,0 +1,13 @@
+@* Họ và tên: Nguyễn Đình Quang
+   Mã sinh viên: 23103100259
+   Nội dung thực hiện: Module 3 - Xác nhận xóa khách hàng và bảo vệ lịch sử giao dịch. *@
+@model QuanLy_15_UNETI15_TI17A4HN.Models.KhachHang
+@{ ViewData["Title"] = "Xóa khách hàng"; }
+<h2>Xóa khách hàng</h2>
+<div class="alert alert-warning">Chỉ xóa được hồ sơ chưa liên kết tài khoản và chưa có lịch sử đặt phòng. Hồ sơ có lịch sử sẽ được giữ để bảo toàn dữ liệu.</div>
+<p>Bạn muốn xóa hồ sơ <strong>@Model.HoTen</strong>?</p>
+<p>Lịch sử đặt phòng: @Model.DatPhongs.Count</p>
+<form asp-action="Delete" asp-route-id="@Model.MaKhachHang" method="post">
+    <button type="submit" class="btn btn-danger">Xác nhận xóa</button>
+    <a asp-action="Details" asp-route-id="@Model.MaKhachHang" class="btn btn-outline-secondary">Quay lại</a>
+</form>

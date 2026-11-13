@@ -1,7 +1,12 @@
+@* Họ và tên: Vũ Xuân Tuấn
+   Mã sinh viên: 23103100035
+   Nội dung thực hiện: Module 4 - Hủy đặt phòng và cập nhật trạng thái các phòng liên quan. *@
 @model QuanLy_15_UNETI15_TI17A4HN.Models.DatPhong
 @{ ViewData["Title"] = "Hủy đặt phòng"; }
 <h3>Hủy đặt phòng #@Model.MaDatPhong</h3>
 <div class="alert alert-danger">⚠ Thao tác này không thể khôi phục!</div>
+<partial name="_DanhSachPhongDat" model="Model" />
+
 <form asp-action="Huy" method="post">
     <input type="hidden" name="id" value="@Model.MaDatPhong" />
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>

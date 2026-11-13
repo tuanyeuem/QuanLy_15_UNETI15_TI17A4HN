@@ -1,6 +1,7 @@
-// Họ và tên: Lê Văn Thanh
-// Mã sinh viên: 23103100200
-// Nội dung thực hiện: Module 5 - Băm (SHA-256) và kiểm tra mật khẩu, phục vụ đăng nhập/phân quyền truy cập các chức năng Module 5.
+// Họ và tên: Nguyễn Đình Tuấn
+// Mã sinh viên: 23103100235
+// Nội dung thực hiện: Băm mật khẩu bằng PasswordHasher; tương thích tài khoản SHA-256 cũ.
+using Microsoft.AspNetCore.Identity;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -8,19 +9,42 @@ namespace QuanLy_15_UNETI15_TI17A4HN.Helpers;
 
 public static class MatKhauHelper
 {
+    private static readonly PasswordHasher<object> Hasher = new();
+    private static readonly object User = new();
+
     public static string BamMatKhau(string matKhau)
     {
         if (string.IsNullOrWhiteSpace(matKhau))
             return string.Empty;
 
-        using var sha256 = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes(matKhau);
-        var hash = sha256.ComputeHash(bytes);
-        return Convert.ToHexString(hash);
+        return Hasher.HashPassword(User, matKhau);
     }
 
     public static bool KiemTraMatKhau(string matKhauNhap, string matKhauDaLuu)
     {
-        return string.Equals(BamMatKhau(matKhauNhap), matKhauDaLuu, StringComparison.OrdinalIgnoreCase);
+        return KiemTraMatKhau(matKhauNhap, matKhauDaLuu, out _);
+    }
+
+    public static bool KiemTraMatKhau(string matKhauNhap, string matKhauDaLuu, out bool canNangCap)
+    {
+        canNangCap = false;
+        if (string.IsNullOrWhiteSpace(matKhauNhap) || string.IsNullOrEmpty(matKhauDaLuu)) return false;
+        try
+        {
+            if (matKhauDaLuu.Length == 64 && matKhauDaLuu.All(Uri.IsHexDigit))
+            {
+                var dung = CryptographicOperations.FixedTimeEquals(
+                    SHA256.HashData(Encoding.UTF8.GetBytes(matKhauNhap)), Convert.FromHexString(matKhauDaLuu));
+                canNangCap = dung;
+                return dung;
+            }
+            var result = Hasher.VerifyHashedPassword(User, matKhauDaLuu, matKhauNhap);
+            canNangCap = result == PasswordVerificationResult.SuccessRehashNeeded;
+            return result != PasswordVerificationResult.Failed;
+        }
+        catch (FormatException)
+        {
+            return false;
+        }
     }
 }

@@ -127,6 +127,7 @@ public class ChiTietDatPhongController : Controller
     [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
     public async Task<IActionResult> Create(ChiTietDatPhongFormViewModel vm)
     {
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_context);
         var dp = await LayDatPhongAsync(vm.MaDatPhong);
         if (dp == null) return NotFound();
         vm.DatPhong = dp;
@@ -155,11 +156,26 @@ public class ChiTietDatPhongController : Controller
             DonGia = phong.DonGia,                                   // lấy theo phòng tại thời điểm đặt
             SoNgay = soNgay,                                         // hệ thống tự tính
             ThanhTien = TinhTienHelper.TinhThanhTien(phong.DonGia, soNgay),
-            TrangThai = dp.TrangThai == TrangThaiDatPhong.DangXuLy
-                ? TrangThaiChiTiet.DangO : TrangThaiChiTiet.ChuaNhan
+            TrangThai = TrangThaiChiTiet.ChuaNhan
         };
+        // Khi bổ sung phòng cho booking cũ, giữ lại phòng chính đã đặt trước đó.
+        if (phong.MaPhong != dp.MaPhong
+            && !await _context.ChiTietDatPhongs.AnyAsync(c => c.MaDatPhong == dp.MaDatPhong))
+        {
+            var phongChinh = await _context.Phongs.FindAsync(dp.MaPhong);
+            var soNgayChinh = TinhTienHelper.TinhSoNgay(dp.NgayNhan, dp.NgayTraDuKien);
+            _context.ChiTietDatPhongs.Add(new ChiTietDatPhong
+            {
+                MaDatPhong = dp.MaDatPhong, MaPhong = dp.MaPhong,
+                NgayNhan = dp.NgayNhan.Date, NgayTra = dp.NgayTraDuKien.Date,
+                DonGia = phongChinh!.DonGia, SoNgay = soNgayChinh,
+                ThanhTien = TinhTienHelper.TinhThanhTien(phongChinh.DonGia, soNgayChinh),
+                TrangThai = TrangThaiChiTiet.ChuaNhan
+            });
+        }
         _context.ChiTietDatPhongs.Add(ct);
         await _context.SaveChangesAsync();
+        await giaoDich.CommitAsync();
 
         TempData["ThanhCong"] = $"Đã thêm phòng {phong.SoPhong} vào đặt phòng #{dp.MaDatPhong}.";
         return RedirectToAction(nameof(KetQua), new { maDatPhong = dp.MaDatPhong });
@@ -206,6 +222,7 @@ public class ChiTietDatPhongController : Controller
     [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
     public async Task<IActionResult> Edit(int id, ChiTietDatPhongFormViewModel vm)
     {
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_context);
         if (id != vm.MaChiTiet) return NotFound();
 
         var ct = await _context.ChiTietDatPhongs.Include(c => c.Phong)
@@ -222,13 +239,6 @@ public class ChiTietDatPhongController : Controller
         {
             TempData["Loi"] = loi;
             return RedirectToAction(nameof(KetQua), new { maDatPhong = ct.MaDatPhong });
-        }
-
-        // Phòng đang có khách thì không được đổi sang phòng khác.
-        if (ct.TrangThai == TrangThaiChiTiet.DangO)
-        {
-            vm.MaPhong = ct.MaPhong;
-            ModelState.Remove(nameof(vm.MaPhong));
         }
 
         Phong? phong = null;
@@ -250,6 +260,10 @@ public class ChiTietDatPhongController : Controller
         // Đổi phòng thì lấy đơn giá của phòng mới; giữ phòng cũ thì giữ nguyên đơn giá đã chốt lúc đặt.
         if (phong.MaPhong != ct.MaPhong)
         {
+            // Giữ phòng đại diện đồng bộ khi thay phòng chính.
+            var datPhong = await _context.DatPhongs.FindAsync(ct.MaDatPhong);
+            if (datPhong != null && datPhong.MaPhong == ct.MaPhong)
+                datPhong.MaPhong = phong.MaPhong;
             ct.MaPhong = phong.MaPhong;
             ct.DonGia = phong.DonGia;
         }
@@ -259,6 +273,7 @@ public class ChiTietDatPhongController : Controller
         ct.ThanhTien = TinhTienHelper.TinhThanhTien(ct.DonGia, ct.SoNgay);
 
         await _context.SaveChangesAsync();
+        await giaoDich.CommitAsync();
         TempData["ThanhCong"] = "Đã cập nhật chi tiết đặt phòng.";
         return RedirectToAction(nameof(KetQua), new { maDatPhong = ct.MaDatPhong });
     }
@@ -289,6 +304,7 @@ public class ChiTietDatPhongController : Controller
     [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
     public async Task<IActionResult> DeleteConfirmed(int id)
     {
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_context);
         var ct = await _context.ChiTietDatPhongs
             .Include(c => c.DatPhong)
             .FirstOrDefaultAsync(c => c.MaChiTiet == id);
@@ -302,8 +318,20 @@ public class ChiTietDatPhongController : Controller
             return RedirectToAction(nameof(KetQua), new { maDatPhong });
         }
 
+        var conLai = await _context.ChiTietDatPhongs
+            .Where(c => c.MaDatPhong == maDatPhong && c.MaChiTiet != id && c.TrangThai != TrangThaiChiTiet.DaHuy)
+            .OrderBy(c => c.MaChiTiet).ToListAsync();
+        if (conLai.Count == 0 || await _context.SuDungDichVus.AnyAsync(s => s.MaChiTiet == id))
+        {
+            TempData["Loi"] = "Không thể xóa phòng cuối cùng hoặc phòng đã phát sinh dịch vụ. Hãy hủy lượt đặt nếu không còn nhu cầu.";
+            return RedirectToAction(nameof(KetQua), new { maDatPhong });
+        }
+        if (!conLai.Any(c => c.MaPhong == ct.DatPhong.MaPhong))
+            ct.DatPhong.MaPhong = conLai[0].MaPhong;
+
         _context.ChiTietDatPhongs.Remove(ct);
         await _context.SaveChangesAsync();
+        await giaoDich.CommitAsync();
         TempData["ThanhCong"] = "Đã xóa chi tiết đặt phòng.";
         return RedirectToAction(nameof(KetQua), new { maDatPhong });
     }
@@ -324,6 +352,7 @@ public class ChiTietDatPhongController : Controller
     [PhanQuyen(VaiTroTaiKhoan.Admin, VaiTroTaiKhoan.NhanVien)]
     public async Task<IActionResult> ChotKetQua(int maDatPhong, DateTime? ngayTra, string? xacNhan)
     {
+        await using var giaoDich = await GiaoDichLichPhong.BatDauAsync(_context);
         var vm = await TaoChotKetQuaAsync(maDatPhong, (ngayTra ?? DateTime.Today).Date);
         if (vm == null) return NotFound();
 
@@ -332,8 +361,6 @@ public class ChiTietDatPhongController : Controller
             TempData["Loi"] = vm.LyDoKhongDuDieuKien;
             return RedirectToAction(nameof(KetQua), new { maDatPhong });
         }
-
-        await using var giaoDich = await _context.Database.BeginTransactionAsync();
 
         var dp = await _context.DatPhongs
             .Include(d => d.ChiTietDatPhongs)
@@ -351,13 +378,13 @@ public class ChiTietDatPhongController : Controller
             dsPhong.Add(ct.MaPhong);
         }
         dp.TrangThai = TrangThaiDatPhong.HoanThanh;
+        dp.NgayTraThucTe = vm.NgayTra == thoiDiemCapNhat.Date ? thoiDiemCapNhat : vm.NgayTra;
         await _context.SaveChangesAsync();
 
         // Trả phòng xong thì giải phóng phòng nếu không còn khách khác đang ở.
         foreach (var maPhong in dsPhong.Distinct())
         {
-            var conKhach = await _context.ChiTietDatPhongs.AnyAsync(c =>
-                c.MaPhong == maPhong && c.MaDatPhong != maDatPhong && c.TrangThai == TrangThaiChiTiet.DangO);
+            var conKhach = await LichPhongHelper.PhongDangO(_context, maDatPhong).ContainsAsync(maPhong);
             if (conKhach) continue;
 
             var phong = await _context.Phongs.FindAsync(maPhong);
@@ -442,7 +469,7 @@ public class ChiTietDatPhongController : Controller
     {
         if (!DatPhongChoPhepSua(dp))
             return $"Đặt phòng #{dp.MaDatPhong} đã \"{dp.TrangThai}\" nên không được thay đổi chi tiết.";
-        if (ct.TrangThai == TrangThaiChiTiet.DaTra || ct.TrangThai == TrangThaiChiTiet.DaHuy)
+        if (ct.TrangThai != TrangThaiChiTiet.ChuaNhan)
             return $"Chi tiết đã \"{ct.TrangThai}\" nên không được thay đổi (bảo toàn lịch sử).";
         return null;
     }
@@ -458,9 +485,13 @@ public class ChiTietDatPhongController : Controller
 
     private async Task<List<SelectListItem>> TaoDanhSachPhongAsync(int? maPhongChon)
     {
-        // Phòng đang bảo trì không thể kinh doanh nên không đưa vào danh sách chọn.
+        // Phòng đang bảo trì / ngừng kinh doanh không đưa vào danh sách chọn,
+        // trừ phòng hiện tại đang sửa để người dùng vẫn thấy và đổi sang phòng khác.
         var ds = await _context.Phongs.AsNoTracking()
-            .Where(p => p.TrangThai != TrangThaiPhong.BaoTri || p.MaPhong == maPhongChon)
+            .Where(p => (p.TrangThai != TrangThaiPhong.BaoTri
+                      && p.TrangThai != TrangThaiPhong.KhongKinhDoanh
+                      && p.TrangThai != TrangThaiPhong.NgungKinhDoanh)
+                     || p.MaPhong == maPhongChon)
             .OrderBy(p => p.SoPhong)
             .Select(p => new { p.MaPhong, p.SoPhong, TenLoai = p.LoaiPhong.TenLoai, p.DonGia, p.TrangThai })
             .ToListAsync();
@@ -489,8 +520,8 @@ public class ChiTietDatPhongController : Controller
             return;
         }
 
-        if (phong.TrangThai == TrangThaiPhong.BaoTri)
-            ModelState.AddModelError(nameof(vm.MaPhong), $"Phòng {phong.SoPhong} đang bảo trì, không thể đặt.");
+        if (!await LichPhongHelper.PhongKinhDoanh(_context).AnyAsync(p => p.MaPhong == phong.MaPhong))
+            ModelState.AddModelError(nameof(vm.MaPhong), "Phòng hoặc loại phòng đã ngừng kinh doanh.");
 
         var nhan = vm.NgayNhan!.Value.Date;
         var tra = vm.NgayTra!.Value.Date;
@@ -500,15 +531,16 @@ public class ChiTietDatPhongController : Controller
             ModelState.AddModelError(nameof(vm.NgayNhan),
                 $"Thời gian phải nằm trong khoảng đặt phòng ({dp.NgayNhan:dd/MM/yyyy} - {dp.NgayTraDuKien:dd/MM/yyyy}).");
 
-        // Không cho đặt trùng khoảng thời gian với booking khác của cùng phòng (LINQ Any).
-        var trung = await _context.ChiTietDatPhongs.AnyAsync(c =>
-            c.MaPhong == phong.MaPhong
-            && c.MaChiTiet != maChiTietBoQua
-            && c.TrangThai != TrangThaiChiTiet.DaHuy
-            && c.NgayNhan < tra && nhan < c.NgayTra);
-        if (trung)
-            ModelState.AddModelError(nameof(vm.MaPhong),
-                $"Phòng {phong.SoPhong} đã có người đặt trong khoảng thời gian này.");
+        var phongBan = LichPhongHelper.PhongBiTrung(_context, nhan, tra,
+            boQuaChiTiet: maChiTietBoQua, boQuaPhongChinh: dp.MaDatPhong);
+        if (await phongBan.ContainsAsync(phong.MaPhong))
+            ModelState.AddModelError(nameof(vm.MaPhong), $"Phòng {phong.SoPhong} đã có lịch trùng thời gian này.");
+
+        // Mỗi phòng chỉ xuất hiện một lần trong lượt đặt, thống nhất với bước duyệt/nhận.
+        if (await _context.ChiTietDatPhongs.AnyAsync(c => c.MaDatPhong == dp.MaDatPhong
+            && c.MaChiTiet != maChiTietBoQua && c.MaPhong == phong.MaPhong
+            && c.TrangThai != TrangThaiChiTiet.DaHuy))
+            ModelState.AddModelError(nameof(vm.MaPhong), "Phòng này đã có trong lượt đặt.");
 
         // Cảnh báo sức chứa: tổng sức chứa các phòng của lần đặt không đủ cho số người.
         if (ModelState.IsValid)
@@ -536,10 +568,10 @@ public class ChiTietDatPhongController : Controller
         var vm = new ChotKetQuaViewModel { DatPhong = dp, NgayTra = ngayTra, DuDieuKien = true };
 
         // Chỉ giao dịch đủ điều kiện mới được cập nhật kết quả cuối cùng.
-        if (dp.TrangThai != TrangThaiDatPhong.DangXuLy)
+        if (dp.TrangThai != TrangThaiDatPhong.DaNhanPhong)
         {
             vm.DuDieuKien = false;
-            vm.LyDoKhongDuDieuKien = $"Chỉ chốt kết quả khi đặt phòng ở trạng thái \"{TrangThaiDatPhong.DangXuLy}\" (hiện tại: \"{dp.TrangThai}\").";
+            vm.LyDoKhongDuDieuKien = $"Chỉ chốt kết quả sau khi khách đã nhận phòng (trạng thái \"{TrangThaiDatPhong.DaNhanPhong}\", hiện tại: \"{dp.TrangThai}\").";
         }
         else if (dangHoatDong.Count == 0)
         {
