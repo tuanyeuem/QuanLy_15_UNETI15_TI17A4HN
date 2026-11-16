@@ -1,0 +1,54 @@
+@model QuanLy_15_UNETI15_TI17A4HN.ViewModels.DangKyViewModel
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+
+<div class="auth-wrap">
+    <div class="auth-card">
+        <div class="brand__mark" aria-hidden="true"><span class="brand__monogram">H</span></div>
+        <h2>Đăng ký</h2>
+        <p class="sub">Tạo tài khoản khách hàng tại Highgroup Hotel.</p>
+
+        <form asp-action="DangKy" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="HoTen" class="form-label"></label>
+                <input asp-for="HoTen" class="form-control form-control-lg" autocomplete="name" />
+                <span asp-validation-for="HoTen" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="TenDangNhap" class="form-label"></label>
+                <input asp-for="TenDangNhap" class="form-control form-control-lg" autocomplete="username" />
+                <span asp-validation-for="TenDangNhap" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label"></label>
+                <input asp-for="Email" class="form-control form-control-lg" autocomplete="email" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="SoDienThoai" class="form-label"></label>
+                <input asp-for="SoDienThoai" class="form-control form-control-lg" autocomplete="tel" />
+                <span asp-validation-for="SoDienThoai" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="MatKhau" class="form-label"></label>
+                <input asp-for="MatKhau" class="form-control form-control-lg" autocomplete="new-password" />
+                <span asp-validation-for="MatKhau" class="text-danger"></span>
+            </div>
+            <div class="mb-4">
+                <label asp-for="XacNhanMatKhau" class="form-label"></label>
+                <input asp-for="XacNhanMatKhau" class="form-control form-control-lg" autocomplete="new-password" />
+                <span asp-validation-for="XacNhanMatKhau" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">Tạo tài khoản</button>
+        </form>
+        <p class="text-center mt-3 mb-0">Đã có tài khoản? <a asp-action="DangNhap">Đăng nhập</a></p>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using QuanLy_15_UNETI15_TI17A4HN.Data;
 using QuanLy_15_UNETI15_TI17A4HN.Helpers;
+using QuanLy_15_UNETI15_TI17A4HN.Models;
 using QuanLy_15_UNETI15_TI17A4HN.ViewModels;
 
 namespace QuanLy_15_UNETI15_TI17A4HN.Controllers;
@@ -14,6 +15,57 @@ public class TaiKhoanController : Controller
     private readonly AppDbContext _context;
 
     public TaiKhoanController(AppDbContext context) => _context = context;
+
+    [HttpGet]
+    public IActionResult DangKy()
+    {
+        if (HttpContext.Session.GetInt32("MaTaiKhoan") != null)
+            return RedirectToAction("Index", "Home");
+        return View();
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DangKy(DangKyViewModel model)
+    {
+        if (HttpContext.Session.GetInt32("MaTaiKhoan") != null)
+            return RedirectToAction("Index", "Home");
+
+        var tenDangNhap = model.TenDangNhap.Trim();
+        var email = model.Email.Trim();
+        if (await _context.TaiKhoans.AnyAsync(t => t.TenDangNhap == tenDangNhap))
+            ModelState.AddModelError(nameof(model.TenDangNhap), "Tên đăng nhập đã được sử dụng.");
+        if (await _context.TaiKhoans.AnyAsync(t => t.Email == email))
+            ModelState.AddModelError(nameof(model.Email), "Email đã được sử dụng.");
+        if (!ModelState.IsValid) return View(model);
+
+        var taiKhoan = new TaiKhoan
+        {
+            TenDangNhap = tenDangNhap,
+            MatKhau = MatKhauHelper.BamMatKhau(model.MatKhau),
+            HoTen = model.HoTen.Trim(),
+            Email = email,
+            VaiTro = VaiTroTaiKhoan.KhachHang,
+            TrangThai = true
+        };
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        _context.TaiKhoans.Add(taiKhoan);
+        await _context.SaveChangesAsync();
+        _context.KhachHangs.Add(new KhachHang
+        {
+            MaTaiKhoan = taiKhoan.MaTaiKhoan,
+            HoTen = taiKhoan.HoTen,
+            Email = email,
+            SoDienThoai = string.IsNullOrWhiteSpace(model.SoDienThoai) ? null : model.SoDienThoai.Trim(),
+            QuocTich = "Việt Nam",
+            TrangThai = true
+        });
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+
+        TempData["ThongBao"] = "Đăng ký thành công. Vui lòng đăng nhập.";
+        return RedirectToAction(nameof(DangNhap));
+    }
 
     [HttpGet]
     public IActionResult DangNhap(string? returnUrl = null)
